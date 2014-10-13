@@ -3,7 +3,11 @@ sys.path.append('src')
 from cx_Freeze import setup, Executable
 
 includes = ["atexit", "pyaardvark"]
-include_files = [('src/aardvark32.so','aardvark32.so'), ('src/aardvark64.so','aardvark64.so')]
+include_files = [('src/aardvark32.so','aardvark32.so'),
+                 ('src/aardvark64.so','aardvark64.so'),
+                 ('src/aardvark32.dll','aardvark32.dll'),
+                 ('src/aardvark64.dll','aardvark64.dll'),
+                ]
 #bin_includes = ['src/aardvark32.so', 'src/aardvark64.so']
 
 if sys.platform == "win32":
