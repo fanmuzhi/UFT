@@ -7,7 +7,7 @@ And rewrite the I2C part of original API aardvark_py.py
 """
 
 __version__ = "1.0.1"
-__author__ = "@boqiling"
+__author__ = "@boqiling, @mzfa"
 __all__ = ["I2CConfig", "Adapter"]
 
 import logging
@@ -15,9 +15,6 @@ from array import array
 import imp
 import sys
 
-from pkg_resources import resource_filename
-#aardvark32 = resource_filename(__name__, 'aardvark32.so')
-#aardvark64 = resource_filename(__name__, 'aardvark64.so')
 if sys.platform == "win32":
     aardvark32 = "aardvark32.dll"
     aardvark64 = "aardvark64.dll"
@@ -25,7 +22,9 @@ else:
     aardvark32 = "aardvark32.so"
     aardvark64 = "aardvark64.so"
 
-
+# from pkg_resources import resource_filename
+# aardvark32 = resource_filename(__name__, 'aardvark32.so')
+# aardvark64 = resource_filename(__name__, 'aardvark64.so')
 try:
     api = imp.load_dynamic('aardvark', aardvark32)
 except Exception as e:
@@ -142,12 +141,12 @@ def array_s64 (n):  return array('L', '\0\0\0\0\0\0\0\0'*n)
 
 
 class Adapter(object):
-    """USB-I2C Aapter API Class
-    """
+    '''USB-I2C Aapter API Class
+    '''
 
     def __init__(self, **kvargs):
-        """constructor
-        """
+        '''constructor
+        '''
         self.bitrate = kvargs.get('bitrate', 400)
         self.bus_timeout = kvargs.get('timeout', 25)
         self.handle = 0
@@ -155,8 +154,8 @@ class Adapter(object):
         self.port = None
 
     def __del__(self):
-        """destructor
-        """
+        '''destructor
+        '''
         try:
             self.close()
         except Exception:
@@ -189,12 +188,13 @@ class Adapter(object):
         return devices
 
     def open(self, portnum=None, serialnumber=None):
-        """
+        '''
         find ports, and open the port with portnum or sn,
         config the aardvark tool params like bitrate, slave address etc,
-        """
+        '''
         ports = self.find_devices()
         logging.debug("find ports: " + str(ports))
+        self.port = None
         if(serialnumber):
             for port in ports:
                 handle = api.py_aa_open(port)
@@ -208,6 +208,8 @@ class Adapter(object):
                 raise_aa_ex(-601)
         elif(portnum is not None):
             self.port = portnum
+        else:
+            self.port = 0
 
         logging.debug("open: " + str(self.port))
         self.handle = api.py_aa_open(self.port)
@@ -242,9 +244,9 @@ class Adapter(object):
         return '%04d-%06d' % (id1, id2)
 
     def write(self, wata, config=I2CConfig.AA_I2C_NO_FLAGS):
-        """write ata to slave address
+        '''write ata to slave address
         ata can be byte or array of byte
-        """
+        '''
         if(type(wata) == int):
             ata_out = array('B', [wata])
             length = 1
@@ -264,11 +266,12 @@ class Adapter(object):
         if(num_written != length):
             raise_aa_ex(-103)
 
-    def read(self, config=I2CConfig.AA_I2C_NO_FLAGS):
-        """read 1 byte from slave address
-        """
+
+    def read(self, length, config=I2CConfig.AA_I2C_NO_FLAGS):
+        '''read 1 byte from slave address
+        '''
         # read 1 byte each time for easy
-        length = 1
+        #length = 2
         ata_in = array_u08(length)
         (ret, num_read) = api.py_aa_i2c_read_ext(self.handle,
                                                  self.slave_addr,
@@ -280,67 +283,63 @@ class Adapter(object):
             raise_i2c_ex(ret)
         if(num_read != length):
             raise_aa_ex(-102)
-        val = ata_in[0]
+        val = ata_in
         return val
 
     def write_reg(self, reg_addr, wata):
-        """
+        '''
         Write ata list to slave device
         If write to slave device's register, ata_list = [reg_addr, wata]
         reg_addr: register address offset
         wata: ata to be write to SMBus register
-        """
+        '''
         # ata_out must be unsigned char
-        ata_out = [reg_addr, wata]
+        if (type(wata) == int):
+            ata_out = [reg_addr, wata]
+        elif(type(wata) == list):
+            ata_out = [reg_addr] + wata
+        else:
+            raise TypeError("i2c ata to be written is not valid")
         self.write(ata_out)
 
-    def read_reg(self, reg_addr):
-        """
+    def read_reg(self, reg_addr, length=1):
+        '''
         Read ata from slave device's register
         write the [reg_addr] to slave device first, then read back.
         reg_addr: register address offset
-        """
+        '''
         val = DEFAULT_REG_VAL
         self.write(reg_addr, I2CConfig.AA_I2C_NO_STOP)
 
         # read register ata
-        val = self.read()
+        val = self.read(length)
         return val
 
     def sleep(self, ms):
-        """sleep for specified number of milliseconds
-        """
+        '''sleep for specified number of milliseconds
+        '''
         api.py_aa_sleep_ms(ms)
 
     def close(self):
-        """close device
-        """
+        '''close device
+        '''
         api.py_aa_close(self.handle)
 
 
 if __name__ == "__main__":
-    adapter = Adapter(bitrate=400)
-    devices =  adapter.find_devices()
-    print devices
-    if devices > 0:
-        adapter.open(portnum=0)
-        print adapter.unique_id()
-
-    #sn1 = 2237839440
-    #sn2 = 2237849511
-    #a = Adapter(bitrate=400)
-    #b = Adapter(bitrate=400)
-    #a.open(serialnumber=sn1)
-    #b.open(serialnumber=sn2)
-    #print a.unique_id()
-    #print b.unique_id()
-    #a.slave_addr = 20
-    #print "Port: " + str(a.port)
-    #print "Handle: " + str(a.handle)
-    #print "Slave: " + str(a.slave_addr)
-    #print "Bitrate: " + str(a.bitrate)
-    #print a.read_reg(0x05)
-    #print a.read_reg(0x06)
-    #print a.read_reg(0x08)
-    #a.close()
-    #b.close()
+    sn1 = 2237594253
+    a = Adapter(bitrate=400)
+    a.open(serialnumber=sn1)
+    a.slave_addr = 0x09
+    print "Port: " + str(a.port)+" |",
+    print "Handle: " + str(a.handle)+" |",
+    print "Slave: " + str(a.slave_addr)+" |",
+    print "Bitrate: " + str(a.bitrate)
+    for i in range(256):
+        a.write_reg(i,i)
+        a.sleep(10)
+    for i in range(256):
+        a.sleep(10)
+        print a.read_reg(i),
+    a.close()
+    print "closed"
