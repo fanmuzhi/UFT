@@ -3,33 +3,33 @@
 """ I2C basic functions for topaz VPD and registers
 """
 
-REG_MAP = [{"name": "READINESS", "addr": 0x04},
-           {"name": "PGEMSTAT",  "addr": 0x05},
-           {"name": "TEMP",      "addr": 0x06},
-           {"name": "VIN",       "addr": 0x07},
-           {"name": "VCAP",      "addr": 0x08},
-           {"name": "VC1",       "addr": 0x09},
-           {"name": "VC2",       "addr": 0x0A},
-           {"name": "VC3",       "addr": 0x0B},
-           {"name": "VC4",       "addr": 0x0C},
-           {"name": "VC5",       "addr": 0x0D},
-           {"name": "VC6",       "addr": 0x0E},
-           {"name": "RESERVED",  "addr": 0x0F}]
+# REG_MAP = [{"name": "READINESS", "addr": 0x04},
+#            {"name": "PGEMSTAT",  "addr": 0x05},
+#            {"name": "TEMP",      "addr": 0x06},
+#            {"name": "VIN",       "addr": 0x07},
+#            {"name": "VCAP",      "addr": 0x08},
+#            {"name": "VC1",       "addr": 0x09},
+#            {"name": "VC2",       "addr": 0x0A},
+#            {"name": "VC3",       "addr": 0x0B},
+#            {"name": "VC4",       "addr": 0x0C},
+#            {"name": "VC5",       "addr": 0x0D},
+#            {"name": "VC6",       "addr": 0x0E},
+#            {"name": "RESERVED",  "addr": 0x0F}]
 
-EEP_MAP = [{"name": "PWRCYCS", "addr": 0x0268, "length": 2, "type": "word"},
-           {"name": "LASTCAP", "addr": 0x026A, "length": 1, "type": "int"},
-           {"name": "MODEL",   "addr": 0x026B, "length": 8, "type": "str"},
-           {"name": "FWVER",   "addr": 0x0273, "length": 8, "type": "str"},
-           {"name": "HWVER",   "addr": 0x027B, "length": 8, "type": "str"},
-           {"name": "CAPPN",   "addr": 0x0283, "length": 8, "type": "str"},
-           {"name": "SN",      "addr": 0x05E, "length": 8, "type": "str"},
-           {"name": "PCBVER",  "addr": 0x0293, "length": 8, "type": "str"},
-           {"name": "MFDATE",  "addr": 0x029B, "length": 8, "type": "str"},
-           {"name": "ENDUSR",  "addr": 0x02A3, "length": 8, "type": "str"},
-           {"name": "PCA",     "addr": 0x02AB, "length": 8, "type": "str"},
-           {"name": "CINT",    "addr": 0x02B3, "length": 1, "type": "int"}]
+# EEP_MAP = [{"name": "PWRCYCS", "addr": 0x0268, "length": 2, "type": "word"},
+#            {"name": "LASTCAP", "addr": 0x026A, "length": 1, "type": "int"},
+#            {"name": "MODEL",   "addr": 0x026B, "length": 8, "type": "str"},
+#            {"name": "FWVER",   "addr": 0x0273, "length": 8, "type": "str"},
+#            {"name": "HWVER",   "addr": 0x027B, "length": 8, "type": "str"},
+#            {"name": "CAPPN",   "addr": 0x0283, "length": 8, "type": "str"},
+#            {"name": "SN",      "addr": 0x05E, "length": 8, "type": "str"},
+#            {"name": "PCBVER",  "addr": 0x0293, "length": 8, "type": "str"},
+#            {"name": "MFDATE",  "addr": 0x029B, "length": 8, "type": "str"},
+#            {"name": "ENDUSR",  "addr": 0x02A3, "length": 8, "type": "str"},
+#            {"name": "PCA",     "addr": 0x02AB, "length": 8, "type": "str"},
+#            {"name": "CINT",    "addr": 0x02B3, "length": 1, "type": "int"}]
 
-COR_EEP_MAP = [{"name": "TEMPHIST","addr": 0x000, "length": 2, "type": "int"},
+EEP_MAP =     [{"name": "TEMPHIST","addr": 0x000, "length": 2, "type": "int"},
                {"name": "CAPHIST", "addr": 0x021, "length": 32, "type": "int"},
                {"name": "CHARGER", "addr": 0x041, "length": 1, "type": "int"},
                {"name": "CAPACITANCE",   "addr": 0x042, "length": 1, "type": "int"},
@@ -88,10 +88,7 @@ def read_ee(device, addr):
             addr:   eeprom address to read
     return: value of addr in byte
     """
-    device.slave_addr = 0x14
-    device.write_reg(EEPROM_REG_ADDRL, addr & 0xFF)
-    device.write_reg(EEPROM_REG_ADDRH, (addr >> 8) & 0xFF)
-    val = device.read_reg(EEPROM_REG_RWDATA)
+    val = device.read_reg(addr)[0]
     return val
 
 
@@ -113,24 +110,24 @@ def readvpd_byname(device, eep_name):
     if(typ == "int"):
         return datas[0]
     
-def d_readvpd_byname(device, eep_name):
-    """direct method to read eep_data according to eep_name
-    eep is one dict in eep_map, for example:
-    {"name": "CINT", "addr": 0x02B3, "length": 1, "type": "int"}
-    """
-    eep = query_map(COR_EEP_MAP, name=eep_name)[0]     # eep is one dict in eep_map
-    start = eep["addr"]                 # start_address
-#     print start
-    length = eep["length"]              # length
-    typ = eep["type"]                   # type
-    datas = [device.read_reg(addr) for addr in range(start, (start + length))]
-    if(typ == "word"):
-        val = datas[0] + (datas[1] << 8)
-        return val
-    if(typ == "str"):
-        return ''.join(chr(i) for i in datas)
-    if(typ == "int"):
-        return datas[0]
+# def d_readvpd_byname(device, eep_name):
+#     """direct method to read eep_data according to eep_name
+#     eep is one dict in eep_map, for example:
+#     {"name": "CINT", "addr": 0x02B3, "length": 1, "type": "int"}
+#     """
+#     eep = query_map(COR_EEP_MAP, name=eep_name)[0]     # eep is one dict in eep_map
+#     start = eep["addr"]                 # start_address
+# #     print start
+#     length = eep["length"]              # length
+#     typ = eep["type"]                   # type
+#     datas = [device.read_reg(addr) for addr in range(start, (start + length))]
+#     if(typ == "word"):
+#         val = datas[0] + (datas[1] << 8)
+#         return val
+#     if(typ == "str"):
+#         return ''.join(chr(i) for i in datas)
+#     if(typ == "int"):
+#         return datas[0]
 
 
 def readreg_byname(device, reg_name):
@@ -154,15 +151,15 @@ def dut_info(device):
         dut.update({eep_name: readvpd_byname(device, eep_name)})
     return dut
 
-def d_dut_info(device):
-    """direct method to read out EEPROM info from dut
-    return a dict.
-    """
-    dut = {}
-    for eep in COR_EEP_MAP:
-        eep_name = eep["name"]
-        dut.update({eep_name: d_readvpd_byname(device, eep_name)})
-    return dut
+# def d_dut_info(device):
+#     """direct method to read out EEPROM info from dut
+#     return a dict.
+#     """
+#     dut = {}
+#     for eep in COR_EEP_MAP:
+#         eep_name = eep["name"]
+#         dut.update({eep_name: d_readvpd_byname(device, eep_name)})
+#     return dut
 
 
 def dut_reg(device):
@@ -317,26 +314,31 @@ def read_bq24707(device, reg_addr):
 
 if __name__ == "__main__":
     import time
-    from clown.pyaardvark import Adapter
+    from pyaardvark import Adapter
 
     device = Adapter(bitrate=400)
     device.open(portnum=0)
-    device.slave_addr = 0x09
+#     device.slave_addr = 0x09
+    device.slave_addr = 0x53
     print "Port: " + str(device.port)+" |",
     print "Handle: " + str(device.handle)+" |",
     print "Slave: " + str(device.slave_addr)+" |",
     print "Bitrate: " + str(device.bitrate)+" |",
     print "Device ID: "+str(device.unique_id())
-    write_bq24707(device, CHG_OPT_ADDR, 0x1991)
-#     device.write_reg(CHG_CUR_ADDR, 0x0000)
-#     device.write_reg(CHG_VOL_ADDR, 0x0000)
-#     device.write_reg(INPUT_CUR_ADDR, 0x0400)
-    print "Charge Option: ",    read_bq24707(device,CHG_OPT_ADDR)
-    print "Charge Current: ",   read_bq24707(device,CHG_CUR_ADDR)
-    print "Charge Voltage: ",   read_bq24707(device,CHG_VOL_ADDR)
-    print "Input Current: ",    read_bq24707(device,INPUT_CUR_ADDR)
-    print "Manufacturer ID: ",  read_bq24707(device,MAN_ID_ADDR)
-    print "Device ID: ",        read_bq24707(device,DEV_ID_ADDR)
+#     write_bq24707(device, CHG_OPT_ADDR, 0x1991)
+# #     device.write_reg(CHG_CUR_ADDR, 0x0000)
+# #     device.write_reg(CHG_VOL_ADDR, 0x0000)
+# #     device.write_reg(INPUT_CUR_ADDR, 0x0400)
+#     print "Charge Option: ",    read_bq24707(device,CHG_OPT_ADDR)
+#     print "Charge Current: ",   read_bq24707(device,CHG_CUR_ADDR)
+#     print "Charge Voltage: ",   read_bq24707(device,CHG_VOL_ADDR)
+#     print "Input Current: ",    read_bq24707(device,INPUT_CUR_ADDR)
+#     print "Manufacturer ID: ",  read_bq24707(device,MAN_ID_ADDR)
+#     print "Device ID: ",        read_bq24707(device,DEV_ID_ADDR)
+
+    print dut_info(device)
+#     print dut_info(device)
+    
     device.close()
     print "closed"
     
