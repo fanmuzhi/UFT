@@ -330,7 +330,8 @@ if __name__ == "__main__":
     sn1 = 2237594253
     a = Adapter(bitrate=400)
     a.open(serialnumber=sn1)
-    a.slave_addr = 0x09
+#     a.slave_addr = 0x09
+    a.slave_addr = 0x53
     print "Port: " + str(a.port)+" |",
     print "Handle: " + str(a.handle)+" |",
     print "Slave: " + str(a.slave_addr)+" |",
