@@ -10,6 +10,8 @@
 import sys
 from PyQt4 import QtCore, QtGui
 from pyaardvark import Adapter
+from logger import logger
+
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -69,6 +71,8 @@ class Ui_Form(QtGui.QWidget):
 
 
 if __name__ == "__main__":
+    logger.info("hello mzfa!")
+    logger.debug("debug")
     app = QtGui.QApplication(sys.argv)
     ui = Ui_Form()
     ui.show()

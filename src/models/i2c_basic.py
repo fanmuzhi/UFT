@@ -29,22 +29,22 @@
 #            {"name": "PCA",     "addr": 0x02AB, "length": 8, "type": "str"},
 #            {"name": "CINT",    "addr": 0x02B3, "length": 1, "type": "int"}]
 
-EEP_MAP =     [{"name": "TEMPHIST","addr": 0x000, "length": 2, "type": "int"},
-               {"name": "CAPHIST", "addr": 0x021, "length": 32, "type": "int"},
-               {"name": "CHARGER", "addr": 0x041, "length": 1, "type": "int"},
-               {"name": "CAPACITANCE",   "addr": 0x042, "length": 1, "type": "int"},
-               {"name": "CHARGEVOL",   "addr": 0x043, "length": 2, "type": "int"},
-               {"name": "CHGMAXVAL",   "addr": 0x045, "length": 2, "type": "int"},
-               {"name": "POWERDET",   "addr": 0x047, "length": 1, "type": "int"},
-               {"name": "CHARGECUR",   "addr": 0x048, "length": 2, "type": "int"},
-               {"name": "HWVER",   "addr": 0x04A, "length": 2, "type": "str"},
-               {"name": "CAPPN",   "addr": 0x04C, "length": 16, "type": "str"},
-               {"name": "SN",      "addr": 0x05E, "length": 8, "type": "str"},
-               {"name": "PCBVER",  "addr": 0x064, "length": 2, "type": "str"},
-               {"name": "MFDATE",  "addr": 0x066, "length": 4, "type": "str"},
-               {"name": "ENDUSR",  "addr": 0x06A, "length": 2, "type": "str"},
-               {"name": "PCA",     "addr": 0x06C, "length": 11, "type": "str"},
-               {"name": "INITIALCAP",    "addr": 0x077, "length": 1, "type": "int"}]
+EEP_MAP = [{"name": "TEMPHIST","addr": 0x000, "length": 2, "type": "int"},
+           {"name": "CAPHIST", "addr": 0x021, "length": 32, "type": "int"},
+           {"name": "CHARGER", "addr": 0x041, "length": 1, "type": "int"},
+           {"name": "CAPACITANCE",   "addr": 0x042, "length": 1, "type": "int"},
+           {"name": "CHARGEVOL",   "addr": 0x043, "length": 2, "type": "int"},
+           {"name": "CHGMAXVAL",   "addr": 0x045, "length": 2, "type": "int"},
+           {"name": "POWERDET",   "addr": 0x047, "length": 1, "type": "int"},
+           {"name": "CHARGECUR",   "addr": 0x048, "length": 2, "type": "int"},
+           {"name": "HWVER",   "addr": 0x04A, "length": 2, "type": "str"},
+           {"name": "CAPPN",   "addr": 0x04C, "length": 16, "type": "str"},
+           {"name": "SN",      "addr": 0x05E, "length": 8, "type": "str"},
+           {"name": "PCBVER",  "addr": 0x064, "length": 2, "type": "str"},
+           {"name": "MFDATE",  "addr": 0x066, "length": 4, "type": "str"},
+           {"name": "ENDUSR",  "addr": 0x06A, "length": 2, "type": "str"},
+           {"name": "PCA",     "addr": 0x06C, "length": 11, "type": "str"},
+           {"name": "INITIALCAP",    "addr": 0x077, "length": 1, "type": "int"}]
 
 EEPROM_REG_ADDRL = 0        # EEPROM register of ADDRESS LOW
 EEPROM_REG_ADDRH = 1        # EEPROM register of ADDRESS HIGH
@@ -109,7 +109,7 @@ def readvpd_byname(device, eep_name):
         return ''.join(chr(i) for i in datas)
     if(typ == "int"):
         return datas[0]
-    
+
 # def d_readvpd_byname(device, eep_name):
 #     """direct method to read eep_data according to eep_name
 #     eep is one dict in eep_map, for example:
@@ -145,6 +145,7 @@ def dut_info(device):
     """method to read out EEPROM info from dut
     return a dict.
     """
+    device.slave_addr = 0x53
     dut = {}
     for eep in EEP_MAP:
         eep_name = eep["name"]
@@ -306,7 +307,7 @@ def deswitch(device, chnum):
 
 def write_bq24707(device, reg_addr, wata):
     device.write_reg(reg_addr, [wata & 0x00FF, wata >> 8])
-    
+
 def read_bq24707(device, reg_addr):
     ata_in = device.read_reg(reg_addr, length=2)
     val = hex(ata_in[1]) , hex(ata_in[0])
@@ -318,31 +319,34 @@ if __name__ == "__main__":
 
     device = Adapter(bitrate=400)
     device.open(portnum=0)
-#     device.slave_addr = 0x09
-    device.slave_addr = 0x53
     print "Port: " + str(device.port)+" |",
     print "Handle: " + str(device.handle)+" |",
-    print "Slave: " + str(device.slave_addr)+" |",
     print "Bitrate: " + str(device.bitrate)+" |",
     print "Device ID: "+str(device.unique_id())
-#     write_bq24707(device, CHG_OPT_ADDR, 0x1991)
-# #     device.write_reg(CHG_CUR_ADDR, 0x0000)
-# #     device.write_reg(CHG_VOL_ADDR, 0x0000)
-# #     device.write_reg(INPUT_CUR_ADDR, 0x0400)
-#     print "Charge Option: ",    read_bq24707(device,CHG_OPT_ADDR)
-#     print "Charge Current: ",   read_bq24707(device,CHG_CUR_ADDR)
-#     print "Charge Voltage: ",   read_bq24707(device,CHG_VOL_ADDR)
-#     print "Input Current: ",    read_bq24707(device,INPUT_CUR_ADDR)
-#     print "Manufacturer ID: ",  read_bq24707(device,MAN_ID_ADDR)
-#     print "Device ID: ",        read_bq24707(device,DEV_ID_ADDR)
 
-    print dut_info(device)
-#     print dut_info(device)
-    
+    for i in range(1):
+        print i
+        switch(device, 0, i)
+
+        # BQ24707
+        device.slave_addr = 0x09
+    #    device.slave_addr = 0x53
+        write_bq24707(device, CHG_OPT_ADDR, 0x1990)
+        write_bq24707(device, CHG_CUR_ADDR, 0x01C0)
+        write_bq24707(device, CHG_VOL_ADDR, 0x1200)
+        write_bq24707(device, INPUT_CUR_ADDR, 0x0400)
+
+        print "Charge Option: ",    read_bq24707(device,CHG_OPT_ADDR)
+        print "Charge Current: ",   read_bq24707(device,CHG_CUR_ADDR)
+        print "Charge Voltage: ",   read_bq24707(device,CHG_VOL_ADDR)
+        print "Input Current: ",    read_bq24707(device,INPUT_CUR_ADDR)
+        print "Manufacturer ID: ",  read_bq24707(device,MAN_ID_ADDR)
+        print "Device ID: ",        read_bq24707(device,DEV_ID_ADDR)
+
+        print dut_info(device)
+        deswitch(device, 0)
     device.close()
-    print "closed"
-    
-    
+
 #     channel = 0
 #     # charge all
 #     set_relay(device, channel, 0xFF, status=1)
