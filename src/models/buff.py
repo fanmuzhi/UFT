@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
 '''
 Created on Jul 2, 2013
 Read config.xml to load path, size of vpd and spd.
@@ -11,7 +14,8 @@ import inspect
 import struct
 import simplexml
 
-path = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+path = os.path.dirname(os.path.abspath(
+    inspect.getfile(inspect.currentframe())))
 CONFIG = path + '/config.xml'
 
 
@@ -44,7 +48,7 @@ def read_config(name, revision):
 
     for project in config["Project"]:
         val = project["Project"]
-        if (val["name"]==name and val["revision"]==revision):
+        if (val["name"] == name and val["revision"] == revision):
             return val
     if val is None:
         raise BufferContructException("no matched config found.")
@@ -55,7 +59,7 @@ def load_vpd(barcode):
     conf = read_config(barcode['PN'], barcode['RR'])
     vpd_en = conf.find('vpd_enable').text
     if(int(vpd_en) != 1):
-        raise error.VPD_DISABLED
+        raise BufferContructException("VPD_DISABLED")
     else:
         vpd_buff = buff.vpd_buffer(barcode, conf)
     return vpd_buff
@@ -66,7 +70,7 @@ def load_spd(barcode):
     conf = read_config(barcode['PN'], barcode['RR'])
     spd_en = conf.find('spd_enable').text
     if(int(spd_en) != 1):
-        raise error.SPD_DISABLED
+        raise BufferContructException("SPD_DISABLED")
     else:
         spd_buff = buff.spd_buffer(barcode, conf)
     return spd_buff
@@ -96,7 +100,7 @@ class BufferConstruct(object):
                 the content in ENDUSR is VV
         '''
         vpd_file = str(conf.find('vpd_file').text)
-        vpd_size = int(conf.find('vpd_size').text)
+        #vpd_size = int(conf.find('vpd_size').text)
         buffebf = load_bin_file(vpd_file)
 
         # rewrite buffer content here
@@ -122,7 +126,7 @@ class BufferConstruct(object):
                                            0x7D:0x12
         '''
         spd_file = str(conf.find('spd_file').text)
-        spd_size = int(conf.find('spd_size').text)
+        #spd_size = int(conf.find('spd_size').text)
         buffbin = load_bin_file(spd_file)
         # rewrite buffer content here
         # put buffer into self.spd_buff
@@ -152,4 +156,12 @@ if __name__ == "__main__":
     #    print "Error: value is none"
 
     from pprint import pprint
-    pprint(read_config("AGIGA8601-400BCA", "10"))
+    pprint(read_config("AGIGA9601-002BCA", "01"))
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", action="store")
+    args = parser.parse_args()
+
+    if args.file:
+        print(load_bin_file(args.file))
