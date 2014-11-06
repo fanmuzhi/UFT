@@ -336,11 +336,11 @@ if __name__ == "__main__":
     print "Handle: " + str(a.handle)+" |",
     print "Slave: " + str(a.slave_addr)+" |",
     print "Bitrate: " + str(a.bitrate)
-    for i in range(256):
-        a.write_reg(i,i)
-        a.sleep(10)
-    for i in range(256):
-        a.sleep(10)
-        print a.read_reg(i),
+    #for i in range(256):
+    #    a.write_reg(i,i)
+    #    a.sleep(10)
+    #for i in range(256):
+    #    a.sleep(10)
+    #    print a.read_reg(i),
     a.close()
     print "closed"
