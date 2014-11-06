@@ -305,38 +305,52 @@ def deswitch(device, chnum):
     device.write(wdata)
 
 def write_bq24707(device, reg_addr, wata):
+    device.slave_addr = 0x09
     device.write_reg(reg_addr, [wata & 0x00FF, wata >> 8])
     
 def read_bq24707(device, reg_addr):
+    device.slave_addr = 0x09
     ata_in = device.read_reg(reg_addr, length=2)
     val = hex(ata_in[1]) , hex(ata_in[0])
     return val
 
+def charge_start():
+    write_bq24707(device, CHG_OPT_ADDR, 0x1990)
+    write_bq24707(device, CHG_CUR_ADDR, 0x01c0)
+    write_bq24707(device, CHG_VOL_ADDR, 0x1200)
+    write_bq24707(device, INPUT_CUR_ADDR, 0x0400)
+    
+def charge_stop():
+    write_bq24707(device, CHG_OPT_ADDR, 0x1991)
+    write_bq24707(device, CHG_CUR_ADDR, 0x0000)
+    write_bq24707(device, CHG_VOL_ADDR, 0x0000)
+    write_bq24707(device, INPUT_CUR_ADDR, 0x0000)
+    
+    
 if __name__ == "__main__":
     import time
     from pyaardvark import Adapter
 
     device = Adapter(bitrate=400)
     device.open(portnum=0)
-#     device.slave_addr = 0x09
-    device.slave_addr = 0x53
+    switch(device ,0 ,0)
+#     device.slave_addr = 0x53
     print "Port: " + str(device.port)+" |",
     print "Handle: " + str(device.handle)+" |",
     print "Slave: " + str(device.slave_addr)+" |",
     print "Bitrate: " + str(device.bitrate)+" |",
     print "Device ID: "+str(device.unique_id())
-#     write_bq24707(device, CHG_OPT_ADDR, 0x1991)
-# #     device.write_reg(CHG_CUR_ADDR, 0x0000)
-# #     device.write_reg(CHG_VOL_ADDR, 0x0000)
-# #     device.write_reg(INPUT_CUR_ADDR, 0x0400)
-#     print "Charge Option: ",    read_bq24707(device,CHG_OPT_ADDR)
-#     print "Charge Current: ",   read_bq24707(device,CHG_CUR_ADDR)
-#     print "Charge Voltage: ",   read_bq24707(device,CHG_VOL_ADDR)
-#     print "Input Current: ",    read_bq24707(device,INPUT_CUR_ADDR)
-#     print "Manufacturer ID: ",  read_bq24707(device,MAN_ID_ADDR)
-#     print "Device ID: ",        read_bq24707(device,DEV_ID_ADDR)
+    
+    charge_start()
+#     charge_stop()
 
-    print dut_info(device)
+    print "Charge Option: ",    read_bq24707(device,CHG_OPT_ADDR)
+    print "Charge Current: ",   read_bq24707(device,CHG_CUR_ADDR)
+    print "Charge Voltage: ",   read_bq24707(device,CHG_VOL_ADDR)
+    print "Input Current: ",    read_bq24707(device,INPUT_CUR_ADDR)
+    print "Manufacturer ID: ",  read_bq24707(device,MAN_ID_ADDR)
+    print "Device ID: ",        read_bq24707(device,DEV_ID_ADDR)
+
 #     print dut_info(device)
     
     device.close()
