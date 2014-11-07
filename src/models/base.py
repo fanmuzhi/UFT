@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 import logging
+import struct
 
 logger = logging.getLogger(__name__)
 
@@ -14,11 +15,11 @@ EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            {"name": "CHARGECUR", "addr": 0x048, "length": 2, "type": "int"},
            {"name": "HWVER", "addr": 0x04A, "length": 2, "type": "str"},
            {"name": "CAPPN", "addr": 0x04C, "length": 16, "type": "str"},
-           {"name": "SN", "addr": 0x05E, "length": 8, "type": "str"},
+           {"name": "SN", "addr": 0x05E, "length": 8, "type": "str"},       # need program, id
            {"name": "PCBVER", "addr": 0x064, "length": 2, "type": "str"},
-           {"name": "MFDATE", "addr": 0x066, "length": 4, "type": "str"},
-           {"name": "ENDUSR", "addr": 0x06A, "length": 2, "type": "str"},
-           {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},
+           {"name": "MFDATE", "addr": 0x066, "length": 4, "type": "str"},   # need program, yyww
+           {"name": "ENDUSR", "addr": 0x06A, "length": 2, "type": "str"},   # need program, vv
+           {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},     # need program, default all 0
            {"name": "INITIALCAP", "addr": 0x077, "length": 1, "type": "int"}]
 
 
@@ -88,7 +89,10 @@ class PGEMBase(object):
         start = eep["addr"]                 # start_address
         length = eep["length"]              # length
         typ = eep["type"]                   # type
+
+        self.device.slave_addr = 0x53
         datas = self.device.read_reg(start, length)
+
         if(typ == "word"):
             val = datas[0] + (datas[1] << 8)
             return val
@@ -101,15 +105,57 @@ class PGEMBase(object):
         """method to read out EEPROM info from dut
         return a dict.
         """
-        self.device.slave_addr = 0x53
         dut = {}
         for eep in EEP_MAP:
             reg_name = eep["name"]
             dut.update({reg_name: self.read_vpd_byname(reg_name)})
         return dut
 
-    def write_vpd(self):
-        pass
+    @staticmethod
+    def load_bin_file(path):
+        """read a file and transfer to a binary list
+        """
+        datas = []
+        f = open(path, 'rb')
+        s = f.read()
+        for x in s:
+            rdata = struct.unpack("B", x)[0]
+            datas.append(rdata)
+        return datas
+
+    def write_vpd(self, barcode, path):
+        """method to write barcode information to PGEM EEPROM
+        barcode is a dict of 2D barcode information
+        path is the ebf file location.
+        """
+        buffebf = self.load_bin_file(path)
+        #[ord(x) for x in string]
+        id = [ord(x) for x in barcode['ID']]
+        yyww = [ord(x) for x in (barcode['YY'] + barcode['WW'])]
+        vv = [ord(x) for x in barcode['VV']]
+
+        # id == SN == Product Serial Number
+        eep = self._query_map(EEP_MAP, name="SN")[0]
+        buffebf[eep["addr"]: eep["addr"] + eep["length"]] = id
+
+        # yyww == MFDATE == Manufacture Date YY WW
+        eep = self._query_map(EEP_MAP, name="MFDATE")[0]
+        buffebf[eep["addr"]: eep["addr"] + eep["length"]] = yyww
+
+        # vv == ENDUSR == Manufacturer Name
+        eep = self._query_map(EEP_MAP, name="ENDUSR")[0]
+        buffebf[eep["addr"]: eep["addr"] + eep["length"]] = vv
+
+        # write to VPD
+        self.device.slave_addr = 0x53
+        for i in range(0x00, len(buffebf)):      # can be start with 0x41, 0x00 for ensurance.
+            self.device.write_reg(i, buffebf[i])
+            self.device.sleep(5)
+
+        # readback to check
+        assert barcode["ID"] == self.read_vpd_byname("SN")
+        assert (barcode["YY"] + barcode["WW"]) == self.read_vpd_byname("MFDATE")
+        assert barcode["VV"] == self.read_vpd_byname("ENDUSR")
 
     def control_led(self, status="off"):
         """method to control the LED on DUT chip PCA9536DP
@@ -134,13 +180,15 @@ class PGEMBase(object):
         wdata = [REG_OUTPUT, out]
         self.device.write(wdata)
 
-    def self_discharge(self, IO=0):
+    def self_discharge(self, status=False):
         """Controlled by I/O expander IC, address 0x41
            when IO=0, not discharge;
            when IO=1, discharge.
         """
-        if(IO !=0 and IO !=1):
-            raise PGEMException("wrong self_discharge IO is set")
+        if(status):
+            IO = 1
+        else:
+            IO = 0
 
         self.device.slave_addr = 0x41
         REG_OUTPUT = 0x01
@@ -177,7 +225,7 @@ class PGEMBase(object):
         val = (ata_in[1] << 8) + ata_in[0]
         return val
 
-    def charge(self, start=True):
+    def charge(self, status=True):
         """
         Send charge option to charge IC to start the charge.
         Charge IC BQ24707 is used as default.
@@ -197,9 +245,11 @@ class PGEMBase(object):
 
         # write options
         charge_option = 0x1990
-        if start:
+        if status:
+            # start charge
             charge_option &= ~(0x01)    # clear last bit
         else:
+            # stop charge
             charge_option |= 0x01   # set last bit
         self.write_bq24707(CHG_OPT_ADDR, charge_option)
         self.write_bq24707(CHG_CUR_ADDR, 0x01C0)
@@ -215,11 +265,16 @@ class PGEMBase(object):
     def load_discharge(self):
         pass
 
-    def auto_discharge(self, IO=0):
+    def auto_discharge(self, status=False):
         """output PRESENT/AUTO_DISCH signal on TCA9555 on mother board.
            When IO=0, discharge;
            When IO=1, not discharge.
         """
+        if(status):
+            IO = 0
+        else:
+            IO = 1
+
         chnum = self.channel
 
         self.device.slave_addr = 0x20 + chnum
@@ -237,7 +292,7 @@ class PGEMBase(object):
         val = val[0]    # only need port 0 value
 
         # set current slot
-        if(IO==1):
+        if(IO == 1):
             # set bit
             val |= (IO << self.slot)
         else:
@@ -296,14 +351,26 @@ if __name__ == "__main__":
 
     DUT = PGEMBase(device=adk, slot=1)
     DUT.switch()
-    #print DUT.read_vpd()
-    DUT.control_led(status="off")
+    print DUT.read_vpd()
+    #DUT.control_led(status="off")
 
-    DUT.charge(start=False)
-    #DUT.self_discharge(IO=0)
+    barcode = {
+        'PN': 'AGIGA8601-400BCA',
+        'RR': '10',
+        'VV': '02',
+        'YY': '14',
+        'WW': '41',
+        'ID': '88888888'
+    }
+    path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
+    DUT.write_vpd(barcode, path)
 
-    DUT.switch_back()
-    print DUT.check_power_fail()
-    DUT.auto_discharge(IO=1)
+    print DUT.read_vpd()
+    #DUT.charge(True)
+    #DUT.self_discharge(False)
+
+    #DUT.switch_back()
+    #print DUT.check_power_fail()
+    #DUT.auto_discharge(False)
 
     adk.close()
