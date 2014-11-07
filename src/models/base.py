@@ -263,6 +263,8 @@ class PGEMBase(object):
         assert self.read_bq24707(INPUT_CUR_ADDR) == 0x0400
 
     def load_discharge(self):
+        # the agilent load code should not be here.
+        # delete this function.
         pass
 
     def auto_discharge(self, status=False):
