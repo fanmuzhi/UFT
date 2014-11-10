@@ -353,22 +353,22 @@ if __name__ == "__main__":
 
     DUT = PGEMBase(device=adk, slot=1)
     DUT.switch()
-    print DUT.read_vpd()
+    #print DUT.read_vpd()
     #DUT.control_led(status="off")
 
-    barcode = {
-        'PN': 'AGIGA8601-400BCA',
-        'RR': '10',
-        'VV': '02',
-        'YY': '14',
-        'WW': '41',
-        'ID': '88888888'
-    }
-    path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
-    DUT.write_vpd(barcode, path)
+    #barcode = {
+    #    'PN': 'AGIGA8601-400BCA',
+    #    'RR': '10',
+    #    'VV': '02',
+    #    'YY': '14',
+    #    'WW': '41',
+    #    'ID': '88888888'
+    #}
+    #path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
+    #DUT.write_vpd(barcode, path)
 
-    print DUT.read_vpd()
-    #DUT.charge(True)
+    #print DUT.read_vpd()
+    DUT.charge(True)
     #DUT.self_discharge(False)
 
     #DUT.switch_back()
