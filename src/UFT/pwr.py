@@ -15,6 +15,8 @@ import time
 vid = 0x0b3e    # kikusui PIA4850 vendor id
 pid = 0x1014    # kikusui PIA4850 product id
 
+logger = logging.getLogger(__name__)
+
 
 class PowerSupplyException(Exception):
     pass
@@ -26,7 +28,7 @@ class PowerSupply(object):
         self.instr = usbtmc.Instrument(vid, pid)
         idn = self.instr.ask("*IDN?")
         if re.match(r"KIKUSUI[\w|\s|\.|\,]+PIA4850", idn):
-            logging.info("Power Supply Found: " + idn)
+            logger.info("Power Supply Found: " + idn)
         else:
             raise PowerSupplyException("No power supply found.")
         # clean err msg
@@ -94,26 +96,17 @@ class PowerSupply(object):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
 
     ps = PowerSupply()
-    print "###ADDR 5###"
+    logger.debug("Communicate to Node 5:")
     ps.selectChannel(node=5, ch=1)
+    logger.debug("Set voltage and current:")
     setting = {"volt": 12.0, "curr": 5, "ovp": 13.0, "ocp": 10.0}
     ps.set(setting)
     ps.activateOutput()
     time.sleep(2)
-    print ps.measureVolt()
-    print ps.measureCurr()
-    time.sleep(2)
-    ps.deactivateOutput()
-
-    print "###ADDR 6###"
-    ps.selectChannel(node=6, ch=1)
-    setting = {"volt": 12.0, "curr": 5, "ovp": 13.0, "ocp": 10.0}
-    ps.set(setting)
-    ps.activateOutput()
-    time.sleep(2)
-    print ps.measureVolt()
-    print ps.measureCurr()
+    logger.debug(ps.measureVolt())
+    logger.debug(ps.measureCurr())
     time.sleep(2)
     ps.deactivateOutput()
