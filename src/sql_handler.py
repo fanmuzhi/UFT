@@ -37,15 +37,17 @@ class TestWidget(QWidget):
         self.view.setModel(self.model)   
         vbox.addWidget(self.view)   
   
-if __name__=="__main__":   
+if __name__=="__main__":
+    
     a=QApplication(sys.argv)
-    MainWindow = QtGui.QMainWindow()
-    createConnection()   
-    createTable()   
-    w=UFT_Ui.Ui_MainWindow()
-    w.setupUi(MainWindow)
+    createConnection()
+    createTable()
+    Form = QtGui.QWidget()
+    
+    w=UFT_Ui.Ui_Form()
+    w.setupUi(Form)
     view = w.tableView
     model = Model(view)
     view.setModel(model)
-    MainWindow.show()   
+    Form.show()   
     sys.exit(a.exec_())  

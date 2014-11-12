@@ -53,12 +53,12 @@ if (__name__ == '__main__'):
     app = None
     if (not QtGui.QApplication.instance()):
         app = QtGui.QApplication([])
-        MainWindow = QtGui.QMainWindow()
-    ui = UFT_Ui.Ui_MainWindow()
-    ui.setupUi(MainWindow)
+        Form = QtGui.QWidget()
+    ui = UFT_Ui.Ui_Form()
+    ui.setupUi(Form)
 #     XStream.stdout().messageWritten.connect(ui.info_textBrowser.insertPlainText)
     XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)    
     ui.start_pushButton.clicked.connect(test)
-    MainWindow.show()
+    Form.show()
     if (app):
         app.exec_()
