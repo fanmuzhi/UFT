@@ -4,7 +4,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtSql import * 
 import sys 
 from PyQt4 import QtCore, QtGui
-import UFT_INIT
+import UFT_Ui
 
 def createConnection(): 
     db = QSqlDatabase.addDatabase("QSQLITE") 
@@ -42,7 +42,7 @@ if __name__=="__main__":
     MainWindow = QtGui.QMainWindow()
     createConnection()   
     createTable()   
-    w=UFT_INIT.Ui_MainWindow()
+    w=UFT_Ui.Ui_MainWindow()
     w.setupUi(MainWindow)
     view = w.tableView
     model = Model(view)

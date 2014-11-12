@@ -1,7 +1,7 @@
 import sys
 from PyQt4 import QtCore, QtGui
 import logging
-import UFT_INIT
+import UFT_Ui
 
 class QtHandler(logging.Handler):
     def __init__(self):
@@ -42,50 +42,23 @@ class XStream(QtCore.QObject):
             sys.stderr = XStream._stderr
         return XStream._stderr
 
-# class MyDialog(QtGui.QDialog):
-#     def __init__(self, parent=None):
-#         super(MyDialog, self).__init__(parent)
-# 
-#         self._console = QtGui.QTextBrowser(self)
-#         self._button = QtGui.QPushButton(self)
-#         self._button.setText('Test Me')
-# 
-#         layout = QtGui.QVBoxLayout()
-#         layout.addWidget(self._console)
-#         layout.addWidget(self._button)
-#         self.setLayout(layout)
-# 
-#         XStream.stdout().messageWritten.connect(self._console.insertPlainText)
-#         XStream.stderr().messageWritten.connect(self._console.insertPlainText)
-# 
-#         self._button.clicked.connect(self.test)
-# 
-#     def test(self):
-#         logger.debug('debug message')
-#         logger.info('info message')
-#         logger.warning('warning message')
-#         logger.error('error message')
-#         print 'Old school hand made print message'
-
 def test():
-        logger.debug('debug message')
-        logger.info('info message')
-        logger.warning('warning message')
-        logger.error('error message')
-        print 'Old school hand made print message'
+    logger.debug('debug message')
+    logger.info('info message')
+    logger.warning('warning message')
+    logger.error('error message')
+    print 'Old school hand made print message'
         
 if (__name__ == '__main__'):
     app = None
     if (not QtGui.QApplication.instance()):
         app = QtGui.QApplication([])
         MainWindow = QtGui.QMainWindow()
-    ui = UFT_INIT.Ui_MainWindow()
+    ui = UFT_Ui.Ui_MainWindow()
     ui.setupUi(MainWindow)
-    XStream.stdout().messageWritten.connect(ui.textBrowser_2.insertPlainText)
-    XStream.stderr().messageWritten.connect(ui.textBrowser_2.insertPlainText)
-    ui.pushButton_3.clicked.connect(test)
+#     XStream.stdout().messageWritten.connect(ui.info_textBrowser.insertPlainText)
+    XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)    
+    ui.start_pushButton.clicked.connect(test)
     MainWindow.show()
-#     dlg = MyDialog()
-#     dlg.show()
     if (app):
         app.exec_()
