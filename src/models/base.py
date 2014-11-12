@@ -1,5 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
+"""Base Model for Cororado PGEM I2C functions
+"""
+__version__ = "0.1"
+__author__ = "@boqiling"
+__all__ = ["PGEMBase"]
+
 import logging
 import struct
 
@@ -65,7 +71,8 @@ class PGEMBase(object):
         wdata = 0x00
 
         # Switch I2C connection to mother board
-        # Need call this function every time before communicate with mother board
+        # Need call this function every time before communicate with
+        # mother board
         self.device.write(wdata)
 
     @staticmethod
@@ -148,7 +155,8 @@ class PGEMBase(object):
 
         # write to VPD
         self.device.slave_addr = 0x53
-        for i in range(0x00, len(buffebf)):      # can be start with 0x41, 0x00 for ensurance.
+        # can be start with 0x41, 0x00 for ensurance.
+        for i in range(0x00, len(buffebf)):
             self.device.write_reg(i, buffebf[i])
             self.device.sleep(5)
 
