@@ -27,7 +27,7 @@ class PowerSupply(object):
     def __init__(self):
         self.instr = usbtmc.Instrument(vid, pid)
         idn = self.instr.ask("*IDN?")
-        if re.match(r"KIKUSUI[\w|\s|\.|\,]+PIA4850", idn):
+        if re.match(r"KIKUSUI[\w|\s|\.|,]+PIA4850", idn):
             logger.info("Power Supply Found: " + idn)
         else:
             raise PowerSupplyException("No power supply found.")
