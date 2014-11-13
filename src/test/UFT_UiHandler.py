@@ -9,9 +9,9 @@ Created on Nov 01, 2013
 import time
 from PyQt4.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt4.QtCore import Qt
-from UFT import UFT_Ui as UI
+from UFT.UFT_Ui import Ui_Form as UFT_UiForm
 
-class UFT_UiHandler(UFT_UIForm):
+class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
-        UI.Ui_Form.__init__(self)
+        UFT_UiForm.__init__(self)
     
