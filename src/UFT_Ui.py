@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Wed Nov 12 11:11:53 2014
+# Created: Wed Nov 12 17:00:43 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -219,6 +219,7 @@ class Ui_Form(object):
         self.gridLayout_5 = QtGui.QGridLayout(self.tab)
         self.gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
         self.tableView = QtGui.QTableView(self.tab)
+        self.tableView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.tableView.setObjectName(_fromUtf8("tableView"))
         self.gridLayout_5.addWidget(self.tableView, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
@@ -231,7 +232,7 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.progressBar, 2, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
