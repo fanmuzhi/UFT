@@ -23,14 +23,26 @@ class DCLoad(object):
     ModeCURR = "CURR"
     ModeVolt = "VOLT"
     ModeRes = "RES"
-    DELAY = 0.1
+
+    DELAY = 0.3     # delay for RS232 comm
+
+    # 4 ranges for CR mode
+    # better accuracy for smaller range
+    CR_Range = [(0.067, 4), (3.6, 40), (36, 400), (360, 2000)]
+
+    # 2 ranges for CC mode
+    # 3A for MIN, 30A for MAX
+    CC_Range = {"MAX": 30, "MIN": 3}
+
 
     def __init__(self, port='COM0', baudrate=9600, **kvargs):
         timeout = kvargs.get('timeout', 5)
         parity = kvargs.get('parity', serial.PARITY_NONE)
-        bytesize = kvargs.get('bytesize', serial.SEVENBITS)
+        bytesize = kvargs.get('bytesize', serial.EIGHTBITS)
         stopbits = kvargs.get('stopbits', serial.STOPBITS_ONE)
-        self.ser = serial.Serial(port=port, baudrate=baudrate)
+        self.ser = serial.Serial(port=port, baudrate=baudrate,
+                                 timeout=timeout, bytesize=bytesize,
+                                 parity=parity, stopbits=stopbits)
         if(not self.ser.isOpen()):
             self.ser.close()
             self.ser.open()
@@ -87,7 +99,10 @@ class DCLoad(object):
         self._check_error()
 
     def set_curr(self, curr):
-        self._write("CURR:RANG MIN")    # select min range
+        if(curr > self.CC_Range["MIN"]):
+            self._write("CURR:RANG MAX")    # select max range
+        else:
+            self._write("CURR:RANG MIN")    # select min range
         self._write("CURR " + str(curr))
         self._check_error()
 
@@ -97,10 +112,20 @@ class DCLoad(object):
         self._check_error()
         return float(result)
 
-    def set_res(self, resistance):
+    def protect_on(self):
         # 2 Amps and 1 second protection
         self._write("CURR:PROT:LEV 2;DEL 0.1")
         self._write("CURR:PROT:STAT ON")
+        self._check_error()
+
+    def protect_off(self):
+        self._write("CURR:PROT:STAT OFF")
+        self._check_error()
+
+    def set_res(self, resistance):
+        for (low, high) in self.CR_Range:
+            if(low < resistance <= high):
+                self._write("RES:RANG " + str(high))
         self._write("RES " + str(resistance))
         self._check_error()
 
@@ -125,13 +150,19 @@ if __name__ == "__main__":
 
     load.select_channel(1)
     load.input_off()
+    load.protect_on()
 
     load.change_func(DCLoad.ModeCURR)
-    load.set_curr(0.5)
+    load.set_curr(0.8)
+
+    #load.change_func(DCLoad.ModeRes)
+    #load.set_res(20)     # 20 ohm
 
     load.input_on()
 
     print load.read_curr()
     print load.read_volt()
 
+    time.sleep(5)
+    load.input_off()
     print "finish."
