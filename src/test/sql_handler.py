@@ -4,7 +4,7 @@ from PyQt4.QtCore import *
 from PyQt4.QtSql import * 
 import sys 
 from PyQt4 import QtCore, QtGui
-import UFT_Ui
+from UFT import UFT_Ui
 
 def createConnection(): 
     db = QSqlDatabase.addDatabase("QSQLITE") 

@@ -10,14 +10,15 @@ changelist:
     0.2: add unicode support.
 '''
 
-__version__ = 0.2
+__version__ = "0.2"
 __author__ = "@boqiling"
+__all__ = ["dumps", "loads", "Xml2Dict", "Dict2Xml"]
 
 
 from xml.dom.minidom import Document, parseString, Node
 
 
-def dumps(diction, rootname="XML"):
+def dumps(diction, rootname="entity"):
     '''convert diction to xml
     '''
     if(type(diction) == dict):

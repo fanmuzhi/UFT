@@ -2,7 +2,7 @@ import sys
 from numpy import linspace
 from PyQt4 import QtCore, QtGui
 import random
-import UFT_Ui
+from UFT import UFT_Ui
 from numpy import arange, sin, pi
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
