@@ -24,12 +24,14 @@ THE SOFTWARE.
 
 """
 
-import usb.core
-import usb.util
 import struct
 import time
 import os
 import re
+
+import usb.util
+
+
 
 # constants
 USBTMC_bInterfaceClass    = 0xFE
