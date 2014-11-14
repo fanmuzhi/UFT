@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""test code for UFT test process
+"""command line interface for UFT
 """
 __version__ = "0.1"
 __author__ = "@boqiling"
@@ -12,7 +12,7 @@ from UFT.devices import aardvark
 import time
 
 
-def main():
+def run():
 
     # setup load
     ld = load.DCLoad(port="COM3", timeout=3)
@@ -61,4 +61,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()

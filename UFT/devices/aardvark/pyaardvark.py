@@ -12,7 +12,7 @@ __all__ = ["I2CConfig", "Adapter"]
 
 import logging
 from array import array
-#import imp
+import imp
 import sys
 
 #if sys.platform == "win32":
@@ -22,42 +22,23 @@ import sys
 #    aardvark32 = "aardvark32.so"
 #    aardvark64 = "aardvark64.so"
 
-#from pkg_resources import resource_filename
-#if sys.platform == "win32":
-#    aardvark32 = resource_filename(__name__, 'aardvark32.dll')
-#    aardvark64 = resource_filename(__name__, 'aardvark64.dll')
-#else:
-#    aardvark32 = resource_filename(__name__, 'aardvark32.so')
-#    aardvark64 = resource_filename(__name__, 'aardvark64.so')
-
-#try:
-#    api = imp.load_dynamic('aardvark', aardvark32)
-#except Exception as e:
-#    logging.error(e)
-#    try:
-#        api = imp.load_dynamic('aardvark', aardvark64)
-#    except Exception as e:
-#        logging.error(e)
-#        api = None
-
-if sys.platform.startswith('linux'):
-    try:
-        from ext.linux32 import aardvark as api
-    except ImportError:
-        try:
-            from ext.linux64 import aardvark as api
-        except:
-            api = None
-elif sys.platform.startswith('win32'):
-    try:
-        from ext.win32 import aardvark as api
-    except ImportError:
-        try:
-            from ext.win64 import aardvark as api
-        except:
-            api = None
+from pkg_resources import resource_filename
+if sys.platform == "win32":
+    aardvark32 = resource_filename(__name__, 'aardvark32.pyd')
+    aardvark64 = resource_filename(__name__, 'aardvark64.pyd')
 else:
-    api = None
+    aardvark32 = resource_filename(__name__, 'aardvark32.so')
+    aardvark64 = resource_filename(__name__, 'aardvark64.so')
+
+try:
+    api = imp.load_dynamic('aardvark', aardvark32)
+except Exception as e:
+    logging.error(e)
+    try:
+        api = imp.load_dynamic('aardvark', aardvark64)
+    except Exception as e:
+        logging.error(e)
+        api = None
 
 if not api:
     raise RuntimeError('Pyaardvark, Unable to find suitable binary interface.')
