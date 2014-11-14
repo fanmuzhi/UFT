@@ -355,7 +355,7 @@ class PGEMBase(object):
 if __name__ == "__main__":
     logging.basicConfig()
 
-    from devices.aardvark import pyaardvark
+    from UFT.devices.aardvark import pyaardvark
     adk = pyaardvark.Adapter()
     adk.open(portnum=0)
 

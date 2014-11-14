@@ -165,7 +165,7 @@ class Instrument(object):
             # USB0::0x1234::0x5678::SERIAL::INSTR
             m = re.match('^(?P<prefix>(?P<type>USB)\d*)(::(?P<arg1>[^\s:]+))?(::(?P<arg2>[^\s:]+(\[.+\])?))?(::(?P<arg3>[^\s:]+))?(::(?P<suffix>INSTR))$', resource, re.I)
             if m is None:
-                raise IOException('Invalid resource string')
+                raise IOError('Invalid resource string')
 
             res_type = m.group('type').upper()
             res_prefix = m.group('prefix')
