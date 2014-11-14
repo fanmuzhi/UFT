@@ -184,9 +184,10 @@ def init_logger(logger):
     stdhl.setLevel(logging.DEBUG)    # print everything
 
     # file handler
-    hdlr = logging.FileHandler("./uft.log")
-    hdlr.setFormatter(formatter)
-    hdlr.setLevel(logging.WARNING)   # save WARNING, EEROR and CRITICAL to file
+    #hdlr = logging.FileHandler("./uft.log")
+    #hdlr.setFormatter(formatter)
+    # save WARNING, EEROR and CRITICAL to file
+    #hdlr.setLevel(logging.WARNING)
 
     # qt handler
     #qthl = QtHandler()
@@ -194,7 +195,7 @@ def init_logger(logger):
     #qthl.setLevel(logging.DEBUG)
 
     # add handlers
-    logger.addHandler(hdlr)
+    #logger.addHandler(hdlr)
     logger.addHandler(stdhl)
     logger.setLevel(logging.DEBUG)
 
