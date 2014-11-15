@@ -8,7 +8,6 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
-from matplotlibwidget import MatplotlibWidget
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -290,6 +289,7 @@ class Ui_MainWindow(object):
         self.actionOpen.setText(_translate("MainWindow", "Open", None))
         self.actionClose.setText(_translate("MainWindow", "Close", None))
 
+from matplotlibwidget import MatplotlibWidget
 
 if __name__ == "__main__":
     import sys
