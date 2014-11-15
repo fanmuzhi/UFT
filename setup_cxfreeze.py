@@ -2,11 +2,11 @@ import sys
 sys.path.append('src')
 from cx_Freeze import setup, Executable
 
-includes = ["atexit", "pyaardvark"]
-include_files = [('src/aardvark32.so', 'aardvark32.so'),
-                 ('src/aardvark64.so', 'aardvark64.so'),
-                 ('src/aardvark32.dll', 'aardvark32.dll'),
-                 ('src/aardvark64.dll', 'aardvark64.dll'),
+includes = ["atexit", "UFT", "UFT_GUI"]
+include_files = [('src/UFT/devices/aardvark/aardvark32.so', 'aardvark32.so'),
+                 ('src/UFT/devices/aardvark/aardvark64.so', 'aardvark64.so'),
+                 ('src/UFT/devices/aardvark/aardvark32.pyd', 'aardvark32.pyd'),
+                 ('src/UFT/devices/aardvark/aardvark64.pyd', 'aardvark64.pyd'),
                  ]
 #bin_includes = ['src/aardvark32.so', 'src/aardvark64.so']
 
@@ -15,7 +15,7 @@ if sys.platform == "win32":
 else:
     base = None
 
-exe = Executable(script="src/UFT/__init__.py", base=base)
+exe = Executable(script="src/UFT_GUI/test_form.py", base=base)
 
 setup(
     name="UFT Test Executive",

@@ -8,6 +8,8 @@
 # WARNING! All changes made in this file will be lost!
 
 from PyQt4 import QtCore, QtGui
+from UFT.devices import aardvark
+from UFT.models import base
 
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
@@ -52,7 +54,9 @@ class Ui_Form(object):
         self.pushButton.setText(_translate("Form", "OK", None))
 
     def click(self):
-        self.plainTextEdit.appendPlainText("OK.\n")
+        adk = aardvark.Adapter()
+        dut = base.PGEMBase(device=adk)
+        self.plainTextEdit.appendPlainText("Channel: " + str(dut.channel) + " OK.\n")
 
 
 def main():
