@@ -42,12 +42,13 @@ class Ui_Form(object):
         self.verticalLayout.addWidget(self.plainTextEdit)
         self.pushButton = QtGui.QPushButton(Form)
         self.pushButton.setObjectName(_fromUtf8("pushButton"))
+        self.pushButton.clicked.connect(self.click)
+
         self.verticalLayout.addWidget(self.pushButton)
         self.horizontalLayout.addLayout(self.verticalLayout)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
-        self.click()
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "Form", None))
@@ -57,6 +58,7 @@ class Ui_Form(object):
         adk = aardvark.Adapter()
         dut = base.PGEMBase(device=adk)
         self.plainTextEdit.appendPlainText("Channel: " + str(dut.channel) + " OK.\n")
+        adk.close()
 
 
 def main():
