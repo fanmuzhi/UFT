@@ -1,0 +1,1 @@
+from pyaardvark import Adapter

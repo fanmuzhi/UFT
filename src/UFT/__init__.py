@@ -2,7 +2,7 @@ import sys
 import logging
 import os
 import ctypes
-from PyQt4 import QtCore
+#from PyQt4 import QtCore
 
 
 class ColorizingStreamHandler(logging.StreamHandler):
@@ -133,45 +133,45 @@ class ColorizingStreamHandler(logging.StreamHandler):
         return message
 
 
-class QtHandler(logging.Handler):
+#class QtHandler(logging.Handler):
+#
+#    def __init__(self):
+#        logging.Handler.__init__(self)
+#
+#    def emit(self, record):
+#        record = self.format(record)
+#        if record:
+#            XStream.stdout().write('{0}\n'.format(record))
 
-    def __init__(self):
-        logging.Handler.__init__(self)
 
-    def emit(self, record):
-        record = self.format(record)
-        if record:
-            XStream.stdout().write('{0}\n'.format(record))
-
-
-class XStream(QtCore.QObject):
-    _stdout = None
-    _stderr = None
-    messageWritten = QtCore.pyqtSignal(str)
-
-    def flush(self):
-        pass
-
-    def fileno(self):
-        return -1
-
-    def write(self, msg):
-        if (not self.signalsBlocked()):
-            self.messageWritten.emit(unicode(msg))
-
-    @staticmethod
-    def stdout():
-        if (not XStream._stdout):
-            XStream._stdout = XStream()
-            sys.stdout = XStream._stdout
-        return XStream._stdout
-
-    @staticmethod
-    def stderr():
-        if (not XStream._stderr):
-            XStream._stderr = XStream()
-            sys.stderr = XStream._stderr
-        return XStream._stderr
+#class XStream(QtCore.QObject):
+#    _stdout = None
+#    _stderr = None
+#    messageWritten = QtCore.pyqtSignal(str)
+#
+#    def flush(self):
+#        pass
+#
+#    def fileno(self):
+#        return -1
+#
+#    def write(self, msg):
+#        if (not self.signalsBlocked()):
+#            self.messageWritten.emit(unicode(msg))
+#
+#    @staticmethod
+#    def stdout():
+#        if (not XStream._stdout):
+#            XStream._stdout = XStream()
+#            sys.stdout = XStream._stdout
+#        return XStream._stdout
+#
+#    @staticmethod
+#    def stderr():
+#        if (not XStream._stderr):
+#            XStream._stderr = XStream()
+#            sys.stderr = XStream._stderr
+#        return XStream._stderr
 
 
 def init_logger(logger):
@@ -184,17 +184,18 @@ def init_logger(logger):
     stdhl.setLevel(logging.DEBUG)    # print everything
 
     # file handler
-    hdlr = logging.FileHandler("./uft.log")
-    hdlr.setFormatter(formatter)
-    hdlr.setLevel(logging.WARNING)   # save WARNING, EEROR and CRITICAL to file
+    #hdlr = logging.FileHandler("./uft.log")
+    #hdlr.setFormatter(formatter)
+    # save WARNING, EEROR and CRITICAL to file
+    #hdlr.setLevel(logging.WARNING)
 
     # qt handler
-    qthl = QtHandler()
-    qthl.setFormatter(formatter)
-    qthl.setLevel(logging.DEBUG)
+    #qthl = QtHandler()
+    #qthl.setFormatter(formatter)
+    #qthl.setLevel(logging.DEBUG)
 
     # add handlers
-    logger.addHandler(hdlr)
+    #logger.addHandler(hdlr)
     logger.addHandler(stdhl)
     logger.setLevel(logging.DEBUG)
 

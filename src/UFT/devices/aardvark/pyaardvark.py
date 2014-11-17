@@ -15,16 +15,27 @@ from array import array
 import imp
 import sys
 
-if sys.platform == "win32":
-    aardvark32 = "aardvark32.dll"
-    aardvark64 = "aardvark64.dll"
-else:
-    aardvark32 = "aardvark32.so"
-    aardvark64 = "aardvark64.so"
+try:
+    # try to load dll from the same directory or in an egg.
+    from pkg_resources import resource_filename
+    if sys.platform == "win32":
+        aardvark32 = resource_filename(__name__, 'aardvark32.pyd')
+        aardvark64 = resource_filename(__name__, 'aardvark64.pyd')
+    else:
+        aardvark32 = resource_filename(__name__, 'aardvark32.so')
+        aardvark64 = resource_filename(__name__, 'aardvark64.so')
+except NotImplementedError:
+    if hasattr(sys, "frozen"):
+        # if program is frozen to exe,
+        # trick for cx_freeze, the *pyd, *so and *dll need be copied to
+        # same directory of the executable file.
+        if sys.platform == "win32":
+            aardvark32 = "aardvark32.pyd"
+            aardvark64 = "aardvark64.pyd"
+        else:
+            aardvark32 = "aardvark32.so"
+            aardvark64 = "aardvark64.so"
 
-# from pkg_resources import resource_filename
-# aardvark32 = resource_filename(__name__, 'aardvark32.so')
-# aardvark64 = resource_filename(__name__, 'aardvark64.so')
 try:
     api = imp.load_dynamic('aardvark', aardvark32)
 except Exception as e:
@@ -34,6 +45,9 @@ except Exception as e:
     except Exception as e:
         logging.error(e)
         api = None
+
+if not api:
+    raise RuntimeError('Pyaardvark, Unable to find suitable binary interface.')
 
 DEFAULT_REG_VAL = 0xFF
 PORT_NOT_FREE = 0x8000
