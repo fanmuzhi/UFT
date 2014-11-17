@@ -45,7 +45,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="info">
       <attribute name="title">
@@ -329,13 +329,20 @@
      </widget>
      <widget class="QWidget" name="tab">
       <attribute name="title">
-       <string>Page</string>
+       <string>test log</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
+       <item row="1" column="0">
+        <widget class="QPushButton" name="submit_pushButton">
+         <property name="text">
+          <string>submit</string>
+         </property>
+        </widget>
+       </item>
        <item row="0" column="0">
         <widget class="QTableView" name="tableView">
          <property name="editTriggers">
-          <set>QAbstractItemView::NoEditTriggers</set>
+          <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
          </property>
         </widget>
        </item>
@@ -366,5 +373,54 @@
   </customwidget>
  </customwidgets>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>lineEdit</sender>
+   <signal>returnPressed()</signal>
+   <receiver>lineEdit_7</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>221</x>
+     <y>94</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>298</x>
+     <y>100</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit_7</sender>
+   <signal>returnPressed()</signal>
+   <receiver>lineEdit_6</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>450</x>
+     <y>97</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>544</x>
+     <y>96</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>lineEdit_6</sender>
+   <signal>returnPressed()</signal>
+   <receiver>lineEdit_5</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>669</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>801</x>
+     <y>97</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

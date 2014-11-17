@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Wed Nov 12 17:00:43 2014
+# Created: Fri Nov 14 15:14:13 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -218,8 +218,11 @@ class Ui_Form(object):
         self.tab.setObjectName(_fromUtf8("tab"))
         self.gridLayout_5 = QtGui.QGridLayout(self.tab)
         self.gridLayout_5.setObjectName(_fromUtf8("gridLayout_5"))
+        self.submit_pushButton = QtGui.QPushButton(self.tab)
+        self.submit_pushButton.setObjectName(_fromUtf8("submit_pushButton"))
+        self.gridLayout_5.addWidget(self.submit_pushButton, 1, 0, 1, 1)
         self.tableView = QtGui.QTableView(self.tab)
-        self.tableView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        self.tableView.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
         self.tableView.setObjectName(_fromUtf8("tableView"))
         self.gridLayout_5.addWidget(self.tableView, 0, 0, 1, 1)
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
@@ -232,7 +235,10 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.progressBar, 2, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(0)
+        QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_7.setFocus)
+        QtCore.QObject.connect(self.lineEdit_7, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_6.setFocus)
+        QtCore.QObject.connect(self.lineEdit_6, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_5.setFocus)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -256,7 +262,8 @@ class Ui_Form(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.info), _translate("Form", "test", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.charts), _translate("Form", "charts", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.configrration), _translate("Form", "configuration", None))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "Page", None))
+        self.submit_pushButton.setText(_translate("Form", "submit", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "test log", None))
 
 from matplotlibwidget import MatplotlibWidget
 

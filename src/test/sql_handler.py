@@ -1,18 +1,15 @@
 # -*- coding: utf-8 -*-
-from PyQt4.QtGui import * 
-from PyQt4.QtCore import * 
-from PyQt4.QtSql import * 
+from PyQt4 import QtGui, QtCore, QtSql
 import sys 
-from PyQt4 import QtCore, QtGui
 from UFT import UFT_Ui
 
 def createConnection(): 
-    db = QSqlDatabase.addDatabase("QSQLITE") 
-    db.setDatabaseName("./ufttry.db") 
+    db = QtSql.QSqlDatabase.addDatabase("QSQLITE") 
+    db.setDatabaseName("./../UFT/pgem.db") 
     db.open() 
 
 def createTable(): 
-    q = QSqlQuery() 
+    q = QtSql.QSqlQuery() 
     q.exec_("create table if not exists t1 (f1 integer primary key,f2 varchar(20))") 
     q.exec_("delete from t1") 
     q.exec_(u"insert into t1 values(1,'mzfa')") 
@@ -20,28 +17,18 @@ def createTable():
     q.exec_("commit") 
 
 
-class Model(QSqlTableModel):   
+class Model(QtSql.QSqlTableModel):   
     def __init__(self,parent):   
-        QSqlTableModel.__init__(self,parent)   
-        self.setTable("t1")   
+        QtSql.QSqlTableModel.__init__(self,parent)   
+        self.setTable("cycle")   
         self.select()   
-        self.setEditStrategy(QSqlTableModel.OnManualSubmit)   
+        self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
 
 
-class TestWidget(QWidget):   
-    def __init__(self):   
-        QWidget.__init__(self)   
-        vbox=QVBoxLayout(self)   
-        self.view=QTableView()   
-        self.model=Model(self.view)   
-        self.view.setModel(self.model)   
-        vbox.addWidget(self.view)   
-  
 if __name__=="__main__":
-    
-    a=QApplication(sys.argv)
+    a=QtGui.QApplication(sys.argv)
     createConnection()
-    createTable()
+#     createTable()
     Form = QtGui.QWidget()
     
     w=UFT_Ui.Ui_Form()
@@ -49,5 +36,13 @@ if __name__=="__main__":
     view = w.tableView
     model = Model(view)
     view.setModel(model)
+    
+    def update():
+        for i in range(model.rowCount()):
+            record = model.record(i) 
+            model.setRecord(i, record)
+        model.submitAll()
+    w.submit_pushButton.clicked.connect(update)
+    
     Form.show()   
     sys.exit(a.exec_())  
