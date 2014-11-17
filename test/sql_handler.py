@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyQt4 import QtGui, QtCore, QtSql
 import sys 
-from UFT import UFT_Ui
+from UFT_GUI import UFT_Ui
 
 def createConnection(): 
     db = QtSql.QSqlDatabase.addDatabase("QSQLITE") 

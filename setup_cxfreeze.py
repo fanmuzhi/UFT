@@ -15,7 +15,7 @@ if sys.platform == "win32":
 else:
     base = None
 
-exe = Executable(script="src/UFT_GUI/test_form.py", base=base)
+exe = Executable(script="src/UFT_GUI/main.py", base=base)
 
 setup(
     name="UFT Test Executive",

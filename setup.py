@@ -22,7 +22,7 @@ setup(
             'uft = UFT.cli:run'
         ],
         "gui_scripts": [
-            'uft_gui = UFT_GUI.test_form:main'
+            'uft_gui = UFT_GUI.main:main'
         ]
     }
 )

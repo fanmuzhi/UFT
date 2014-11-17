@@ -12,7 +12,7 @@ __email__ = "mzfa@cypress.com"
 import sys
 from PyQt4.QtGui import QApplication
 from PyQt4 import QtGui, QtCore
-from test.UFT_UiHandler import UFT_UiHandler
+from UFT_GUI.UFT_UiHandler import UFT_UiHandler
 
 
 class MainWidget(QtGui.QWidget):
@@ -21,10 +21,12 @@ class MainWidget(QtGui.QWidget):
         self.ui = UFT_UiHandler()
         self.ui.setupUi(self)
 
-
-if __name__ == "__main__":
+def main():
     app = QApplication(sys.argv)
     app.setStyle("Plastique")
     widget = MainWidget()
     widget.show()
     sys.exit(app.exec_())
+
+if __name__ == "__main__":
+    main()

@@ -10,7 +10,7 @@ import time
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtGui import QKeySequence, QIcon, QPixmap
 from PyQt4.QtCore import Qt
-from UFT.UFT_Ui import Ui_Form as UFT_UiForm
+from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
 
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
