@@ -16,14 +16,12 @@ class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
     
-
+    
     
 if __name__ == "__main__":
     a=QtGui.QApplication(sys.argv)
     Form = QtGui.QWidget()
-    
     w=UFT_UiForm()
     w.setupUi(Form)
-    view = w.tableView
     Form.show()   
     sys.exit(a.exec_())  

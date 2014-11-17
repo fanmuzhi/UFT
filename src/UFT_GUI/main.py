@@ -12,7 +12,7 @@ __email__ = "mzfa@cypress.com"
 import sys
 from PyQt4.QtGui import QApplication
 from PyQt4 import QtGui, QtCore
-from UFT_GUI.UFT_UiHandler import UFT_UiHandler
+from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 
 
 class MainWidget(QtGui.QWidget):

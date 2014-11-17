@@ -1,8 +1,8 @@
 import sys
 from PyQt4 import QtCore, QtGui
 import logging
-import UFT_Ui
-
+from UFT_GUI import UFT_Ui
+import time
 class QtHandler(logging.Handler):
     def __init__(self):
         logging.Handler.__init__(self)
@@ -56,8 +56,11 @@ if (__name__ == '__main__'):
         Form = QtGui.QWidget()
     ui = UFT_Ui.Ui_Form()
     ui.setupUi(Form)
-#     XStream.stdout().messageWritten.connect(ui.info_textBrowser.insertPlainText)
-    XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)    
+    def append_formatData(data):
+        ui.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t")+data)
+        ui.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
+#     XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)    
+    XStream.stdout().messageWritten.connect(append_formatData)
     ui.start_pushButton.clicked.connect(test)
     Form.show()
     if (app):
