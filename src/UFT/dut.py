@@ -3,27 +3,13 @@
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+#from sqlalchemy import create_engine
+#from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 import datetime
 SQLBase = declarative_base()
 
-
-class SessionManager(object):
-    def __init__(self, connectString):
-        self.engine = create_engine(connectString)
-        self.session = sessionmaker(bind=self.engine)
-        self.maketable = False
-
-    def create_table(self):
-        if(not self.maketable):
-            DUT.metadata.create_all(self.engine)     # create table
-            Cycle.metadata.create_all(self.engine)     # create table
-            self.maketable = True
-
-    def get_session(self):
-        return self.session()
+from session import SessionManager
 
 
 class DUT(SQLBase):
@@ -75,9 +61,9 @@ class Cycle(SQLBase):
 
 
 if __name__ == "__main__":
-    sm = SessionManager("sqlite:///pgem.db")
-    sm.create_table()
-    session = sm.get_session()
+    sm = SessionManager()
+    session = sm.get_session("sqlite:///pgem.db")
+    sm.prepare_db("sqlite:///pgem.db", [DUT, Cycle])
 
     dut = DUT()
     dut.PWRCYCS = 150
@@ -89,6 +75,8 @@ if __name__ == "__main__":
 
     try:
         dut = session.query(DUT).filter(DUT.MODEL == "topaz").first()
+
+        print dut.SN
 
         #dut.__dict__.update({"sn": "12345", "slotnum": 7})
         d = {"SN": "54321", "SLOTNUM": 17}

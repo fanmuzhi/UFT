@@ -56,8 +56,9 @@ def run():
         print Exception.message
     finally:
         # end, cleanup
-        ld.input_on()
-        ps.deactivateOutput()
+        #ld.input_on()
+        #ps.deactivateOutput()
+        pass
 
 
 if __name__ == "__main__":

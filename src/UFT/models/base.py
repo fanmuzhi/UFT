@@ -248,8 +248,8 @@ class PGEMBase(object):
         DEV_ID_ADDR = 0xFF
 
         # check IC
-        logger.debug(self.read_bq24707(MAN_ID_ADDR))
-        logger.debug(self.read_bq24707(DEV_ID_ADDR))
+        #logger.debug(self.read_bq24707(MAN_ID_ADDR))
+        #logger.debug(self.read_bq24707(DEV_ID_ADDR))
 
         # write options
         charge_option = 0x1990
@@ -349,17 +349,42 @@ class PGEMBase(object):
             # PWR_FAIL
             return True
 
+    @staticmethod
+    def _calc_temp(temp):
+        # method to caculate the temp sensor value of chip SE97BTP
+        if(int(temp) & (0x01 << 12)):
+            # check 12 bit, 1 for negative , 0 for positive
+            result = (~(int(temp) >> 1) & 0xFFF) * 0.125     # 0.125 for resolution
+            result += 0.125     # since FFFF = -0.125, not 0.
+            result = -result
+        else:
+            result = ((int(temp) >> 1) & 0xFFF) * 0.125     # 0.125 for resolution
+        return result
+
     def check_temp(self):
-        pass
+        self.device.slave_addr = 0x1B
+        # check device id
+        val = self.device.read_reg(0x07, length=2)
+        val = (val[0] << 8) + val[1]
+        logger.debug("temp sensor id: " + hex(val))
+        assert val == 0xA203
+
+        # check temp value
+        val = self.device.read_reg(0x05, length=2)
+        val = (val[0] << 8) + val[1]
+        logger.debug("temp value: " + hex(val))
+
+        return self._calc_temp(val)
+
 
 if __name__ == "__main__":
-    logging.basicConfig()
+    logging.basicConfig(level=logging.DEBUG)
 
     from UFT.devices.aardvark import pyaardvark
     adk = pyaardvark.Adapter()
     adk.open(portnum=0)
 
-    DUT = PGEMBase(device=adk, slot=1)
+    DUT = PGEMBase(device=adk, slot=0)
     DUT.switch()
     #print DUT.read_vpd()
     #DUT.control_led(status="off")
@@ -377,6 +402,7 @@ if __name__ == "__main__":
 
     #print DUT.read_vpd()
     DUT.charge(True)
+    DUT.check_temp()
     #DUT.self_discharge(False)
 
     #DUT.switch_back()
