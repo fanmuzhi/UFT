@@ -9,8 +9,6 @@ from sqlalchemy.orm import relationship
 import datetime
 SQLBase = declarative_base()
 
-from session import SessionManager
-
 
 class DUT(SQLBase):
     __tablename__ = "dut"
@@ -61,6 +59,7 @@ class Cycle(SQLBase):
 
 
 if __name__ == "__main__":
+    from session import SessionManager
     sm = SessionManager()
     session = sm.get_session("sqlite:///pgem.db")
     sm.prepare_db("sqlite:///pgem.db", [DUT, Cycle])
