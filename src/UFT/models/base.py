@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """Base Model for Cororado PGEM I2C functions
+2 functions are on the mother board, check_power_fail() and auto_discharge().
+other functions are on the dut board.
 """
 __version__ = "0.1"
 __author__ = "@boqiling"
@@ -8,6 +10,7 @@ __all__ = ["PGEMBase"]
 
 import logging
 import struct
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +31,8 @@ EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},     # need program, default all 0
            {"name": "INITIALCAP", "addr": 0x077, "length": 1, "type": "int"}]
 
+BARCODE_PATTERN = re.compile(r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])(?P<WW>[0-4][0-9]|5[0-3])(?P<ID>\d{8})-(?P<RR>\d{2}))')
+
 
 class PGEMException(Exception):
     pass
@@ -35,7 +40,7 @@ class PGEMException(Exception):
 
 class PGEMBase(object):
 
-    def __init__(self, device,  **kvargs):
+    def __init__(self, device, barcode, **kvargs):
         # slot number for dut on fixture location.
         # from 0 to 3, totally 4 slots in UFT
         self.slot = kvargs.get("slot", 0)
@@ -47,6 +52,11 @@ class PGEMBase(object):
 
         # I2C adapter device
         self.device = device
+        r = BARCODE_PATTERN.search(barcode)
+        if r:
+            self.barcode = r.groupdict()
+        else:
+            raise PGEMException("Unvalide barcode.")
 
     def switch(self):
         """switch I2C ports by PCA9548A, only 1 channel is enabled.
@@ -130,16 +140,16 @@ class PGEMBase(object):
             datas.append(rdata)
         return datas
 
-    def write_vpd(self, barcode, path):
+    def write_vpd(self, path):
         """method to write barcode information to PGEM EEPROM
         barcode is a dict of 2D barcode information
         path is the ebf file location.
         """
         buffebf = self.load_bin_file(path)
         #[ord(x) for x in string]
-        id = [ord(x) for x in barcode['ID']]
-        yyww = [ord(x) for x in (barcode['YY'] + barcode['WW'])]
-        vv = [ord(x) for x in barcode['VV']]
+        id = [ord(x) for x in self.barcode['ID']]
+        yyww = [ord(x) for x in (self.barcode['YY'] + self.barcode['WW'])]
+        vv = [ord(x) for x in self.barcode['VV']]
 
         # id == SN == Product Serial Number
         eep = self._query_map(EEP_MAP, name="SN")[0]
@@ -161,9 +171,9 @@ class PGEMBase(object):
             self.device.sleep(5)
 
         # readback to check
-        assert barcode["ID"] == self.read_vpd_byname("SN")
-        assert (barcode["YY"] + barcode["WW"]) == self.read_vpd_byname("MFDATE")
-        assert barcode["VV"] == self.read_vpd_byname("ENDUSR")
+        assert self.barcode["ID"] == self.read_vpd_byname("SN")
+        assert (self.barcode["YY"] + self.barcode["WW"]) == self.read_vpd_byname("MFDATE")
+        assert self.barcode["VV"] == self.read_vpd_byname("ENDUSR")
 
     def control_led(self, status="off"):
         """method to control the LED on DUT chip PCA9536DP
@@ -211,7 +221,18 @@ class PGEMBase(object):
         self.device.write(wdata)
 
     def encrypted_ic(self):
-        pass
+        """return True for valid data.
+        """
+        val = self.device.read_reg(0x00, length=128)
+        # valid data in 0x00 to 0x80 (address 0 to 127)
+        # 0xFF in 0x80 to 0xFF (address 128 to 256)
+        try:
+            for v in val:
+                assert v == 255
+        except AssertionError:
+            # good
+            return True
+        return False
 
     def write_bq24707(self, reg_addr, wata):
         """
@@ -233,7 +254,7 @@ class PGEMBase(object):
         val = (ata_in[1] << 8) + ata_in[0]
         return val
 
-    def charge(self, status=True):
+    def charge(self, option, status=True):
         """
         Send charge option to charge IC to start the charge.
         Charge IC BQ24707 is used as default.
@@ -252,7 +273,7 @@ class PGEMBase(object):
         #logger.debug(self.read_bq24707(DEV_ID_ADDR))
 
         # write options
-        charge_option = 0x1990
+        charge_option = option["charge_option"]    #0x1990
         if status:
             # start charge
             charge_option &= ~(0x01)    # clear last bit
@@ -260,15 +281,15 @@ class PGEMBase(object):
             # stop charge
             charge_option |= 0x01   # set last bit
         self.write_bq24707(CHG_OPT_ADDR, charge_option)
-        self.write_bq24707(CHG_CUR_ADDR, 0x01C0)
-        self.write_bq24707(CHG_VOL_ADDR, 0x1200)
-        self.write_bq24707(INPUT_CUR_ADDR, 0x0400)
+        self.write_bq24707(CHG_CUR_ADDR, option["charge_current"])   #0x01C0
+        self.write_bq24707(CHG_VOL_ADDR, option["charge_voltage"])   #0x1200
+        self.write_bq24707(INPUT_CUR_ADDR, option["input_current"])  #0x0400
 
         # read back to check if written successfully
         assert self.read_bq24707(CHG_OPT_ADDR) == charge_option
-        assert self.read_bq24707(CHG_CUR_ADDR) == 0x01C0
-        assert self.read_bq24707(CHG_VOL_ADDR) == 0x1200
-        assert self.read_bq24707(INPUT_CUR_ADDR) == 0x0400
+        assert self.read_bq24707(CHG_CUR_ADDR) == option["charge_current"]
+        assert self.read_bq24707(CHG_VOL_ADDR) == option["charge_voltage"]
+        assert self.read_bq24707(INPUT_CUR_ADDR) == option["input_current"]
 
     def load_discharge(self):
         # the agilent load code should not be here.
@@ -318,11 +339,11 @@ class PGEMBase(object):
         val = self.device.read_reg(REG_INPUT, length=2)
         val = val[0]    # only need port 0 value
         val = (val & (0x01 << self.slot)) >> self.slot
-        assert val == 0
+        assert val == IO
 
     def check_power_fail(self):
         """check power_fail_int signal on TCA9555 on mother board
-        return true is power failed.
+        return true if power failed.
         """
         chnum = self.channel
 
@@ -342,12 +363,7 @@ class PGEMBase(object):
 
         # check current slot
         val = (val & (0x01 << self.slot)) >> self.slot
-        if(val == 0):
-            # PWR_OK
-            return False
-        else:
-            # PWR_FAIL
-            return True
+        return val != 0
 
     @staticmethod
     def _calc_temp(temp):
@@ -378,35 +394,46 @@ class PGEMBase(object):
 
 
 if __name__ == "__main__":
+    import time
     logging.basicConfig(level=logging.DEBUG)
 
     from UFT.devices.aardvark import pyaardvark
     adk = pyaardvark.Adapter()
     adk.open(portnum=0)
 
-    DUT = PGEMBase(device=adk, slot=0)
+    barcode = "AGIGA9811-001BCA02143500000002-01"
+
+    bq24704_option = {"charge_option": 0x1990,
+                      "charge_current": 0x01C0,
+                      "charge_voltage": 0x1200,
+                      "input_current": 0x0400}
+
+    DUT = PGEMBase(device=adk, slot=0, barcode=barcode)
+    DUT.switch_back()
+    print DUT.check_power_fail()
+
     DUT.switch()
-    #print DUT.read_vpd()
-    #DUT.control_led(status="off")
+    DUT.charge(option=bq24704_option, status=True)
 
-    #barcode = {
-    #    'PN': 'AGIGA8601-400BCA',
-    #    'RR': '10',
-    #    'VV': '02',
-    #    'YY': '14',
-    #    'WW': '41',
-    #    'ID': '88888888'
-    #}
-    #path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
-    #DUT.write_vpd(barcode, path)
+    DUT.switch_back()
+    while(DUT.check_power_fail()):
+        time.sleep(10)
+        pass
 
-    #print DUT.read_vpd()
-    DUT.charge(True)
-    DUT.check_temp()
+    DUT.switch()
+    print DUT.read_vpd()
+    DUT.control_led(status="on")
+
+    path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
+    DUT.write_vpd(path)
+
+    print DUT.read_vpd()
+    print DUT.check_temp()
     #DUT.self_discharge(False)
+    #DUT.charge(option=bq24704_option, status=False)
 
     #DUT.switch_back()
     #print DUT.check_power_fail()
-    #DUT.auto_discharge(False)
+    #DUT.auto_discharge(True)
 
     adk.close()
