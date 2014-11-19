@@ -5,7 +5,8 @@
 __version__ = "0.1"
 __author__ = "@boqiling"
 
-from UFT.models import base
+from UFT.models import Crystal
+from UFT.fsm import IFunc, StateMachine, States
 from UFT.devices import pwr
 from UFT.devices import load
 from UFT.devices import aardvark
@@ -43,7 +44,7 @@ def run():
         adk = aardvark.Adapter()
         adk.open(portnum=0)
 
-        crystal1 = base.PGEMBase(device=adk, slot=0)
+        crystal1 = Crystal(device=adk, slot=0)
         crystal1.switch()   # to dut
         crystal1.charge(True)
 
