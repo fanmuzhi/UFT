@@ -1,18 +1,20 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""Description: pgem parallel test on UFT test fixture. Currently supports 4 duts in parallel.
+"""Description: pgem parallel test on UFT test fixture.
+Currently supports 4 duts in parallel.
 """
 
 __version__ = "0.1"
 __author__ = "@boqiling"
-__all__ = [""]
+__all__ = ["ChannelFunc"]
 
 from UFT.fsm import IFunc, StateMachine, States
 from UFT import models
 import logging
+logger = logging.getLogger(__name__)
 
 
-class PGEMStates(States):
+class ChannelStates(States):
     HARDWARE_INIT = 0x0A
     POWER_ON = 0x0B
     LOAD_DISCHARGE = 0x0C
@@ -27,25 +29,29 @@ class PGEMStates(States):
     LOAD_DISCHARGE = 0x1F
 
 
-class PGEMFunc(IFunc):
+class ChannelFunc(IFunc):
     def __init__(self, mode=models.PGEMBase):
+        super(ChannelFunc, self).__init__()
         pass
 
     def init(self):
-        raise NotImplementedError
+        pass
 
     def idle(self):
-        raise NotImplementedError
+        pass
 
     def work(self):
-        raise NotImplementedError
+        pass
 
     def error(self):
-        raise NotImplementedError
+        pass
 
     def exit(self):
-        raise NotImplementedError
+        pass
 
-    def empty(self):
-        for i in range(self.queue.qsize()):
-            self.queue.get()
+
+if __name__ == "__main__":
+    channel = ChannelFunc()
+    f = StateMachine(channel)
+    f.en_queue(ChannelStates.INIT)
+    f.run()

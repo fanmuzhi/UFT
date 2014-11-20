@@ -11,6 +11,7 @@ __all__ = ["PGEMBase"]
 import logging
 import struct
 import re
+from dut import DUT
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class PGEMException(Exception):
     pass
 
 
-class PGEMBase(object):
+class PGEMBase(DUT):
 
     def __init__(self, device, barcode, **kvargs):
         # slot number for dut on fixture location.
@@ -54,7 +55,7 @@ class PGEMBase(object):
         self.device = device
         r = BARCODE_PATTERN.search(barcode)
         if r:
-            self.barcode = r.groupdict()
+            self.sn = r.groupdict()
         else:
             raise PGEMException("Unvalide barcode.")
 
@@ -124,8 +125,15 @@ class PGEMBase(object):
         """
         dut = {}
         for eep in EEP_MAP:
-            reg_name = eep["name"]
+            reg_name = eep["name"].lower()
             dut.update({reg_name: self.read_vpd_byname(reg_name)})
+
+        #TODO not tested
+        # import change:
+        # set self.values to write to database later.
+        for k, v in dut:
+            setattr(self, k, v)
+
         return dut
 
     @staticmethod
@@ -147,9 +155,9 @@ class PGEMBase(object):
         """
         buffebf = self.load_bin_file(path)
         #[ord(x) for x in string]
-        id = [ord(x) for x in self.barcode['ID']]
-        yyww = [ord(x) for x in (self.barcode['YY'] + self.barcode['WW'])]
-        vv = [ord(x) for x in self.barcode['VV']]
+        id = [ord(x) for x in self.sn['ID']]
+        yyww = [ord(x) for x in (self.sn['YY'] + self.sn['WW'])]
+        vv = [ord(x) for x in self.sn['VV']]
 
         # id == SN == Product Serial Number
         eep = self._query_map(EEP_MAP, name="SN")[0]
@@ -171,9 +179,9 @@ class PGEMBase(object):
             self.device.sleep(5)
 
         # readback to check
-        assert self.barcode["ID"] == self.read_vpd_byname("SN")
-        assert (self.barcode["YY"] + self.barcode["WW"]) == self.read_vpd_byname("MFDATE")
-        assert self.barcode["VV"] == self.read_vpd_byname("ENDUSR")
+        assert self.sn["ID"] == self.read_vpd_byname("SN")
+        assert (self.sn["YY"] + self.sn["WW"]) == self.read_vpd_byname("MFDATE")
+        assert self.sn["VV"] == self.read_vpd_byname("ENDUSR")
 
     def control_led(self, status="off"):
         """method to control the LED on DUT chip PCA9536DP
@@ -269,11 +277,11 @@ class PGEMBase(object):
         DEV_ID_ADDR = 0xFF
 
         # check IC
-        #logger.debug(self.read_bq24707(MAN_ID_ADDR))
-        #logger.debug(self.read_bq24707(DEV_ID_ADDR))
+        logger.debug(self.read_bq24707(MAN_ID_ADDR))
+        logger.debug(self.read_bq24707(DEV_ID_ADDR))
 
         # write options
-        charge_option = option["charge_option"]    #0x1990
+        charge_option = option["charge_option"]    # 0x1990
         if status:
             # start charge
             charge_option &= ~(0x01)    # clear last bit
@@ -281,9 +289,9 @@ class PGEMBase(object):
             # stop charge
             charge_option |= 0x01   # set last bit
         self.write_bq24707(CHG_OPT_ADDR, charge_option)
-        self.write_bq24707(CHG_CUR_ADDR, option["charge_current"])   #0x01C0
-        self.write_bq24707(CHG_VOL_ADDR, option["charge_voltage"])   #0x1200
-        self.write_bq24707(INPUT_CUR_ADDR, option["input_current"])  #0x0400
+        self.write_bq24707(CHG_CUR_ADDR, option["charge_current"])   # 0x01C0
+        self.write_bq24707(CHG_VOL_ADDR, option["charge_voltage"])   # 0x1200
+        self.write_bq24707(INPUT_CUR_ADDR, option["input_current"])  # 0x0400
 
         # read back to check if written successfully
         assert self.read_bq24707(CHG_OPT_ADDR) == charge_option
@@ -349,7 +357,7 @@ class PGEMBase(object):
 
         self.device.slave_addr = 0x20 + chnum
         REG_INPUT = 0x00
-        REG_OUTPUT = 0x02
+        #REG_OUTPUT = 0x02
         REG_CONFIG = 0x06
 
         # config PIO-0 to output and PIO-1 to input
@@ -370,11 +378,13 @@ class PGEMBase(object):
         # method to caculate the temp sensor value of chip SE97BTP
         if(int(temp) & (0x01 << 12)):
             # check 12 bit, 1 for negative , 0 for positive
-            result = (~(int(temp) >> 1) & 0xFFF) * 0.125     # 0.125 for resolution
+            result = (~(int(temp) >> 1) & 0xFFF) * 0.125
+            # 0.125 for resolution
             result += 0.125     # since FFFF = -0.125, not 0.
             result = -result
         else:
-            result = ((int(temp) >> 1) & 0xFFF) * 0.125     # 0.125 for resolution
+            result = ((int(temp) >> 1) & 0xFFF) * 0.125
+            # 0.125 for resolution
         return result
 
     def check_temp(self):
@@ -408,32 +418,32 @@ if __name__ == "__main__":
                       "charge_voltage": 0x1200,
                       "input_current": 0x0400}
 
-    DUT = PGEMBase(device=adk, slot=0, barcode=barcode)
-    DUT.switch_back()
+    dut = PGEMBase(device=adk, slot=0, barcode=barcode)
+    dut.switch_back()
     print DUT.check_power_fail()
 
-    DUT.switch()
-    DUT.charge(option=bq24704_option, status=True)
+    dut.switch()
+    dut.charge(option=bq24704_option, status=True)
 
-    DUT.switch_back()
-    while(DUT.check_power_fail()):
+    dut.switch_back()
+    while(dut.check_power_fail()):
         time.sleep(10)
         pass
 
-    DUT.switch()
-    print DUT.read_vpd()
-    DUT.control_led(status="on")
+    dut.switch()
+    print dut.read_vpd()
+    dut.control_led(status="on")
 
     path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
-    DUT.write_vpd(path)
+    dut.write_vpd(path)
 
-    print DUT.read_vpd()
-    print DUT.check_temp()
-    #DUT.self_discharge(False)
-    #DUT.charge(option=bq24704_option, status=False)
+    print dut.read_vpd()
+    print dut.check_temp()
+    #dut.self_discharge(False)
+    #dut.charge(option=bq24704_option, status=False)
 
-    #DUT.switch_back()
-    #print DUT.check_power_fail()
-    #DUT.auto_discharge(True)
+    #dut.switch_back()
+    #print dut.check_power_fail()
+    #dut.auto_discharge(True)
 
     adk.close()
