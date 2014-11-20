@@ -1,0 +1,9 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""description: Cororado PGEM database io
+"""
+__version__ = "0.1"
+__author__ = "@boqiling"
+__all__ = ["load_config", "sync_config"]
+
+from config_io import load_config, sync_config

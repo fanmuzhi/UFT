@@ -6,7 +6,7 @@ Default connect to configuration.db which save the test items settings.
 
 __version__ = "0.1"
 __author__ = "@boqiling"
-__all__ = ["Configuration", "TestItem"]
+__all__ = ["PGEMConfig", "TestItem"]
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, Float, String, Boolean, ForeignKey
@@ -15,7 +15,7 @@ from sqlalchemy.orm import relationship
 SQLBase = declarative_base()
 
 
-class Configuration(SQLBase):
+class PGEMConfig(SQLBase):
     __tablename__ = "configuration"
 
     ID = Column(Integer, primary_key=True)
@@ -26,9 +26,10 @@ class Configuration(SQLBase):
     TESTITEMS = relationship("TestItem", backref="configuration")
 
     def to_dict(self):
-        items_list = []
-        for items in self.TESTITEMS:
-            items_list.append(items.to_dict())
+        items_list = {}
+        for item in self.TESTITEMS:
+            items_list.update(item.to_dict())
+        #items_list = {"ITEM": items_list}
         return {"PARTNUMBER": self.PARTNUMBER,
                 "DESCRIPTION": self.DESCRIPTION,
                 "REVISION": self.REVISION,
@@ -50,13 +51,16 @@ class TestItem(SQLBase):
     MISC = Column(String(50))
 
     def to_dict(self):
-        return {"NAME": self.NAME,
-                "DESCRIPTION": self.DESCRIPTION,
-                "ENABLE": self.ENABLE,
-                "MIN": self.MIN,
-                "MAX": self.MAX,
-                "STOPONFAIL": self.STOPONFAIL,
-                "MISC": self.MISC}
+        return {
+            self.NAME: {
+            "DESCRIPTION": self.DESCRIPTION,
+            "ENABLE": int(self.ENABLE),
+            "MIN": self.MIN,
+            "MAX": self.MAX,
+            "STOPONFAIL": int(self.STOPONFAIL),
+            "MISC": self.MISC
+            }
+        }
 
 
 if __name__ == "__main__":
@@ -64,10 +68,10 @@ if __name__ == "__main__":
     dburi = "sqlite:///configuration.db"
     sm = SessionManager()
     session = sm.get_session(dburi)
-    sm.prepare_db(dburi, [Configuration, TestItem])
+    sm.prepare_db(dburi, [PGEMConfig, TestItem])
 
     # Insert Example
-    CrystalConfig = Configuration()
+    CrystalConfig = PGEMConfig()
     CrystalConfig.PARTNUMBER = "AGIGA9601-002BCA"
     CrystalConfig.DESCRIPTION = "Crystal"
     CrystalConfig.REVISION = "04"
@@ -98,9 +102,9 @@ if __name__ == "__main__":
         session.rollback()
 
     # Query Example
-    crystal = session.query(Configuration).filter(
-        Configuration.PARTNUMBER == "AGIGA9601-002BCA",
-        Configuration.REVISION == "04").first()
+    crystal = session.query(PGEMConfig).filter(
+        PGEMConfig.PARTNUMBER == "AGIGA9601-002BCA",
+        PGEMConfig.REVISION == "04").first()
     for testitem in crystal.TESTITEMS:
         if testitem.NAME == "Charge":
             print testitem.NAME

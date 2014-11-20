@@ -6,8 +6,8 @@ __version__ = "0.1"
 __author__ = "@boqiling"
 __all__ = ["Crystal"]
 
-import base
+from base import PGEMBase
 
 
-class Crystal(base.PGEMBase):
+class Crystal(PGEMBase):
     pass

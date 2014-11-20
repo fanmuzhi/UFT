@@ -143,13 +143,20 @@ if __name__ == '__main__':
         "date": "2009-11-25",
         "errorcode": 7,
         u"错误信息": u"噪声太大",
-        "signal": {"data": [1, 2, 3]},
-        "noise": {"data": [5, 6, 7]},
+        "signals": {"signal": [1, 2, 3]},
+        "noises": {"noise": [5, 6, 7]},
+        "rounds":{
         "round_59": {
             "fail": 1,
             "test_time": "2013-11-11 17:54:21",
             "test_result": "Pass"
+            },
+        "round_60": {
+            "fail": 2,
+            "test_time": "2013-11-11 17:55:23",
+            "test_result": "fail"
             }
+        }
     }
 
     print("original:")

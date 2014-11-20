@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<entity>
+    <TESTITEMS>
+        <Charge>
+            <ENABLE>1</ENABLE>
+            <DESCRIPTION>Charge DUT with BQ24707, limition in seconds</DESCRIPTION>
+            <MIN>30.0</MIN>
+            <MAX>120.0</MAX>
+            <MISC>None</MISC>
+            <STOPONFAIL>1</STOPONFAIL>
+        </Charge>
+        <Check_Temp>
+            <ENABLE>1</ENABLE>
+            <DESCRIPTION>Check Temperature on chip SE97BTP, data in degree</DESCRIPTION>
+            <MIN>5.0</MIN>
+            <MAX>30.0</MAX>
+            <MISC>None</MISC>
+            <STOPONFAIL>0</STOPONFAIL>
+        </Check_Temp>
+    </TESTITEMS>
+    <PARTNUMBER>AGIGA9601-002BCA</PARTNUMBER>
+    <DESCRIPTION>Crystal</DESCRIPTION>
+    <REVISION>04</REVISION>
+</entity>
