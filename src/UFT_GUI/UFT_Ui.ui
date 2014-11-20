@@ -20,32 +20,23 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <family>Arial Unicode MS</family>
-       <pointsize>10</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-       <underline>false</underline>
-      </font>
+   <item row="3" column="0">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="enabled">
+      <bool>true</bool>
      </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
+     <property name="value">
+      <number>24</number>
      </property>
-     <property name="text">
-      <string>AGIGA CORONADO PGEM UFT V1.0</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::AutoText</enum>
+     <property name="textVisible">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="info">
       <attribute name="title">
@@ -222,16 +213,22 @@
             <string>item picture</string>
            </property>
            <layout class="QGridLayout" name="gridLayout_7">
-            <item row="0" column="0">
-             <widget class="QFrame" name="frame">
-              <property name="autoFillBackground">
-               <bool>true</bool>
+            <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+             <widget class="QLabel" name="imageLabel">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Maximum" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-              <property name="frameShape">
-               <enum>QFrame::StyledPanel</enum>
+              <property name="minimumSize">
+               <size>
+                <width>400</width>
+                <height>400</height>
+               </size>
               </property>
-              <property name="frameShadow">
-               <enum>QFrame::Raised</enum>
+              <property name="text">
+               <string>TextLabel</string>
               </property>
              </widget>
             </item>
@@ -297,33 +294,72 @@
       <attribute name="title">
        <string>configuration</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_4">
+      <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
-        <layout class="QVBoxLayout" name="verticalLayout_4">
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QComboBox" name="comboBox"/>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>40</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
+        <layout class="QGridLayout" name="gridLayout_4">
+         <item row="0" column="0">
+          <widget class="QLabel" name="label_6">
+           <property name="font">
+            <font>
+             <family>Arial Unicode MS</family>
+             <pointsize>8</pointsize>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Part Number: </string>
+           </property>
+          </widget>
          </item>
-         <item>
-          <widget class="QTableWidget" name="tableWidget"/>
+         <item row="0" column="1">
+          <widget class="QLabel" name="label_7">
+           <property name="font">
+            <font>
+             <family>Arial Unicode MS</family>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Description: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_8">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Revision: </string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QComboBox" name="partNum_comboBox"/>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="description_comboBox"/>
+         </item>
+         <item row="1" column="2">
+          <widget class="QComboBox" name="revision_comboBox"/>
          </item>
         </layout>
+       </item>
+       <item row="1" column="0">
+        <widget class="QTableView" name="test_item_tableView"/>
+       </item>
+       <item row="2" column="0">
+        <widget class="QPushButton" name="submit_pushButton">
+         <property name="text">
+          <string>submit</string>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -332,13 +368,6 @@
        <string>test log</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
-       <item row="1" column="0">
-        <widget class="QPushButton" name="submit_pushButton">
-         <property name="text">
-          <string>submit</string>
-         </property>
-        </widget>
-       </item>
        <item row="0" column="0">
         <widget class="QTableView" name="tableView">
          <property name="editTriggers">
@@ -350,16 +379,25 @@
      </widget>
     </widget>
    </item>
-   <item row="2" column="0">
-    <widget class="QProgressBar" name="progressBar">
-     <property name="enabled">
-      <bool>true</bool>
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <family>Arial Narrow</family>
+       <pointsize>16</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+       <underline>false</underline>
+      </font>
      </property>
-     <property name="value">
-      <number>24</number>
+     <property name="autoFillBackground">
+      <bool>false</bool>
      </property>
-     <property name="textVisible">
-      <bool>true</bool>
+     <property name="text">
+      <string>AGIGA CORONADO PGEM UFT V1.0</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
      </property>
     </widget>
    </item>
@@ -381,8 +419,8 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>221</x>
-     <y>94</y>
+     <x>233</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>298</x>

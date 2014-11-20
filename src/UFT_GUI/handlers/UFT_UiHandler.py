@@ -29,7 +29,10 @@ class UFT_UiHandler(UFT_UiForm):
         self.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t")+data)
         self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
         
-    
+    def show_image(self, image):
+        myPixmap = QtGui.QPixmap(image)
+        myScaledPixmap = myPixmap.scaled(self.imageLabel.size(), Qt.KeepAspectRatio)
+        self.imageLabel.setPixmap(myScaledPixmap)
     
 if __name__ == "__main__":
     a=QtGui.QApplication(sys.argv)
@@ -37,5 +40,6 @@ if __name__ == "__main__":
     w=UFT_UiHandler()
     w.setupUi(Form)
     w.setupWidget(Form)
+    w.show_image("./despicableMe.jpg")
     Form.show()   
     sys.exit(a.exec_())  
