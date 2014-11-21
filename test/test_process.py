@@ -79,6 +79,7 @@ def run():
     for slot in range(TOTAL_SLOTNUM):
         dut_list[slot].switch()   # to dut
         dut_list[slot].charge(option=bq24704_option, status=True)
+        dut_list[slot].slotnum = slot
 
     all_charged = False
     while(not all_charged):
