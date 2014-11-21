@@ -53,9 +53,12 @@ class PGEMBase(DUT):
 
         # I2C adapter device
         self.device = device
+
+        # barcode
+        self.barcode = barcode
         r = BARCODE_PATTERN.search(barcode)
         if r:
-            self.sn = r.groupdict()
+            self.barcode_dict = r.groupdict()
         else:
             raise PGEMException("Unvalide barcode.")
 
@@ -125,13 +128,11 @@ class PGEMBase(DUT):
         """
         dut = {}
         for eep in EEP_MAP:
-            reg_name = eep["name"].lower()
-            dut.update({reg_name: self.read_vpd_byname(reg_name)})
+            reg_name = eep["name"]
+            dut.update({reg_name.lower(): self.read_vpd_byname(reg_name)})
 
-        #TODO not tested
-        # import change:
         # set self.values to write to database later.
-        for k, v in dut:
+        for k, v in dut.items():
             setattr(self, k, v)
 
         return dut
@@ -155,9 +156,9 @@ class PGEMBase(DUT):
         """
         buffebf = self.load_bin_file(path)
         #[ord(x) for x in string]
-        id = [ord(x) for x in self.sn['ID']]
-        yyww = [ord(x) for x in (self.sn['YY'] + self.sn['WW'])]
-        vv = [ord(x) for x in self.sn['VV']]
+        id = [ord(x) for x in self.barcode_dict['ID']]
+        yyww = [ord(x) for x in (self.barcode_dict['YY'] + self.barcode_dict['WW'])]
+        vv = [ord(x) for x in self.barcode_dict['VV']]
 
         # id == SN == Product Serial Number
         eep = self._query_map(EEP_MAP, name="SN")[0]
@@ -179,9 +180,9 @@ class PGEMBase(DUT):
             self.device.sleep(5)
 
         # readback to check
-        assert self.sn["ID"] == self.read_vpd_byname("SN")
-        assert (self.sn["YY"] + self.sn["WW"]) == self.read_vpd_byname("MFDATE")
-        assert self.sn["VV"] == self.read_vpd_byname("ENDUSR")
+        assert self.barcode_dict["ID"] == self.read_vpd_byname("SN")
+        assert (self.barcode_dict["YY"] + self.barcode_dict["WW"]) == self.read_vpd_byname("MFDATE")
+        assert self.barcode_dict["VV"] == self.read_vpd_byname("ENDUSR")
 
     def control_led(self, status="off"):
         """method to control the LED on DUT chip PCA9536DP

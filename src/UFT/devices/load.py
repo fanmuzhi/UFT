@@ -87,7 +87,8 @@ class DCLoad(object):
             raise DCLoadException(errmsg)
 
     def select_channel(self, chnum):
-        if(chnum in range(1, 5)):
+        chnum += 1
+        if(chnum in range(4)):
             self._write("CHAN " + str(chnum))
         else:
             raise DCLoadException("Invalid channel number")

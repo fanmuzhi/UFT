@@ -2,7 +2,7 @@
 """
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
 #from sqlalchemy import create_engine
 #from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
@@ -12,16 +12,20 @@ SQLBase = declarative_base()
 
 class DUT_STATUS(object):
     Blank = 0   # empty, not loaded on fixture
-    Idle = 1    # wait to test
-    Pass = 2    # pass the test
+    Pass = 1    # pass the test
+    Idle = 2    # wait to test
     Fail = 3    # fail in test
+    Charging = 4
+    Charged = 5
+    Discharging = 6
+    Discharged = 7
 
 
 class DUT(SQLBase):
     __tablename__ = "dut"
 
     id = Column(Integer, primary_key=True)
-    sn = Column(String(30), nullable=False)
+    barcode = Column(String(30), nullable=False)
     partnumber = Column(String(30), nullable=False)
 
     temphist = Column(Integer)
@@ -35,6 +39,7 @@ class DUT(SQLBase):
     hwver = Column(String(5))
     cappn = Column(String(20))
     pcbver = Column(String(5))
+    sn = Column(String(10))
     mfdate = Column(String(10))
     endusr = Column(String(5))
     pca = Column(String(20))
@@ -47,16 +52,16 @@ class DUT(SQLBase):
     testdate = Column(DateTime, default=datetime.datetime.utcnow)
 
     #DUT is one to many class refer to Cycles
-    cycles = relationship("Cycle", backref="dut")
+    cycles = relationship("Cycle")
 
 
 class Cycle(SQLBase):
     __tablename__ = "cycle"
 
     id = Column(Integer, primary_key=True)
-    temp = Column(Integer)
-    vin = Column(Integer)
-    vcap = Column(Integer)
+    temp = Column(Float)
+    vin = Column(Float)
+    vcap = Column(Float)
     time = Column(Integer)
     dutid = Column(Integer, ForeignKey("dut.id"))
 
