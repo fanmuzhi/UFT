@@ -3,9 +3,9 @@ from PyQt4 import QtGui, QtCore, QtSql
 import sys 
 from UFT_GUI import UFT_Ui
 
-def createConnection(): 
+def createConnection(db_file): 
     db = QtSql.QSqlDatabase.addDatabase("QSQLITE") 
-    db.setDatabaseName("../configuration.db") 
+    db.setDatabaseName(db_file) 
     db.open()
     
 class TableModel(QtSql.QSqlTableModel):   
@@ -16,13 +16,15 @@ class TableModel(QtSql.QSqlTableModel):
         self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
 
 class RelationModel(QtSql.QSqlRelationalTableModel):   
-    def __init__(self,parent,table1_name, table1_index_num ,rel_table_name, rel_index_name,):   
+    def __init__(self,parent,table1_name, table1_index_num ,rel_table_name, rel_index_name,rel_COLs=u""):   
         QtSql.QSqlRelationalTableModel.__init__(self,parent)   
         self.setTable(table1_name)
-        self.setRelation(table1_index_num, QtSql.QSqlRelation(QtCore.QString(rel_table_name),QtCore.QString(rel_index_name),QtCore.QString(u"*")))
+        self.setRelation(table1_index_num, 
+                         QtSql.QSqlRelation(QtCore.QString(rel_table_name),
+                         QtCore.QString(rel_index_name),
+                         QtCore.QString(rel_COLs)))
         self.select()
         self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
-
 
 if __name__=="__main__":
     a=QtGui.QApplication(sys.argv)
@@ -37,29 +39,42 @@ if __name__=="__main__":
         combobox.setModel(model)
         combobox.setModelColumn(model.fieldIndex(column))
     pop_comboBox(w.partNum_comboBox, config_model, "PARTNUMBER")
-    pop_comboBox(w.description_comboBox, config_model, "DESCRIPTION")
-    pop_comboBox(w.revision_comboBox, config_model, "REVISION")
+    
+    
     
     test_item_view = w.test_item_tableView
-    test_item_model = TableModel(test_item_view,"test_item")
+    test_item_model = RelationModel(test_item_view, 'test_item', 1, 'configuration', 'ID', u"")
+    
+#     
     test_item_view.setModel(test_item_model)
-    def testItem_update():
+    
+    def comboBox_update():
         config = TableModel(None, "configuration")
         current_pn = w.partNum_comboBox.currentText()
-        current_desc = w.description_comboBox.currentText()
+        config.setFilter("PARTNUMBER='"+current_pn+"'")
+        pop_comboBox(w.revision_comboBox, config, "REVISION")
+        
+    def update_table():
+        config1 = TableModel(None, "configuration")
+        current_pn = w.partNum_comboBox.currentText()
         current_rev = w.revision_comboBox.currentText()
-        filter_combo = "PARTNUMBER = '"+current_pn+"' and DESCRIPTION = '"+current_desc+"' AND REVISION = '"+current_rev+"'"
-        config.setFilter(filter_combo)
-        config.select()
-        config_id = config.record(0).value('ID').toString()
+        filter_combo = "PARTNUMBER = '"+current_pn+"' AND REVISION = '"+current_rev+"'"
+        config1.setFilter(filter_combo)
+        config1.select()
+        config_id = config1.record(0).value('ID').toString()
+        description = config1.record(0).value('DESCRIPTION').toString()
+        w.descriptionLabel.setText(description)
     #     test_item_model = RelationModel(test_item_view, "configuration", 0, "test_item", "CONFIGID")
         test_item_model.setFilter("CONFIGID = "+config_id)
         test_item_model.select()
-    testItem_update()
+        
+    def testItem_update():
+        comboBox_update()
+        update_table()
     
+    testItem_update()
     w.partNum_comboBox.currentIndexChanged.connect(testItem_update)
-    w.description_comboBox.currentIndexChanged.connect(testItem_update)
-    w.revision_comboBox.currentIndexChanged.connect(testItem_update)
+    w.revision_comboBox.currentIndexChanged.connect(update_table)
     
     def submit():
         for i in range(test_item_model.rowCount()):

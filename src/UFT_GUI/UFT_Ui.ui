@@ -290,13 +290,16 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="configrration">
+     <widget class="QWidget" name="configuration">
       <attribute name="title">
        <string>configuration</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_9">
        <item row="0" column="0">
         <layout class="QGridLayout" name="gridLayout_4">
+         <item row="1" column="0">
+          <widget class="QComboBox" name="partNum_comboBox"/>
+         </item>
          <item row="0" column="0">
           <widget class="QLabel" name="label_6">
            <property name="font">
@@ -313,20 +316,6 @@
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_7">
-           <property name="font">
-            <font>
-             <family>Arial Unicode MS</family>
-             <weight>75</weight>
-             <bold>true</bold>
-            </font>
-           </property>
-           <property name="text">
-            <string>Description: </string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
           <widget class="QLabel" name="label_8">
            <property name="font">
             <font>
@@ -340,14 +329,29 @@
            </property>
           </widget>
          </item>
-         <item row="1" column="0">
-          <widget class="QComboBox" name="partNum_comboBox"/>
-         </item>
          <item row="1" column="1">
-          <widget class="QComboBox" name="description_comboBox"/>
+          <widget class="QComboBox" name="revision_comboBox"/>
+         </item>
+         <item row="0" column="2">
+          <widget class="QLabel" name="label_7">
+           <property name="font">
+            <font>
+             <family>Arial Unicode MS</family>
+             <weight>75</weight>
+             <bold>true</bold>
+            </font>
+           </property>
+           <property name="text">
+            <string>Description: </string>
+           </property>
+          </widget>
          </item>
          <item row="1" column="2">
-          <widget class="QComboBox" name="revision_comboBox"/>
+          <widget class="QLabel" name="descriptionLabel">
+           <property name="text">
+            <string/>
+           </property>
+          </widget>
          </item>
         </layout>
        </item>

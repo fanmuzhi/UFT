@@ -67,8 +67,6 @@ def main():
             QString("Database Error: %1").arg(db.lastError().text()))
         sys.exit(1)
 
-    # Would normally be invoked as modal dialog.
-    # But for simplicity we use it as the main form here.
     form = EditItemDlg()
     form.show()
     app.exec_()
