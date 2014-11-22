@@ -9,7 +9,8 @@ __author__ = "@boqiling"
 __all__ = ["PGEMConfig", "TestItem"]
 
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Float, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, Float, String, Boolean
+from sqlalchemy import ForeignKey, UniqueConstraint
 from sqlalchemy.orm import relationship
 
 SQLBase = declarative_base()
@@ -18,47 +19,51 @@ SQLBase = declarative_base()
 class PGEMConfig(SQLBase):
     __tablename__ = "configuration"
 
-    ID = Column(Integer, primary_key=True)
-    PARTNUMBER = Column(String(20), nullable=False)
-    DESCRIPTION = Column(String(50))
-    REVISION = Column(String(5), nullable=False)
+    id = Column(Integer, primary_key=True)
+    partnumber = Column(String(20), unique=True, nullable=False)
+    description = Column(String(50))
+    revision = Column(String(5), nullable=False)
 
-    TESTITEMS = relationship("TestItem", backref="configuration")
+    testitems = relationship("TestItem", backref="configuration",
+                             cascade="all, delete-orphan")
+    __table_args__ = (UniqueConstraint('partnumber',
+                                       'revision',
+                                       name='_partnumber_revision_uc_'),)
 
     def to_dict(self):
         items_list = {}
-        for item in self.TESTITEMS:
+        for item in self.testitems:
             items_list.update(item.to_dict())
         #items_list = {"ITEM": items_list}
-        return {"PARTNUMBER": self.PARTNUMBER,
-                "DESCRIPTION": self.DESCRIPTION,
-                "REVISION": self.REVISION,
-                "TESTITEMS": items_list}
+        return {"partnumber": self.partnumber,
+                "description": self.description,
+                "revision": self.revision,
+                "testitems": items_list}
 
 
 class TestItem(SQLBase):
     __tablename__ = "test_item"
 
-    ID = Column(Integer, primary_key=True)
-    CONFIGID = Column(Integer, ForeignKey("configuration.ID", ondelete="CASCADE"))
+    id = Column(Integer, primary_key=True)
+    configid = Column(Integer, ForeignKey("configuration.id"))
 
-    NAME = Column(String(10), unique=True, nullable=False)
-    DESCRIPTION = Column(String(30))
-    ENABLE = Column(Boolean, nullable=False)
-    MIN = Column(Float)
-    MAX = Column(Float)
-    STOPONFAIL = Column(Boolean, default=True)
-    MISC = Column(String(50))
+    name = Column(String(10), nullable=False)
+    description = Column(String(30))
+    enable = Column(Boolean, nullable=False)
+    min = Column(Float)
+    max = Column(Float)
+    stoponfail = Column(Boolean, default=True)
+    misc = Column(String(50))
 
     def to_dict(self):
         return {
-            self.NAME: {
-            "DESCRIPTION": self.DESCRIPTION,
-            "ENABLE": int(self.ENABLE),
-            "MIN": self.MIN,
-            "MAX": self.MAX,
-            "STOPONFAIL": int(self.STOPONFAIL),
-            "MISC": self.MISC
+            self.name: {
+                "description": self.description,
+                "enable": int(self.enable),
+                "min": self.min,
+                "max": self.max,
+                "stoponfail": int(self.stoponfail),
+                "misc": self.misc
             }
         }
 
@@ -72,29 +77,29 @@ if __name__ == "__main__":
 
     # Insert Example
     CrystalConfig = PGEMConfig()
-    CrystalConfig.PARTNUMBER = "AGIGA9601-002BCA"
-    CrystalConfig.DESCRIPTION = "Crystal"
-    CrystalConfig.REVISION = "04"
+    CrystalConfig.partnumber = "AGIGA9601-002BCA"
+    CrystalConfig.description = "Crystal"
+    CrystalConfig.revision = "04"
 
     CheckTemp = TestItem()
-    CheckTemp.NAME = "Check_Temp"
-    CheckTemp.DESCRIPTION = "Check Temperature on chip SE97BTP, data in degree"
-    CheckTemp.ENABLE = True
-    CheckTemp.MIN = 5.0
-    CheckTemp.MAX = 30.0
-    CheckTemp.STOPONFAIL = False
+    CheckTemp.name = "Check_Temp"
+    CheckTemp.description = "Check Temperature on chip SE97BTP, data in degree"
+    CheckTemp.enable = True
+    CheckTemp.min = 5.0
+    CheckTemp.max = 30.0
+    CheckTemp.stoponfail = False
 
     Charge = TestItem()
-    Charge.NAME = "Charge"
-    Charge.DESCRIPTION = "Charge DUT with BQ24707, limition in seconds"
-    Charge.ENABLE = True
-    Charge.MIN = 30.0
-    Charge.MAX = 120.0
-    Charge.STOPONFAIL = True
+    Charge.name = "Charge"
+    Charge.description = "Charge DUT with BQ24707, limition in seconds"
+    Charge.enable = True
+    Charge.min = 30.0
+    Charge.max = 120.0
+    Charge.stoponfail = True
 
     try:
-        CrystalConfig.TESTITEMS.append(CheckTemp)
-        CrystalConfig.TESTITEMS.append(Charge)
+        CrystalConfig.testitems.append(CheckTemp)
+        CrystalConfig.testitems.append(Charge)
         session.add(CrystalConfig)
         session.commit()
     except Exception as e:
@@ -103,12 +108,12 @@ if __name__ == "__main__":
 
     # Query Example
     crystal = session.query(PGEMConfig).filter(
-        PGEMConfig.PARTNUMBER == "AGIGA9601-002BCA",
-        PGEMConfig.REVISION == "04").first()
-    for testitem in crystal.TESTITEMS:
-        if testitem.NAME == "Charge":
-            print testitem.NAME
-            print testitem.DESCRIPTION
-            print testitem.MAX
+        PGEMConfig.partnumber == "AGIGA9601-002BCA",
+        PGEMConfig.revision == "04").first()
+    for testitem in crystal.testitems:
+        if testitem.name == "Charge":
+            print testitem.name
+            print testitem.description
+            print testitem.max
 
     print crystal.to_dict()

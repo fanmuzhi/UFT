@@ -1,24 +1,64 @@
 <?xml version="1.0" ?>
 <entity>
-    <TESTITEMS>
+    <testitems>
+        <Self_Discharge>
+            <enable>1</enable>
+            <description>IO Expander, limitation in seconds</description>
+            <min>30.0</min>
+            <max>50.0</max>
+            <misc>Threshold=4.0v</misc>
+            <stoponfail>1</stoponfail>
+        </Self_Discharge>
         <Charge>
-            <ENABLE>1</ENABLE>
-            <DESCRIPTION>Charge DUT with BQ24707, limition in seconds</DESCRIPTION>
-            <MIN>30.0</MIN>
-            <MAX>120.0</MAX>
-            <MISC>None</MISC>
-            <STOPONFAIL>1</STOPONFAIL>
+            <enable>1</enable>
+            <description>Charge DUT with BQ24707, limitation in seconds</description>
+            <min>90.0</min>
+            <max>120.0</max>
+            <misc>Threshold=4.6V, ChargeOption=0x1990, ChargeCurrent=0x01C0, ChargeVoltage=0x1200, InputCurrent=0x0400</misc>
+            <stoponfail>1</stoponfail>
         </Charge>
+        <Auto_Discharge>
+            <enable>1</enable>
+            <description>IO present/auto_disch, limitation in seconds</description>
+            <min>30.0</min>
+            <max>50.0</max>
+            <misc>Threshold=4.0v</misc>
+            <stoponfail>1</stoponfail>
+        </Auto_Discharge>
         <Check_Temp>
-            <ENABLE>1</ENABLE>
-            <DESCRIPTION>Check Temperature on chip SE97BTP, data in degree</DESCRIPTION>
-            <MIN>5.0</MIN>
-            <MAX>30.0</MAX>
-            <MISC>None</MISC>
-            <STOPONFAIL>0</STOPONFAIL>
+            <enable>1</enable>
+            <description>Check Temperature on chip SE97BTP, data in degree</description>
+            <min>5.0</min>
+            <max>30.0</max>
+            <misc>None</misc>
+            <stoponfail>0</stoponfail>
         </Check_Temp>
-    </TESTITEMS>
-    <PARTNUMBER>AGIGA9601-002BCA</PARTNUMBER>
-    <DESCRIPTION>Crystal</DESCRIPTION>
-    <REVISION>04</REVISION>
+        <Program_VPD>
+            <enable>1</enable>
+            <description>write ebf file to VPD</description>
+            <min>0.0</min>
+            <max>0.0</max>
+            <misc>File=/home/qibo/pyprojects/UFT/test/crystal.ebf</misc>
+            <stoponfail>1</stoponfail>
+        </Program_VPD>
+        <Discharge>
+            <enable>1</enable>
+            <description>Discharge DUT with BQ24707, limitation in seconds</description>
+            <min>30.0</min>
+            <max>120.0</max>
+            <misc>Threshold=0.1V</misc>
+            <stoponfail>1</stoponfail>
+        </Discharge>
+        <Check_EncryptedIC>
+            <enable>1</enable>
+            <description>Check Encrypted IC</description>
+            <min>0.0</min>
+            <max>0.0</max>
+            <misc>None</misc>
+            <stoponfail>0</stoponfail>
+        </Check_EncryptedIC>
+    </testitems>
+    <partnumber>AGIGA9601-002BCA</partnumber>
+    <description>Crystal</description>
+    <revision>04</revision>
 </entity>

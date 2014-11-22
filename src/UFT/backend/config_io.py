@@ -25,7 +25,7 @@ def save_config(config, directory="."):
     :param directory: directory to store all the xml files
     :return: xml string
     """
-    filename = config["PARTNUMBER"] + "-" + config["REVISION"] + ".xml"
+    filename = config["partnumber"] + "-" + config["revision"] + ".xml"
     filepath = os.path.join(directory, filename)
     result = dumps(config, "entity")
     with open(filepath, "wb") as f:
@@ -55,8 +55,8 @@ def load_config(dburi, partnumber, revision):
     sm = SessionManager()
     sess = sm.get_session(dburi)
     pgem_config = sess.query(PGEMConfig).filter(
-        PGEMConfig.PARTNUMBER == partnumber,
-        PGEMConfig.REVISION == revision,
+        PGEMConfig.partnumber == partnumber,
+        PGEMConfig.revision == revision,
     ).first()
     logger.debug(pgem_config.to_dict())
     return pgem_config
@@ -79,29 +79,40 @@ def sync_config(dburi, directory):
     for root, folder, files in os.walk(directory):
         for f in files:
             #if(f.endswith(".xml") or f.endswith(".XML")):
-            regex = re.compile(r"AGIGA\d{4}\-\d{3}\w{3}-\d{2}\.xml", re.IGNORECASE)
+            regex = re.compile(r"AGIGA\d{4}\-\d{3}\w{3}-\d{2}\.xml",
+                               re.IGNORECASE)
             if(regex.match(f)):
                 file_list.append(os.path.join(root, f))
     for f in file_list:
         config = load_xml(f)
-        pgem_config = PGEMConfig()
+        logger.debug(config)
+
+        result = sess.query(PGEMConfig).filter(
+                        PGEMConfig.partnumber == config["partnumber"],
+                        PGEMConfig.revision == config["revision"]).first()
+        if result:
+            pgem_config = result
+            pgem_config.testitems = []
+        else:
+            pgem_config = PGEMConfig()
         for k, v in config.items():
-            if k != "TESTITEMS":
-                setattr(pgem_config, k, v)
+            if k != "testitems" and k != "TESTITEMS":
+                setattr(pgem_config, k.lower(), v)
             else:
                 items = v
                 for tk, tv in items.items():
                     test_item = TestItem()
-                    setattr(test_item, "NAME", tk)
+                    setattr(test_item, "NAME".lower(), tk)
                     for dk, dv in tv.items():
-                        setattr(test_item, dk, dv)
-                    pgem_config.TESTITEMS.append(test_item)
-
+                        setattr(test_item, dk.lower(), dv)
+                    pgem_config.testitems.append(test_item)
+        logger.debug(pgem_config)
         try:
             sess.add(pgem_config)
             sess.commit()
-        except Exception:
+        except Exception as e:
             sess.rollback()
+            raise e
 
     # db to file
     for config in sess.query(PGEMConfig).all():
