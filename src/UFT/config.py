@@ -2,13 +2,17 @@
 # encoding: utf-8
 """Description: Configuration for UFT program.
 """
+from UFT.models import PGEMBase
 
 __version__ = "0.1"
 __author__ = "@boqiling"
 
 # total slot number for one channel,
 # should be 4, 1 for debug
-TOTAL_SLOTNUM = 1
+TOTAL_SLOTNUM = 4
+
+# basic model for UFT
+PGEM_MODEL = PGEMBase    # basic model of crystal, jade, opal, etc.
 
 # seconds to delay in charging and discharging,
 # increase value to reduce the data in database.
@@ -32,7 +36,6 @@ ADK_PORT = 0
 # load Settings
 # load RS232 port
 LD_PORT = "COM3"
-# read and write delay for rs232
 LD_DELAY = 3
 
 # database settings

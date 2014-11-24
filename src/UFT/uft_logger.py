@@ -206,4 +206,4 @@ def init_logger(mylogger, level=logging.INFO):
     # add handlers
     #mylogger.addHandler(hdlr)
     mylogger.addHandler(stdhl)
-    UFT.mylogger.setLevel(level)
+    mylogger.setLevel(level)

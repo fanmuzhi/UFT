@@ -149,8 +149,9 @@ def run():
 
     # save to database
     for dut in dut_list:
-        my_session.add(dut)
-        my_session.commit()
+        if(dut.status != DUT_STATUS.Blank):
+            my_session.add(dut)
+            my_session.commit()
 
 
 if __name__ == "__main__":
