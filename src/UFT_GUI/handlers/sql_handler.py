@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
-from PyQt4 import QtGui, QtCore, QtSql
-import sys 
+'''
+Created on Nov 01, 2014
+@author: mzfa
+'''
+import sys
+from PyQt4 import QtCore, QtSql
 from UFT_GUI import UFT_Ui
 
 
@@ -43,6 +47,7 @@ class RelationModel(QtSql.QSqlRelationalTableModel):
         self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
 
 if __name__=="__main__":
+    from PyQt4 import QtGui
     a=QtGui.QApplication(sys.argv)
     Form = QtGui.QWidget()
     

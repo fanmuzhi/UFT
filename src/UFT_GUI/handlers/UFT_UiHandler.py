@@ -2,7 +2,7 @@
 # encoding: utf-8
 
 '''
-Created on Nov 01, 2013
+Created on Nov 01, 2014
 @author: mzfa
 '''
 import sys
@@ -94,7 +94,6 @@ class UFT_UiHandler(UFT_UiForm):
                                                          "id",
                                                          u"barcode")
         self.log_tableView.setModel(self.test_log_model)
-
     def push_mpl(self, ):
         self.mplwidget.setFocus()
         mpl_handler.plot(self.mplwidget.axes)

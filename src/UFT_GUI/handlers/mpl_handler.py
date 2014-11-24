@@ -1,7 +1,12 @@
+# -*- coding: utf-8 -*-
+'''
+Created on Nov 01, 2014
+@author: mzfa
+'''
 import sys
 import numpy as np
-from PyQt4 import QtCore, QtGui
 import random
+from PyQt4 import QtCore, QtGui
 from UFT_GUI import UFT_Ui
 from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 
