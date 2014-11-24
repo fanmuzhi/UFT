@@ -3,45 +3,58 @@ from PyQt4 import QtGui, QtCore, QtSql
 import sys 
 from UFT_GUI import UFT_Ui
 
-def createConnection(db_file): 
-    db = QtSql.QSqlDatabase.addDatabase("QSQLITE") 
-    db.setDatabaseName(db_file) 
-    db.open()
-    
+
+class MyDB():
+    def __init__(self):
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")  #select database type
+        self.query = None
+
+    def open(self):
+        if not self.db.open():
+            self.db.open()  # connect to or create database
+            self.query = QtSql.QSqlQuery()  # sql handler
+
+    def switch_to_configuration(self):
+        self.db.setDatabaseName("./res/db/configuration.db")  # set database name
+        self.db.open()
+
+    def switch_to_pgem(self):
+        self.db.setDatabaseName("./res/db/pgem.db")  # set database name
+        self.db.open()
+
+
 class TableModel(QtSql.QSqlTableModel):   
-    def __init__(self,parent,table_name):   
-        QtSql.QSqlTableModel.__init__(self,parent)   
+    def __init__(self, table_name, parent=None):
+        QtSql.QSqlTableModel.__init__(self, parent)
         self.setTable(table_name)
         self.select()
         self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
 
+
 class RelationModel(QtSql.QSqlRelationalTableModel):   
-    def __init__(self,parent,table1_name, table1_index_num ,rel_table_name, rel_index_name,rel_COLs=u""):   
-        QtSql.QSqlRelationalTableModel.__init__(self,parent)   
+    def __init__(self, parent, table1_name, table1_index_num, rel_table_name, rel_index_name, rel_cols=u""):
+        QtSql.QSqlRelationalTableModel.__init__(self, parent)
         self.setTable(table1_name)
-        self.setRelation(table1_index_num, 
+        self.setRelation(table1_index_num,
                          QtSql.QSqlRelation(QtCore.QString(rel_table_name),
-                         QtCore.QString(rel_index_name),
-                         QtCore.QString(rel_COLs)))
+                                            QtCore.QString(rel_index_name),
+                                            QtCore.QString(rel_cols)))
         self.select()
         self.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
 
 if __name__=="__main__":
     a=QtGui.QApplication(sys.argv)
-    createConnection()
     Form = QtGui.QWidget()
     
     w=UFT_Ui.Ui_Form()
     w.setupUi(Form)
     
     config_model = TableModel(None, "configuration")
+
     def pop_comboBox(combobox, model, column):
         combobox.setModel(model)
         combobox.setModelColumn(model.fieldIndex(column))
     pop_comboBox(w.partNum_comboBox, config_model, "PARTNUMBER")
-    
-    
-    
     test_item_view = w.test_item_tableView
     test_item_model = RelationModel(test_item_view, 'test_item', 1, 'configuration', 'ID', u"")
     
