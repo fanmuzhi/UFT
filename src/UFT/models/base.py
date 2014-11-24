@@ -44,12 +44,7 @@ class PGEMBase(DUT):
     def __init__(self, device, barcode, **kvargs):
         # slot number for dut on fixture location.
         # from 0 to 3, totally 4 slots in UFT
-        self.slot = kvargs.get("slot", 0)
-
-        # channel number for mother board.
-        # 8 mother boards can be stacked from 0 to 7.
-        # use 1 motherboard in default.
-        self.channel = kvargs.get("channel", 0)
+        self.slotnum = kvargs.get("slot", 0)
 
         # I2C adapter device
         self.device = device
@@ -63,33 +58,6 @@ class PGEMBase(DUT):
             self.revision = self.barcode_dict["RR"]
         else:
             raise PGEMException("Unvalide barcode.")
-
-    def switch(self):
-        """switch I2C ports by PCA9548A, only 1 channel is enabled.
-        chnum(channel number): 0~7
-        slotnum(slot number): 0~7
-        """
-        chnum = self.channel
-        slot = self.slot
-        self.device.slave_addr = 0x70 + chnum    # 0111 0000
-        wdata = [0x01 << slot]
-
-        # Switch I2C connection to current PGEM
-        # Need call this function every time before communicate with PGEM
-        self.device.write(wdata)
-
-    def switch_back(self):
-        """switch I2C ports back to mother board
-           chnum(channel number): 0~7
-        """
-        chnum = self.channel
-        self.device.slave_addr = 0x70 + chnum    # 0111 0000
-        wdata = 0x00
-
-        # Switch I2C connection to mother board
-        # Need call this function every time before communicate with
-        # mother board
-        self.device.write(wdata)
 
     @staticmethod
     def _query_map(mymap, **kvargs):
@@ -308,80 +276,6 @@ class PGEMBase(DUT):
         assert self.read_bq24707(CHG_VOL_ADDR) == option["ChargeVoltage"]
         assert self.read_bq24707(INPUT_CUR_ADDR) == option["InputCurrent"]
 
-    def load_discharge(self):
-        # the agilent load code should not be here.
-        # delete this function.
-        pass
-
-    def auto_discharge(self, status=False):
-        """output PRESENT/AUTO_DISCH signal on TCA9555 on mother board.
-           When IO=0, discharge;
-           When IO=1, not discharge.
-        """
-        if(status):
-            IO = 0
-        else:
-            IO = 1
-
-        chnum = self.channel
-
-        self.device.slave_addr = 0x20 + chnum
-        REG_INPUT = 0x00
-        REG_OUTPUT = 0x02
-        REG_CONFIG = 0x06
-
-        # config PIO-0 to output and PIO-1 to input
-        # first PIO-0 then PIO-1
-        wdata = [REG_CONFIG, 0x00, 0xFF]
-        self.device.write(wdata)
-
-        # read current status
-        val = self.device.read_reg(REG_INPUT, length=2)
-        val = val[0]    # only need port 0 value
-
-        # set current slot
-        if(IO == 1):
-            # set bit
-            val |= (IO << self.slot)
-        else:
-            # clear bit
-            val &= ~(0X01 << self.slot)
-
-        # output
-        # first PIO-0, then PIO-1
-        wdata = [REG_OUTPUT, val, 0xFF]
-        self.device.write(wdata)
-
-        # read status back
-        val = self.device.read_reg(REG_INPUT, length=2)
-        val = val[0]    # only need port 0 value
-        val = (val & (0x01 << self.slot)) >> self.slot
-        assert val == IO
-
-    def check_power_fail(self):
-        """check power_fail_int signal on TCA9555 on mother board
-        return true if power failed.
-        """
-        chnum = self.channel
-
-        self.device.slave_addr = 0x20 + chnum
-        REG_INPUT = 0x00
-        #REG_OUTPUT = 0x02
-        REG_CONFIG = 0x06
-
-        # config PIO-0 to output and PIO-1 to input
-        # first PIO-0 then PIO-1
-        wdata = [REG_CONFIG, 0x00, 0xFF]
-        self.device.write(wdata)
-
-        # read reg_input
-        val = self.device.read_reg(REG_INPUT, length=2)
-        val = val[1]    # only need port 1 value
-
-        # check current slot
-        val = (val & (0x01 << self.slot)) >> self.slot
-        return val != 0
-
     @staticmethod
     def _calc_temp(temp):
         # method to caculate the temp sensor value of chip SE97BTP
@@ -417,8 +311,12 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     from UFT.devices.aardvark import pyaardvark
+    from UFT.channel import Channel
+
     adk = pyaardvark.Adapter()
     adk.open(portnum=0)
+
+    ch = Channel(channel_id=0)
 
     barcode = "AGIGA9811-001BCA02143500000002-01"
 
@@ -427,18 +325,17 @@ if __name__ == "__main__":
                       "InputCurrent": 0x0400}
 
     dut = PGEMBase(device=adk, slot=0, barcode=barcode)
-    dut.switch_back()
-    print DUT.check_power_fail()
+    ch.switch_to_mb()
+    print ch.check_power_fail(slot=0)
 
-    dut.switch()
+    ch.switch_to_dut(slot=0)
     dut.charge(option=bq24704_option, status=True)
 
     dut.switch_back()
-    while(dut.check_power_fail()):
+    while(ch.check_power_fail(slot=0)):
         time.sleep(10)
-        pass
 
-    dut.switch()
+    ch.switch_to_dut(slot=0)
     print dut.read_vpd()
     dut.control_led(status="on")
 
@@ -447,10 +344,11 @@ if __name__ == "__main__":
 
     print dut.read_vpd()
     print dut.check_temp()
-    #dut.self_discharge(False)
-    #dut.charge(option=bq24704_option, status=False)
 
-    #dut.switch_back()
+    dut.charge(option=bq24704_option, status=False)
+    dut.self_discharge(True)
+
+    ch.auto_discharge(slot=0, status=True)
     #print dut.check_power_fail()
     #dut.auto_discharge(True)
 
