@@ -25,8 +25,9 @@ class UFT_UiHandler(UFT_UiForm):
         
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QIcon(QPixmap("./res/icons/logo.png")))
+        sql_handler.createConnection("./res/db/configuration.db")
         self.config_model = sql_handler.TableModel(None, "configuration")
-        self.popComboBox(self.partNum_comboBox, self.config_model, "PARTNUMBER")
+        self.__popComboBox(self.partNum_comboBox, self.config_model, "PARTNUMBER")
         self.test_item_model = sql_handler.RelationModel(self.test_item_tableView, 'test_item', 1, 'configuration', 'ID', u"")
         self.test_item_tableView.setModel(self.test_item_model)
         self.testItem_update()
@@ -40,7 +41,7 @@ class UFT_UiHandler(UFT_UiForm):
         myScaledPixmap = myPixmap.scaled(self.imageLabel.size(), Qt.KeepAspectRatio)
         self.imageLabel.setPixmap(myScaledPixmap)
     
-    def popComboBox(self,combobox, model, column):
+    def __popComboBox(self,combobox, model, column):
         combobox.setModel(model)
         combobox.setModelColumn(model.fieldIndex(column))
         
@@ -48,7 +49,7 @@ class UFT_UiHandler(UFT_UiForm):
         config = sql_handler.TableModel(None, "configuration")
         current_pn = self.partNum_comboBox.currentText()
         config.setFilter("PARTNUMBER='"+current_pn+"'")
-        self.popComboBox(self.revision_comboBox, config, "REVISION")
+        self.__popComboBox(self.revision_comboBox, config, "REVISION")
         
     def update_table(self):
         config1 = sql_handler.TableModel(None, "configuration")
@@ -76,11 +77,10 @@ class UFT_UiHandler(UFT_UiForm):
     
 if __name__ == "__main__":
     a=QtGui.QApplication(sys.argv)
-    sql_handler.createConnection("../configuration.db")
     Form = QtGui.QWidget()
     w=UFT_UiHandler()
     w.setupUi(Form)
     w.setupWidget(Form)
-    w.show_image("./despicableMe.jpg")
+    w.show_image("../res/icons/despicableMe.jpg")
     Form.show()   
     sys.exit(a.exec_())  
