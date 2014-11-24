@@ -37,6 +37,6 @@ LD_DELAY = 3
 
 # database settings
 # database for dut test result
-RESULT_DB = "sqlite:///pgem.db"
+RESULT_DB = "sqlite:///C:\\Users\\qibo\\Documents\\UFT\\test\\pgem.db"
 # database for dut configuration
-CONFIG_DB = "sqlite:///pgem_config.db"
+CONFIG_DB = "sqlite:///C:\\Users\\qibo\\Documents\\UFT\\test\\pgem_config.db"

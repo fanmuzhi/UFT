@@ -6,7 +6,7 @@
             <description>IO Expander, limitation in seconds</description>
             <min>30.0</min>
             <max>50.0</max>
-            <misc>Threshold=4.0v</misc>
+            <misc>Threshold=4.0V</misc>
             <stoponfail>1</stoponfail>
         </Self_Discharge>
         <Charge>
@@ -14,7 +14,7 @@
             <description>Charge DUT with BQ24707, limitation in seconds</description>
             <min>90.0</min>
             <max>120.0</max>
-            <misc>Threshold=4.6V, ChargeOption=0x1990, ChargeCurrent=0x01C0, ChargeVoltage=0x1200, InputCurrent=0x0400</misc>
+            <misc>Threshold=4.6V;ChargeOption=0x1990;ChargeCurrent=0x01C0;ChargeVoltage=0x1200;InputCurrent=0x0400</misc>
             <stoponfail>1</stoponfail>
         </Charge>
         <Auto_Discharge>
@@ -22,7 +22,7 @@
             <description>IO present/auto_disch, limitation in seconds</description>
             <min>30.0</min>
             <max>50.0</max>
-            <misc>Threshold=4.0v</misc>
+            <misc>Threshold=4.0V</misc>
             <stoponfail>1</stoponfail>
         </Auto_Discharge>
         <Check_Temp>
@@ -38,15 +38,15 @@
             <description>write ebf file to VPD</description>
             <min>0.0</min>
             <max>0.0</max>
-            <misc>File=/home/qibo/pyprojects/UFT/test/crystal.ebf</misc>
+            <misc>File=C:\Users\qibo\Documents\UFT\test\101-40028-01-Rev02 Crystal2 VPD.ebf</misc>
             <stoponfail>1</stoponfail>
         </Program_VPD>
         <Discharge>
             <enable>1</enable>
-            <description>Discharge DUT with BQ24707, limitation in seconds</description>
+            <description>Discharge DUT with N3300A, limitation in seconds</description>
             <min>30.0</min>
             <max>120.0</max>
-            <misc>Threshold=0.1V</misc>
+            <misc>Threshold=0.1V;Current=0.8A</misc>
             <stoponfail>1</stoponfail>
         </Discharge>
         <Check_EncryptedIC>

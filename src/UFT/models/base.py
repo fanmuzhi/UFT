@@ -59,6 +59,8 @@ class PGEMBase(DUT):
         r = BARCODE_PATTERN.search(barcode)
         if r:
             self.barcode_dict = r.groupdict()
+            self.partnumber = self.barcode_dict["PN"]
+            self.revision = self.barcode_dict["RR"]
         else:
             raise PGEMException("Unvalide barcode.")
 
@@ -281,8 +283,14 @@ class PGEMBase(DUT):
         logger.debug(self.read_bq24707(MAN_ID_ADDR))
         logger.debug(self.read_bq24707(DEV_ID_ADDR))
 
+        # convert options from string to int
+        for k, v in option.items():
+            if k in ["ChargeCurrent", "ChargeVoltage",
+                     "ChargeOption", "InputCurrent"]:
+                option[k] = int(v, 0)
+
         # write options
-        charge_option = option["charge_option"]    # 0x1990
+        charge_option = option["ChargeOption"]    # 0x1990
         if status:
             # start charge
             charge_option &= ~(0x01)    # clear last bit
@@ -290,15 +298,15 @@ class PGEMBase(DUT):
             # stop charge
             charge_option |= 0x01   # set last bit
         self.write_bq24707(CHG_OPT_ADDR, charge_option)
-        self.write_bq24707(CHG_CUR_ADDR, option["charge_current"])   # 0x01C0
-        self.write_bq24707(CHG_VOL_ADDR, option["charge_voltage"])   # 0x1200
-        self.write_bq24707(INPUT_CUR_ADDR, option["input_current"])  # 0x0400
+        self.write_bq24707(CHG_CUR_ADDR, option["ChargeCurrent"])   # 0x01C0
+        self.write_bq24707(CHG_VOL_ADDR, option["ChargeVoltage"])   # 0x1200
+        self.write_bq24707(INPUT_CUR_ADDR, option["InputCurrent"])  # 0x0400
 
         # read back to check if written successfully
         assert self.read_bq24707(CHG_OPT_ADDR) == charge_option
-        assert self.read_bq24707(CHG_CUR_ADDR) == option["charge_current"]
-        assert self.read_bq24707(CHG_VOL_ADDR) == option["charge_voltage"]
-        assert self.read_bq24707(INPUT_CUR_ADDR) == option["input_current"]
+        assert self.read_bq24707(CHG_CUR_ADDR) == option["ChargeCurrent"]
+        assert self.read_bq24707(CHG_VOL_ADDR) == option["ChargeVoltage"]
+        assert self.read_bq24707(INPUT_CUR_ADDR) == option["InputCurrent"]
 
     def load_discharge(self):
         # the agilent load code should not be here.
@@ -414,10 +422,9 @@ if __name__ == "__main__":
 
     barcode = "AGIGA9811-001BCA02143500000002-01"
 
-    bq24704_option = {"charge_option": 0x1990,
-                      "charge_current": 0x01C0,
-                      "charge_voltage": 0x1200,
-                      "input_current": 0x0400}
+    bq24704_option = {"ChargeOption": 0x1990,
+                      "ChargeCurrent": 0x01C0, "ChargeVoltage": 0x1200,
+                      "InputCurrent": 0x0400}
 
     dut = PGEMBase(device=adk, slot=0, barcode=barcode)
     dut.switch_back()

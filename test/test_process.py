@@ -7,6 +7,7 @@ __author__ = "@boqiling"
 
 from UFT.models import PGEMBase, DUT_STATUS, DUT, Cycle
 from UFT.backend.session import SessionManager
+from UFT.backend import load_config, load_test_item
 from UFT.devices import pwr
 from UFT.devices import load
 from UFT.devices import aardvark
@@ -14,22 +15,28 @@ from UFT.config import *
 import time
 
 # barcode list for test purpose only
-barcode_list = ["AGIGA9811-001BCA02143500000001-01",
-                "AGIGA9811-001BCA02143500000002-01",
-                "AGIGA9811-001BCA02143500000003-01",
-                "AGIGA9811-001BCA02143500000004-01"]
+barcode_list = ["AGIGA9601-002BCA02143500000001-04",
+                "AGIGA9601-002BCA02143500000002-04",
+                "AGIGA9601-002BCA02143500000003-04",
+                "AGIGA9601-002BCA02143500000004-04"]
 
-bq24704_option = {"charge_option": 0x1990,
-                  "charge_current": 0x01C0,
-                  "charge_voltage": 0x1200,
-                  "input_current": 0x0400}
-
-VCAP_HIGH_THRESHHOLD = 4.6
-VCAP_LOW_THRESHHOLD = 0.2
-
-VPD_PATH = r"C:\Users\qibo\Documents\UFT\test\101-40028-01-Rev02 Crystal2 VPD.ebf"
 
 def run():
+    # aardvark
+    adk = aardvark.Adapter()
+    adk.open(portnum=ADK_PORT)
+
+    # setup dut_list
+    dut_list = []
+    config_list = []
+    for slot in range(TOTAL_SLOTNUM):
+        dut = PGEMBase(device=adk, slot=slot, barcode=barcode_list[slot])
+        dut.status = DUT_STATUS.Idle
+        dut_list.append(dut)
+
+        # load config
+        dut_config = load_config(CONFIG_DB, dut.partnumber, dut.revision)
+        config_list.append(dut_config)
 
     # setup load
     ld = load.DCLoad(port=LD_PORT, timeout=LD_DELAY)
@@ -38,7 +45,7 @@ def run():
         ld.input_off()
         ld.protect_on()
         ld.change_func(load.DCLoad.ModeCURR)
-        ld.set_curr(0.8)    # discharge current, should be in dut config.
+        #ld.set_curr(0.8)    # discharge current, should be in dut config.
 
     # setup main power 12V
     ps = pwr.PowerSupply()
@@ -51,20 +58,8 @@ def run():
     time.sleep(1)
     volt = ps.measureVolt()
     curr = ps.measureCurr()
-    assert 11 < volt < 13
+    assert (PS_VOLT-1) < volt < (PS_VOLT+1)
     assert curr >= 0
-
-    # aardvark
-    adk = aardvark.Adapter()
-    adk.open(portnum=ADK_PORT)
-
-    # setup dut_list
-    dut_list = []
-    for slot in range(TOTAL_SLOTNUM):
-        dut = PGEMBase(device=adk, slot=slot, barcode=barcode_list[slot])
-        dut.partnumber = "Crystal"
-        dut.status = DUT_STATUS.Idle
-        dut_list.append(dut)
 
     # setup database
     sm = SessionManager()
@@ -77,14 +72,18 @@ def run():
     counter = 0     # counter for whole charging and discharging
 
     for slot in range(TOTAL_SLOTNUM):
+        charge_config = load_test_item(config_list[slot], "Charge")
+
         dut_list[slot].switch()   # to dut
-        dut_list[slot].charge(option=bq24704_option, status=True)
+        dut_list[slot].charge(option=charge_config, status=True)
         dut_list[slot].slotnum = slot
 
     all_charged = False
     while(not all_charged):
         all_charged = True
         for slot in range(TOTAL_SLOTNUM):
+            charge_config = load_test_item(config_list[slot], "Charge")
+
             this_cycle = Cycle()
             this_cycle.vin = ps.measureVolt()
             this_cycle.temp = dut_list[slot].check_temp()
@@ -94,7 +93,8 @@ def run():
             ld.select_channel(slot)
             this_cycle.vcap = ld.read_volt()
 
-            if(this_cycle.vcap > VCAP_HIGH_THRESHHOLD):
+            threshold = float(charge_config["Threshold"].strip("aAvV"))
+            if(this_cycle.vcap > threshold):
                 all_charged &= True
                 dut_list[slot].status = DUT_STATUS.Charged
             else:
@@ -103,23 +103,32 @@ def run():
         time.sleep(INTERVAL)
 
     # programming
-    for dut in dut_list:
-        dut.write_vpd(VPD_PATH)
-        dut.read_vpd()
+    for slot in range(TOTAL_SLOTNUM):
+        program_config = load_test_item(config_list[slot], "Program_VPD")
+        dut_list[slot].write_vpd(program_config["File"])
+        dut_list[slot].read_vpd()
 
     # discharging
     #TODO add time out gauge here.
     for slot in range(TOTAL_SLOTNUM):
+        charge_config = load_test_item(config_list[slot], "Charge")
+        discharge_config = load_test_item(config_list[slot], "Discharge")
+
         dut_list[slot].switch()   # to dut
-        dut_list[slot].charge(option=bq24704_option, status=False)
+        dut_list[slot].charge(option=charge_config, status=False)
 
         ld.select_channel(slot)
+
+        current = float(discharge_config["Current"].strip("aAvV"))
+        ld.set_curr(current)  # set discharge current
         ld.input_on()
 
     all_discharged = False
     while(not all_discharged):
         all_discharged = True
         for slot in range(TOTAL_SLOTNUM):
+            discharge_config = load_test_item(config_list[slot], "Discharge")
+
             this_cycle = Cycle()
             this_cycle.vin = ps.measureVolt()
             this_cycle.temp = dut_list[slot].check_temp()
@@ -129,7 +138,8 @@ def run():
             ld.select_channel(slot)
             this_cycle.vcap = ld.read_volt()
 
-            if(this_cycle.vcap <= VCAP_LOW_THRESHHOLD):
+            threshold = float(discharge_config["Threshold"].strip("aAvV"))
+            if(this_cycle.vcap <= threshold):
                 all_discharged &= True
                 dut_list[slot].status = DUT_STATUS.Discharged
             else:

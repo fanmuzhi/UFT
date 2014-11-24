@@ -18,6 +18,10 @@ import re
 logger = logging.getLogger(__name__)
 
 
+class BackendException(Exception):
+    pass
+
+
 def save_config(config, directory="."):
     """
     save PGEMConfig in dict format to xml
@@ -58,8 +62,33 @@ def load_config(dburi, partnumber, revision):
         PGEMConfig.partnumber == partnumber,
         PGEMConfig.revision == revision,
     ).first()
+    if pgem_config is None:
+        raise BackendException(partnumber +
+                               " is not found in configuration database")
     logger.debug(pgem_config.to_dict())
+    sess.close()
     return pgem_config
+
+
+def load_test_item(config, itemname):
+    """
+    load misc test items from config object with item name.
+    :param config: config object
+    :param itemname: item name in string
+    :return: dict of test items configuration
+    """
+    for item in config.testitems:
+        if(item.name != itemname):
+            continue
+        miscs = item.misc.split(";")
+        regex = re.compile("(?P<key>[^=]+)=(?P<value>.+)")
+        this_misc = {}
+        for misc in miscs:
+            r = regex.search(misc)
+            if r:
+                result = r.groupdict()
+                this_misc[result["key"]] = result["value"]
+        return dict(this_misc.items() + item.to_dict()[itemname].items())
 
 
 def sync_config(dburi, directory):
@@ -113,6 +142,8 @@ def sync_config(dburi, directory):
         except Exception as e:
             sess.rollback()
             raise e
+        finally:
+            sess.close()
 
     # db to file
     for config in sess.query(PGEMConfig).all():
