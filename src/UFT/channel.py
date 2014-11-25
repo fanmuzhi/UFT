@@ -9,7 +9,7 @@ __author__ = "@boqiling"
 __all__ = ["Channel", "ChannelStates"]
 
 from UFT.fsm import IFunc, StateMachine, States
-from UFT.devices import pwr, load, multimeter, aardvark
+from UFT.devices import pwr, load, aardvark
 from UFT.models import DUT_STATUS, Cycle
 from UFT.backend import load_config, load_test_item
 from UFT.backend.session import SessionManager

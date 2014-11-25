@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """event-driven state machine
+2014.11, changed from multiprocessing to threading.
+got Ctype pointer issue in pickle using multiprocessing
 """
-from multiprocessing import Process, Queue, Value
+#from multiprocessing import Process, Queue, Value
 from exceptions import NotImplementedError
+import threading
+from Queue import Queue
 
 
 class States(object):
@@ -46,15 +50,18 @@ class StateMachine(object):
     def __init__(self, ifunc):
         self.mf = ifunc
         self.q = ifunc.queue
-        self.status = Value('d', 0)
+        #self.status = Value('d', 0)
+        self.status = 0
         self.is_alive = True
 
     def en_queue(self, state):
         self.q.put(state)
 
     def run(self):
-        p = Process(target=self.loop, args=(self.status, ))
-        p.start()
+        #p = Process(target=self.loop, args=(self.status, ))
+        #p.start()
+        t = threading.Thread(target=self.loop, args=(self.status,))
+        t.start()
 
     def quit(self):
         self.q.put(States.EXIT)
@@ -62,15 +69,16 @@ class StateMachine(object):
 
     def loop(self, s):
         while(self.is_alive):
-            s.value = self.q.get()
-            if(s.value == States.INIT):
+            #s.value = self.q.get()
+            s = self.q.get()
+            if(s == States.INIT):
                 self.mf.init()
-            elif(s.value == States.IDLE):
+            elif(s == States.IDLE):
                 self.mf.idle()
-            elif(s.value == States.ERROR):
+            elif(s == States.ERROR):
                 self.mf.error()
-            elif(s.value == States.EXIT):
+            elif(s == States.EXIT):
                 self.mf.exit()
                 self.is_alive = False
             else:
-                self.mf.work(s.value)
+                self.mf.work(s)
