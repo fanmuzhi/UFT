@@ -8,6 +8,5 @@ __author__ = "@boqiling"
 
 import base
 
+FiniteStateMachine = base.FiniteStateMachine
 States = base.States
-IFunc = base.IFunc
-StateMachine = base.StateMachine

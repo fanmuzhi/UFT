@@ -1,9 +1,13 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """event-driven state machine
+2014.11, changed from multiprocessing to threading.
+got Ctype pointer issue in pickle using multiprocessing
 """
-from multiprocessing import Process, Queue, Value
+#from multiprocessing import Process, Queue, Value
 from exceptions import NotImplementedError
+import threading
+from Queue import Queue
 
 
 class States(object):
@@ -14,11 +18,14 @@ class States(object):
     EXIT = 4
 
 
-class IFunc(object):
+class FiniteStateMachine(object):
     """Interface Class for functions in different states.
     """
     def __init__(self):
         self.queue = Queue()
+        #self.status = Value('d', 0)
+        self.status = 0
+        self.is_alive = True
 
     def init(self):
         raise NotImplementedError
@@ -32,45 +39,38 @@ class IFunc(object):
     def error(self):
         raise NotImplementedError
 
-    def exit(self):
+    def close(self):
         raise NotImplementedError
 
     def empty(self):
         for i in range(self.queue.qsize()):
             self.queue.get()
 
-
-class StateMachine(object):
-    """finite state machine class
-    """
-    def __init__(self, ifunc):
-        self.mf = ifunc
-        self.q = ifunc.queue
-        self.status = Value('d', 0)
-        self.is_alive = True
-
     def en_queue(self, state):
-        self.q.put(state)
+        self.queue.put(state)
 
     def run(self):
-        p = Process(target=self.loop, args=(self.status, ))
-        p.start()
+        #p = Process(target=self.loop, args=(self.status, ))
+        #p.start()
+        t = threading.Thread(target=self.loop, args=(self.status,))
+        t.daemon = True
+        t.start()
 
     def quit(self):
-        self.q.put(States.EXIT)
-        self.is_alive = False
+        self.queue.put(States.EXIT)
 
     def loop(self, s):
         while(self.is_alive):
-            s.value = self.q.get()
-            if(s.value == States.INIT):
-                self.mf.init()
-            elif(s.value == States.IDLE):
-                self.mf.idle()
-            elif(s.value == States.ERROR):
-                self.mf.error()
-            elif(s.value == States.EXIT):
-                self.mf.exit()
+            #s.value = self.q.get()
+            s = self.queue.get()
+            if(s == States.INIT):
+                self.init()
+            elif(s == States.IDLE):
+                self.idle()
+            elif(s == States.ERROR):
+                self.error()
+            elif(s == States.EXIT):
+                self.close()
                 self.is_alive = False
             else:
-                self.mf.work(s.value)
+                self.work(s)

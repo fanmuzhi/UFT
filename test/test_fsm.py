@@ -6,14 +6,14 @@
 __version__ = "0.1"
 __author__ = "@boqiling"
 
-from UFT.fsm import IFunc, States, StateMachine
+from UFT.fsm import FiniteStateMachine, States
 from UFT.devices import aardvark
 import logging
 
 TestStates = 0xA0
 
 
-class MainFunc(IFunc):
+class MainFunc(FiniteStateMachine):
     def __init__(self):
         self.progress = 0
         super(MainFunc, self).__init__()
@@ -28,6 +28,8 @@ class MainFunc(IFunc):
 
     def work(self, states):
         self.progress += 1
+        if(self.progress >= 10):
+            self.quit()     # quit() will call close()
         if(states == TestStates):
             self.device.sleep(5)
             print "work"
@@ -35,7 +37,7 @@ class MainFunc(IFunc):
     def error(self):
         print "error"
 
-    def exit(self):
+    def close(self):
         print "exit"
 
 if __name__ == "__main__":
@@ -43,11 +45,10 @@ if __name__ == "__main__":
     import time
     m = MainFunc()
 
-    f = StateMachine(m)
-    f.en_queue(States.INIT)
-    f.run()
+    m.en_queue(States.INIT)
+    m.run()
 
-    while 1:
+    while(m.is_alive):
         print m.progress
-        time.sleep(2)
-        f.en_queue(TestStates)
+        time.sleep(1)
+        m.en_queue(TestStates)

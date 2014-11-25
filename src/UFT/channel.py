@@ -63,10 +63,10 @@ class Channel(IFunc):
         self.barcode_list = barcode_list
 
         # setup load
-        self.ld = load.DCLoad(port=LD_PORT, timeout=LD_DELAY)
+        #self.ld = load.DCLoad(port=LD_PORT, timeout=LD_DELAY)
 
         # setup main power supply
-        self.ps = pwr.PowerSupply()
+        #self.ps = pwr.PowerSupply()
 
         # setup database
         # db should be prepared in cli.py
@@ -82,7 +82,7 @@ class Channel(IFunc):
 
     def init(self):
         # open aardvark
-        self.adk.open(portnum=ADK_PORT)
+        #self.adk.open(portnum=ADK_PORT)
 
         # setup dut_list
         for s in get_sensor_status():
@@ -432,6 +432,6 @@ if __name__ == "__main__":
     f.en_queue(ChannelStates.CHARGE)
     f.en_queue(ChannelStates.LOAD_DISCHARGE)
 
-    while(ch.progressbar < 60):
-        print ch.progressbar
-        time.sleep(5)
+    #while(ch.progressbar < 60):
+    #    print ch.progressbar
+    #    time.sleep(5)
