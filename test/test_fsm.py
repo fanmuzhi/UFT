@@ -6,29 +6,49 @@
 __version__ = "0.1"
 __author__ = "@boqiling"
 
-from UFT.fsm import IFunc, States, StateMachine
+from UFT.fsm import FiniteStateMachine, States
+from UFT.devices import aardvark
+import logging
 
-class MainFunc(IFunc):
+TestStates = 0xA0
+
+
+class MainFunc(FiniteStateMachine):
+    def __init__(self):
+        self.progress = 0
+        super(MainFunc, self).__init__()
+
     def init(self):
+        self.device = aardvark.Adapter()
+        self.progress += 1
         print "init"
 
     def idle(self):
         print "idle"
 
-    def work(self):
-        print "work"
+    def work(self, states):
+        self.progress += 1
+        if(self.progress >= 10):
+            self.quit()     # quit() will call close()
+        if(states == TestStates):
+            self.device.sleep(5)
+            print "work"
 
     def error(self):
         print "error"
 
-    def exit(self):
+    def close(self):
         print "exit"
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
+    import time
     m = MainFunc()
 
-    f = StateMachine(m)
-    f.en_queue(States.INIT)
-    f.run()
+    m.en_queue(States.INIT)
+    m.run()
 
-    f.en_queue(States.EXIT)
+    while(m.is_alive):
+        print m.progress
+        time.sleep(1)
+        m.en_queue(TestStates)

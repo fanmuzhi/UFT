@@ -18,11 +18,14 @@ class States(object):
     EXIT = 4
 
 
-class IFunc(object):
+class FiniteStateMachine(object):
     """Interface Class for functions in different states.
     """
     def __init__(self):
         self.queue = Queue()
+        #self.status = Value('d', 0)
+        self.status = 0
+        self.is_alive = True
 
     def init(self):
         raise NotImplementedError
@@ -36,49 +39,38 @@ class IFunc(object):
     def error(self):
         raise NotImplementedError
 
-    def exit(self):
+    def close(self):
         raise NotImplementedError
 
     def empty(self):
         for i in range(self.queue.qsize()):
             self.queue.get()
 
-
-class StateMachine(object):
-    """finite state machine class
-    """
-    def __init__(self, ifunc):
-        self.mf = ifunc
-        self.q = ifunc.queue
-        #self.status = Value('d', 0)
-        self.status = 0
-        self.is_alive = True
-
     def en_queue(self, state):
-        self.q.put(state)
+        self.queue.put(state)
 
     def run(self):
         #p = Process(target=self.loop, args=(self.status, ))
         #p.start()
         t = threading.Thread(target=self.loop, args=(self.status,))
+        t.daemon = True
         t.start()
 
     def quit(self):
-        self.q.put(States.EXIT)
-        self.is_alive = False
+        self.queue.put(States.EXIT)
 
     def loop(self, s):
         while(self.is_alive):
             #s.value = self.q.get()
-            s = self.q.get()
+            s = self.queue.get()
             if(s == States.INIT):
-                self.mf.init()
+                self.init()
             elif(s == States.IDLE):
-                self.mf.idle()
+                self.idle()
             elif(s == States.ERROR):
-                self.mf.error()
+                self.error()
             elif(s == States.EXIT):
-                self.mf.exit()
+                self.close()
                 self.is_alive = False
             else:
-                self.mf.work(s)
+                self.work(s)
