@@ -3,12 +3,12 @@
 """pwr.py: API for SCPI commands for
 kikusui PWR1600L though PIA4850 usb control model
 """
-import usbtmc
 
 __version__ = "0.0.1"
 __author__ = "@boqiling"
 __all__ = ["PowerSupply"]
 
+import usbtmc
 import re
 import logging
 import time

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """Base Model for Cororado PGEM I2C functions
-2 functions are on the mother board, check_power_fail() and auto_discharge().
-other functions are on the dut board.
 """
 __version__ = "0.1"
 __author__ = "@boqiling"
@@ -25,21 +23,31 @@ EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            {"name": "CHARGECUR", "addr": 0x048, "length": 2, "type": "int"},
            {"name": "HWVER", "addr": 0x04A, "length": 2, "type": "str"},
            {"name": "CAPPN", "addr": 0x04C, "length": 16, "type": "str"},
-           {"name": "SN", "addr": 0x05E, "length": 8, "type": "str"},       # need program, id
+           # SN, need program, id
+           {"name": "SN", "addr": 0x05E, "length": 8, "type": "str"},
            {"name": "PCBVER", "addr": 0x064, "length": 2, "type": "str"},
-           {"name": "MFDATE", "addr": 0x066, "length": 4, "type": "str"},   # need program, yyww
-           {"name": "ENDUSR", "addr": 0x06A, "length": 2, "type": "str"},   # need program, vv
-           {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},     # need program, default all 0
+           # MFDATE, need program, yyww
+           {"name": "MFDATE", "addr": 0x066, "length": 4, "type": "str"},
+           # ENDUSR, need program, vv
+           {"name": "ENDUSR", "addr": 0x06A, "length": 2, "type": "str"},
+           # PCA, need program, default all 0
+           {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},
            {"name": "INITIALCAP", "addr": 0x077, "length": 1, "type": "int"}]
 
-BARCODE_PATTERN = re.compile(r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])(?P<WW>[0-4][0-9]|5[0-3])(?P<ID>\d{8})-(?P<RR>\d{2}))')
+BARCODE_PATTERN = re.compile(
+    r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
+    r'(?P<WW>[0-4][0-9]|5[0-3])(?P<ID>\d{8})-(?P<RR>\d{2}))')
 
 
 class PGEMException(Exception):
+    """PGEM Exception
+    """
     pass
 
 
 class PGEMBase(DUT):
+    """PGEM Base Class, All models should be inheret from this base class.
+    """
 
     def __init__(self, device, barcode, **kvargs):
         # slot number for dut on fixture location.
@@ -62,9 +70,9 @@ class PGEMBase(DUT):
     @staticmethod
     def _query_map(mymap, **kvargs):
         """method to search the map (the list of dict, [{}, {}])
-        params: mymap:  the map to search
+        :params mymap:  the map to search
                 kvargs: query conditon key=value, key should be in the dict.
-        return: the dict match the query contdtion or None.
+        :return: the dict match the query contdtion or None.
         """
         r = mymap
         for k, v in kvargs.items():
@@ -75,6 +83,8 @@ class PGEMBase(DUT):
         """method to read eep_data according to eep_name
         eep is one dict in eep_map, for example:
         {"name": "CINT", "addr": 0x02B3, "length": 1, "type": "int"}
+        :param reg_name: register name, e.g. "PCA"
+        :return value of the register
         """
         eep = self._query_map(EEP_MAP, name=reg_name)[0]
         start = eep["addr"]                 # start_address
@@ -94,7 +104,7 @@ class PGEMBase(DUT):
 
     def read_vpd(self):
         """method to read out EEPROM info from dut
-        return a dict.
+        :return a dict of vpd names and values.
         """
         dut = {}
         for eep in EEP_MAP:
@@ -108,26 +118,27 @@ class PGEMBase(DUT):
         return dut
 
     @staticmethod
-    def load_bin_file(path):
+    def load_bin_file(filepath):
         """read a file and transfer to a binary list
+        :param filepath: file path to load
         """
         datas = []
-        f = open(path, 'rb')
+        f = open(filepath, 'rb')
         s = f.read()
         for x in s:
             rdata = struct.unpack("B", x)[0]
             datas.append(rdata)
         return datas
 
-    def write_vpd(self, path):
+    def write_vpd(self, filepath):
         """method to write barcode information to PGEM EEPROM
-        barcode is a dict of 2D barcode information
-        path is the ebf file location.
+        :param filepath: the ebf file location.
         """
-        buffebf = self.load_bin_file(path)
+        buffebf = self.load_bin_file(filepath)
         #[ord(x) for x in string]
         id = [ord(x) for x in self.barcode_dict['ID']]
-        yyww = [ord(x) for x in (self.barcode_dict['YY'] + self.barcode_dict['WW'])]
+        yyww = [ord(x) for x in (self.barcode_dict['YY'] +
+                                 self.barcode_dict['WW'])]
         vv = [ord(x) for x in self.barcode_dict['VV']]
 
         # id == SN == Product Serial Number
@@ -151,16 +162,17 @@ class PGEMBase(DUT):
 
         # readback to check
         assert self.barcode_dict["ID"] == self.read_vpd_byname("SN")
-        assert (self.barcode_dict["YY"] + self.barcode_dict["WW"]) == self.read_vpd_byname("MFDATE")
+        assert (self.barcode_dict["YY"] + self.barcode_dict["WW"]) == \
+            self.read_vpd_byname("MFDATE")
         assert self.barcode_dict["VV"] == self.read_vpd_byname("ENDUSR")
 
     def control_led(self, status="off"):
         """method to control the LED on DUT chip PCA9536DP
-           status=1, LED off, default.
-           staus=0, LED on.
+        :param status: status=1, LED off, default. staus=0, LED on.
         """
         LOGIC = {"on": 0, "off": 1}
         status = LOGIC.get(status)
+        logger.debug("LED: {0}".format(status))
         if(status is None):
             raise PGEMException("wrong LED status is set")
 
@@ -178,9 +190,8 @@ class PGEMBase(DUT):
         self.device.write(wdata)
 
     def self_discharge(self, status=False):
-        """Controlled by I/O expander IC, address 0x41
-           when IO=0, not discharge;
-           when IO=1, discharge.
+        """PGEM self discharge, controlled by I/O expander IC, address 0x41
+        :param status: status=False, not discharge; status=True, discharge.
         """
         if(status):
             IO = 1
@@ -200,9 +211,11 @@ class PGEMBase(DUT):
         self.device.write(wdata)
 
     def encrypted_ic(self):
-        """return True for valid data.
+        """Check if encypted ic is working.
+        :return: True for valid data.
         """
         val = self.device.read_reg(0x00, length=128)
+        logger.debug("encrypted data: {0}".format(val))
         # valid data in 0x00 to 0x80 (address 0 to 127)
         # 0xFF in 0x80 to 0xFF (address 128 to 256)
         try:
@@ -214,8 +227,9 @@ class PGEMBase(DUT):
         return False
 
     def write_bq24707(self, reg_addr, wata):
-        """
-        write regsiter value to charge IC BQ24707
+        """ write regsiter value to charge IC BQ24707
+        :param reg_addr: register address of BQ24707
+        :param wdata: data to write
         """
         self.device.slave_addr = 0x09
 
@@ -223,8 +237,9 @@ class PGEMBase(DUT):
         self.device.write_reg(reg_addr, [wata & 0x00FF, wata >> 8])
 
     def read_bq24707(self, reg_addr):
-        """
-        read register value from charge IC BQ24707
+        """read register value from charge IC BQ24707
+        :param reg_addr: register address
+        :return: value of the register address
         """
         self.device.slave_addr = 0x09
         ata_in = self.device.read_reg(reg_addr, length=2)
@@ -234,10 +249,11 @@ class PGEMBase(DUT):
         return val
 
     def charge(self, option, status=True):
-        """
-        Send charge option to charge IC to start the charge.
+        """Send charge option to charge IC to start the charge.
         Charge IC BQ24707 is used as default.
         Override this function is use other IC instead.
+        :param option: option dict of charge option, charge voltage, etc.
+        :param status: status=True, start charge; status=False, stop charge.
         """
         # BQ24707 register address
         CHG_OPT_ADDR = 0x12
@@ -248,8 +264,8 @@ class PGEMBase(DUT):
         DEV_ID_ADDR = 0xFF
 
         # check IC
-        logger.debug(self.read_bq24707(MAN_ID_ADDR))
-        logger.debug(self.read_bq24707(DEV_ID_ADDR))
+        logger.debug("BQ24707 ID {0} {1}".format(self.read_bq24707(
+            MAN_ID_ADDR), self.read_bq24707(DEV_ID_ADDR)))
 
         # convert options from string to int
         for k, v in option.items():
@@ -291,19 +307,22 @@ class PGEMBase(DUT):
         return result
 
     def check_temp(self):
+        """check temperature on SE97B of DUT.
+        :return: temperature value
+        """
         self.device.slave_addr = 0x1B
         # check device id
         val = self.device.read_reg(0x07, length=2)
         val = (val[0] << 8) + val[1]
-        logger.debug("temp sensor id: " + hex(val))
         assert val == 0xA203
 
         # check temp value
         val = self.device.read_reg(0x05, length=2)
         val = (val[0] << 8) + val[1]
-        logger.debug("temp value: " + hex(val))
 
-        return self._calc_temp(val)
+        temp = self._calc_temp(val)
+        logger.debug("temp value: {0}".format(temp))
+        return temp
 
 
 if __name__ == "__main__":
@@ -311,31 +330,22 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     from UFT.devices.aardvark import pyaardvark
-    from UFT.channel import Channel
 
     adk = pyaardvark.Adapter()
     adk.open(portnum=0)
 
-    ch = Channel(channel_id=0)
-
     barcode = "AGIGA9811-001BCA02143500000002-01"
+    #ch.init([barcode, "", "", ""])      # first one is valid.
 
     bq24704_option = {"ChargeOption": 0x1990,
                       "ChargeCurrent": 0x01C0, "ChargeVoltage": 0x1200,
                       "InputCurrent": 0x0400}
 
     dut = PGEMBase(device=adk, slot=0, barcode=barcode)
-    ch.switch_to_mb()
-    print ch.check_power_fail(slot=0)
 
-    ch.switch_to_dut(slot=0)
     dut.charge(option=bq24704_option, status=True)
 
-    dut.switch_back()
-    while(ch.check_power_fail(slot=0)):
-        time.sleep(10)
 
-    ch.switch_to_dut(slot=0)
     print dut.read_vpd()
     dut.control_led(status="on")
 
@@ -348,7 +358,6 @@ if __name__ == "__main__":
     dut.charge(option=bq24704_option, status=False)
     dut.self_discharge(True)
 
-    ch.auto_discharge(slot=0, status=True)
     #print dut.check_power_fail()
     #dut.auto_discharge(True)
 

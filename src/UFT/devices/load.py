@@ -54,6 +54,7 @@ class DCLoad(object):
             logger.info("DC Load found: " + idn)
         else:
             logger.debug("unknown device found: " + idn)
+            raise DCLoadException("DC Load is not founded.")
 
         # clean error
         self._write("SYST:ERR?")
@@ -111,6 +112,14 @@ class DCLoad(object):
         self._write("MEAS:CURR?")
         result = self._read()
         self._check_error()
+        logger.debug("Load current: {0}".format(result))
+        return float(result)
+
+    def read_volt(self):
+        self._write("MEAS:VOLT?")
+        result = self._read()
+        self._check_error()
+        logger.debug("Load voltage: {0}".format(result))
         return float(result)
 
     def protect_on(self):
@@ -129,12 +138,6 @@ class DCLoad(object):
                 self._write("RES:RANG " + str(high))
         self._write("RES " + str(resistance))
         self._check_error()
-
-    def read_volt(self):
-        self._write("MEAS:VOLT?")
-        result = self._read()
-        self._check_error()
-        return float(result)
 
     def input_on(self):
         self._write("INP ON")

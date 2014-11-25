@@ -11,14 +11,11 @@ SQLBase = declarative_base()
 
 
 class DUT_STATUS(object):
-    Blank = 0   # empty, not loaded on fixture
+    Idle = 0    # wait to test
     Pass = 1    # pass the test
-    Idle = 2    # wait to test
-    Fail = 3    # fail in test
-    Charging = 4
-    Charged = 5
-    Discharging = 6
-    Discharged = 7
+    Fail = 2    # fail in test
+    Charging = 3
+    Discharging = 4
 
 
 class DUT(SQLBase):

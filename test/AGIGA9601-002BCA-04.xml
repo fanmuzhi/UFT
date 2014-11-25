@@ -44,9 +44,9 @@
         <Discharge>
             <enable>1</enable>
             <description>Discharge DUT with N3300A, limitation in seconds</description>
-            <min>30.0</min>
-            <max>120.0</max>
-            <misc>Threshold=0.1V;Current=0.8A</misc>
+            <min>120.0</min>
+            <max>360.0</max>
+            <misc>Threshold=2.0V;Current=0.8A</misc>
             <stoponfail>1</stoponfail>
         </Discharge>
         <Check_EncryptedIC>
