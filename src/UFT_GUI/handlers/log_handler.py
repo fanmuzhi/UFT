@@ -49,13 +49,14 @@ class QtHandler(logging.Handler):
         record = self.format(record)
         if record: XStream.stdout().write('%s\n' % record)
         # originally: XStream.stdout().write("{}\n".format(record))
-    
-    
+
+
 logger = logging.getLogger(__name__)
 handler = QtHandler()
 handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
 logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)      
+logger.setLevel(logging.DEBUG)
+
 
 def test():
     logger.debug('debug message')
@@ -63,7 +64,8 @@ def test():
     logger.warning('warning message')
     logger.error('error message')
     print 'Old school hand made print message'
-        
+
+
 if __name__ == '__main__':
     app = None
     if (not QtGui.QApplication.instance()):
@@ -71,10 +73,12 @@ if __name__ == '__main__':
         Form = QtGui.QWidget()
     ui = UFT_Ui.Ui_Form()
     ui.setupUi(Form)
+
     def append_formatData(data):
-        ui.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t")+data)
+        ui.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t") + data)
         ui.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
-#     XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)    
+
+    # XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)
     XStream.stdout().messageWritten.connect(append_formatData)
     ui.start_pushButton.clicked.connect(test)
     Form.show()

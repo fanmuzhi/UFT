@@ -15,6 +15,7 @@ from PyQt4 import QtGui, QtCore
 from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 from UFT_GUI.handlers import log_handler, sql_handler
 
+
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
@@ -22,7 +23,7 @@ class MainWidget(QtGui.QWidget):
         self.ui.setupUi(self)
         self.ui.setupWidget(self)
         self.__setupSignal()
-        
+
     def __setupSignal(self):
         '''start_pushButton for log display test, to be changed as "start" function later'''
         self.ui.start_pushButton.clicked.connect(log_handler.test)
@@ -30,13 +31,16 @@ class MainWidget(QtGui.QWidget):
         self.ui.partNum_comboBox.currentIndexChanged.connect(self.ui.testItem_update)
         self.ui.revision_comboBox.currentIndexChanged.connect(self.ui.update_table)
         self.ui.submit_pushButton.clicked.connect(self.ui.submit_config)
-        
+        self.ui.search_pushButton.clicked.connect(self.ui.search)
+
+
 def main():
     app = QApplication(sys.argv)
     app.setStyle("Plastique")
     widget = MainWidget()
     widget.show()
     sys.exit(app.exec_())
+
 
 if __name__ == "__main__":
     main()

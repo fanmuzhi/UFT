@@ -20,6 +20,28 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <family>Arial Narrow</family>
+       <pointsize>16</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+       <underline>false</underline>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>AGIGA CORONADO PGEM UFT V1.0</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+    </widget>
+   </item>
    <item row="3" column="0">
     <widget class="QProgressBar" name="progressBar">
      <property name="enabled">
@@ -276,19 +298,44 @@
        <string>charts</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_3">
+       <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QRadioButton" name="radioButton">
+           <property name="text">
+            <string>VIN</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_2">
+           <property name="text">
+            <string>VCAP</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="radioButton_3">
+           <property name="text">
+            <string>temprature</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
        <item row="1" column="0">
-        <widget class="QGroupBox" name="groupBox_9">
+        <widget class="QGroupBox" name="groupBox_7">
          <property name="title">
-          <string>dut #3</string>
+          <string>dut #1</string>
          </property>
-         <layout class="QGridLayout" name="gridLayout_12">
+         <layout class="QGridLayout" name="gridLayout_10">
           <item row="0" column="0">
-           <widget class="MatplotlibWidget" name="mplwidget_3"/>
+           <widget class="MatplotlibWidget" name="mplwidget"/>
           </item>
          </layout>
         </widget>
        </item>
-       <item row="0" column="1">
+       <item row="1" column="1">
         <widget class="QGroupBox" name="groupBox_8">
          <property name="title">
           <string>dut #2</string>
@@ -300,7 +347,19 @@
          </layout>
         </widget>
        </item>
-       <item row="1" column="1">
+       <item row="2" column="0">
+        <widget class="QGroupBox" name="groupBox_9">
+         <property name="title">
+          <string>dut #3</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_12">
+          <item row="0" column="0">
+           <widget class="MatplotlibWidget" name="mplwidget_3"/>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="1">
         <widget class="QGroupBox" name="groupBox_10">
          <property name="title">
           <string>dut #4</string>
@@ -308,18 +367,6 @@
          <layout class="QGridLayout" name="gridLayout_13">
           <item row="0" column="0">
            <widget class="MatplotlibWidget" name="mplwidget_4"/>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item row="0" column="0">
-        <widget class="QGroupBox" name="groupBox_7">
-         <property name="title">
-          <string>dut #1</string>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_10">
-          <item row="0" column="0">
-           <widget class="MatplotlibWidget" name="mplwidget"/>
           </item>
          </layout>
         </widget>
@@ -409,7 +456,50 @@
       </attribute>
       <layout class="QGridLayout" name="gridLayout_5">
        <item row="0" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="QLineEdit" name="search_lineEdit">
+           <property name="placeholderText">
+            <string>search by serial number</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="search_pushButton">
+           <property name="text">
+            <string>Search</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+       <item row="1" column="0">
         <widget class="QTableView" name="log_tableView">
+         <property name="minimumSize">
+          <size>
+           <width>994</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>994</width>
+           <height>16777215</height>
+          </size>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::DoubleClicked|QAbstractItemView::EditKeyPressed</set>
          </property>
@@ -417,28 +507,6 @@
        </item>
       </layout>
      </widget>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <family>Arial Narrow</family>
-       <pointsize>16</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-       <underline>false</underline>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>AGIGA CORONADO PGEM UFT V1.0</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::AutoText</enum>
-     </property>
     </widget>
    </item>
   </layout>
