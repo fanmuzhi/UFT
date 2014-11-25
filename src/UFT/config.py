@@ -24,7 +24,7 @@ INTERVAL = 2
 PS_ADDR = 5
 PS_CHAN = 1
 # output
-PS_VOLT =12.0
+PS_VOLT = 12.0
 PS_OVP = 13.0
 PS_CURR = 2.0
 PS_OCP = 3.0
@@ -40,6 +40,6 @@ LD_DELAY = 3
 
 # database settings
 # database for dut test result
-RESULT_DB = "sqlite:///C:\\Users\\qibo\\Documents\\UFT\\test\\pgem.db"
+RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
 # database for dut configuration
-CONFIG_DB = "sqlite:///C:\\Users\\qibo\\Documents\\UFT\\test\\pgem_config.db"
+CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
