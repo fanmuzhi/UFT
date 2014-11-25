@@ -85,7 +85,7 @@ if __name__ == "__main__":
         config_id = config1.record(0).value('ID').toString()
         description = config1.record(0).value('DESCRIPTION').toString()
         w.descriptionLabel.setText(description)
-        #     test_item_model = RelationModel(test_item_view, "configuration", 0, "test_item", "CONFIGID")
+        # test_item_model = RelationModel(test_item_view, "configuration", 0, "test_item", "CONFIGID")
         test_item_model.setFilter("CONFIGID = " + config_id)
         test_item_model.select()
 

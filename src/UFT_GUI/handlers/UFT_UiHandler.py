@@ -23,6 +23,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.my_db = sql_handler.MyDB()
         self.config_model = None
         self.test_item_model = None
+        self.data_table = QtGui.QTableView()
 
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
@@ -38,10 +39,12 @@ class UFT_UiHandler(UFT_UiForm):
         self.test_item_tableView.setModel(self.test_item_model)
         self.testItem_update()
         ''''''
+        self.push_multi_mpls()
 
     def __append_format_data(self, data):
-        self.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t") + data)
-        self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
+        if data:
+            self.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t") + data)
+            self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
@@ -68,11 +71,6 @@ class UFT_UiHandler(UFT_UiForm):
         config_id = config1.record(0).value('ID').toString()
         description = config1.record(0).value('DESCRIPTION').toString()
         self.descriptionLabel.setText(description)
-        # self.test_item_model = sql_handler.RelationModel(None,
-        # "test_item",
-        # 1,
-        #                                                  "configuration",
-        #                                                  "CONFIGID")
         self.test_item_model.setFilter("CONFIGID = " + config_id)
         self.test_item_model.select()
 
@@ -88,10 +86,10 @@ class UFT_UiHandler(UFT_UiForm):
             self.test_item_model.setRecord(i, record)
         self.test_item_model.submitAll()
 
+
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
-        data_table = QtGui.QTableView()
-        test_log_model = sql_handler.RelationModel(data_table,
+        test_log_model = sql_handler.RelationModel(self.data_table,
                                                    "cycle",
                                                    5,
                                                    "dut",
@@ -99,20 +97,38 @@ class UFT_UiHandler(UFT_UiForm):
                                                    u"barcode")
         test_log_model.setFilter("barcode IN ('" + "', ".join(barcodes) + "')")
         test_log_model.select()
+        self.data_table.setModel(test_log_model)
         return test_log_model
 
     def search(self):
         if self.search_lineEdit.text():
+            self.search_result_label.setText("")
             barcodes = []
             barcodes.append(str(self.search_lineEdit.text()))
             test_log_model = self.get_log_data(barcodes)
+            if test_log_model.rowCount() == 0:
+                self.search_result_label.setText("No Item Found")
             self.log_tableView.setModel(test_log_model)
 
-    def push_mpl(self, mpl_widget, barcodes=["AGIGA9811-001BCA02143500000001-01"]):
-        for barcode in barcodes:
-            mpl_data_model = self.get_log_data(barcodes)
-            mpl_widget.setFocus()
-            mpl_handler.plot(self.mplwidget.axes)
+    def push_multi_mpls(self, barcodes=["AGIGA9811-001BCA02143500000001-01"]):
+        time = []
+        data = []
+        mpls = [self.mplwidget, self.mplwidget_2, self.mplwidget_3, self.mplwidget_4]
+        mpl_data_model = self.get_log_data(barcodes)
+        mpl_data_model.record().indexOf("id")
+        for i in range(mpl_data_model.rowCount()):
+            record = mpl_data_model.record(i)
+            time.append(int(record.value("time").toString()))
+            data.append(float(record.value("temp").toString()))
+        mpls[0].setFocus()
+        self.plot(mpls[0].axes, time, data)
+        # for i in mpls:
+        # mpl_data_model.setFilter("barcode = '" + barcodes[i] + "'")
+        #     mpls[i].setFocus()
+        #     mpl_handler.plot(self.mplwidget.axes)
+
+    def plot(self, axes, t, d):
+        axes.plot(t, d)
 
 
 if __name__ == "__main__":

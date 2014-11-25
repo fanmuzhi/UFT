@@ -58,7 +58,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="info">
       <attribute name="title">
@@ -303,21 +303,21 @@
          <item>
           <widget class="QRadioButton" name="radioButton">
            <property name="text">
-            <string>VIN</string>
+            <string>vin</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_2">
            <property name="text">
-            <string>VCAP</string>
+            <string>vcap</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QRadioButton" name="radioButton_3">
            <property name="text">
-            <string>temprature</string>
+            <string>temp</string>
            </property>
           </widget>
          </item>
@@ -459,6 +459,9 @@
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
           <widget class="QLineEdit" name="search_lineEdit">
+           <property name="inputMask">
+            <string/>
+           </property>
            <property name="placeholderText">
             <string>search by serial number</string>
            </property>
@@ -468,6 +471,13 @@
           <widget class="QPushButton" name="search_pushButton">
            <property name="text">
             <string>Search</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="search_result_label">
+           <property name="text">
+            <string/>
            </property>
           </widget>
          </item>

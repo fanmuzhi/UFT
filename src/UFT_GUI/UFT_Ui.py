@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Tue Nov 25 11:08:47 2014
+# Created: Tue Nov 25 16:02:00 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -290,11 +290,16 @@ class Ui_Form(object):
         self.horizontalLayout_2 = QtGui.QHBoxLayout()
         self.horizontalLayout_2.setObjectName(_fromUtf8("horizontalLayout_2"))
         self.search_lineEdit = QtGui.QLineEdit(self.tab)
+        self.search_lineEdit.setInputMask(_fromUtf8(""))
         self.search_lineEdit.setObjectName(_fromUtf8("search_lineEdit"))
         self.horizontalLayout_2.addWidget(self.search_lineEdit)
         self.search_pushButton = QtGui.QPushButton(self.tab)
         self.search_pushButton.setObjectName(_fromUtf8("search_pushButton"))
         self.horizontalLayout_2.addWidget(self.search_pushButton)
+        self.search_result_label = QtGui.QLabel(self.tab)
+        self.search_result_label.setText(_fromUtf8(""))
+        self.search_result_label.setObjectName(_fromUtf8("search_result_label"))
+        self.horizontalLayout_2.addWidget(self.search_result_label)
         spacerItem = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.horizontalLayout_2.addItem(spacerItem)
         self.gridLayout_5.addLayout(self.horizontalLayout_2, 0, 0, 1, 1)
@@ -308,7 +313,7 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(3)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_7.setFocus)
         QtCore.QObject.connect(self.lineEdit_7, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_6.setFocus)
         QtCore.QObject.connect(self.lineEdit_6, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_5.setFocus)

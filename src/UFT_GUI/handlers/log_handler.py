@@ -9,6 +9,7 @@ import time
 import logging
 from PyQt4 import QtCore, QtGui
 from UFT_GUI import UFT_Ui
+import threading
 
 
 class XStream(QtCore.QObject):

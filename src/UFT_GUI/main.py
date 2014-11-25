@@ -31,6 +31,7 @@ class MainWidget(QtGui.QWidget):
         self.ui.partNum_comboBox.currentIndexChanged.connect(self.ui.testItem_update)
         self.ui.revision_comboBox.currentIndexChanged.connect(self.ui.update_table)
         self.ui.submit_pushButton.clicked.connect(self.ui.submit_config)
+        self.ui.search_lineEdit.returnPressed.connect(self.ui.search)
         self.ui.search_pushButton.clicked.connect(self.ui.search)
 
 
