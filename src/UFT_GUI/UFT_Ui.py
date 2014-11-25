@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Tue Nov 25 16:02:00 2014
+# Created: Tue Nov 25 21:34:14 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -193,12 +193,17 @@ class Ui_Form(object):
         self.horizontalLayout_3.setObjectName(_fromUtf8("horizontalLayout_3"))
         self.radioButton = QtGui.QRadioButton(self.charts)
         self.radioButton.setObjectName(_fromUtf8("radioButton"))
+        self.buttonGroup = QtGui.QButtonGroup(Form)
+        self.buttonGroup.setObjectName(_fromUtf8("buttonGroup"))
+        self.buttonGroup.addButton(self.radioButton)
         self.horizontalLayout_3.addWidget(self.radioButton)
         self.radioButton_2 = QtGui.QRadioButton(self.charts)
         self.radioButton_2.setObjectName(_fromUtf8("radioButton_2"))
+        self.buttonGroup.addButton(self.radioButton_2)
         self.horizontalLayout_3.addWidget(self.radioButton_2)
         self.radioButton_3 = QtGui.QRadioButton(self.charts)
         self.radioButton_3.setObjectName(_fromUtf8("radioButton_3"))
+        self.buttonGroup.addButton(self.radioButton_3)
         self.horizontalLayout_3.addWidget(self.radioButton_3)
         self.gridLayout_3.addLayout(self.horizontalLayout_3, 0, 0, 1, 1)
         self.groupBox_7 = QtGui.QGroupBox(self.charts)
@@ -313,7 +318,7 @@ class Ui_Form(object):
         self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(1)
         QtCore.QObject.connect(self.lineEdit, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_7.setFocus)
         QtCore.QObject.connect(self.lineEdit_7, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_6.setFocus)
         QtCore.QObject.connect(self.lineEdit_6, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.lineEdit_5.setFocus)
@@ -339,9 +344,9 @@ class Ui_Form(object):
         self.imageLabel.setText(_translate("Form", "TextLabel", None))
         self.groupBox_6.setTitle(_translate("Form", "info", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.info), _translate("Form", "test", None))
-        self.radioButton.setText(_translate("Form", "VIN", None))
-        self.radioButton_2.setText(_translate("Form", "VCAP", None))
-        self.radioButton_3.setText(_translate("Form", "temprature", None))
+        self.radioButton.setText(_translate("Form", "vin", None))
+        self.radioButton_2.setText(_translate("Form", "vcap", None))
+        self.radioButton_3.setText(_translate("Form", "temp", None))
         self.groupBox_7.setTitle(_translate("Form", "dut #1", None))
         self.groupBox_8.setTitle(_translate("Form", "dut #2", None))
         self.groupBox_9.setTitle(_translate("Form", "dut #3", None))

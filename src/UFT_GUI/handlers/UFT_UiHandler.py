@@ -39,7 +39,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.test_item_tableView.setModel(self.test_item_model)
         self.testItem_update()
         ''''''
-        self.push_multi_mpls()
+        # self.push_multi_mpls()
 
     def __append_format_data(self, data):
         if data:
@@ -110,25 +110,27 @@ class UFT_UiHandler(UFT_UiForm):
                 self.search_result_label.setText("No Item Found")
             self.log_tableView.setModel(test_log_model)
 
-    def push_multi_mpls(self, barcodes=["AGIGA9811-001BCA02143500000001-01"]):
+    def push_multi_mpls(self):
         time = []
         data = []
         mpls = [self.mplwidget, self.mplwidget_2, self.mplwidget_3, self.mplwidget_4]
+        barcodes = ["AGIGA9811-001BCA02143500000001-01"]
+        item = ""
+        for i in self.buttonGroup.buttons():
+            if i.isChecked():
+                item = i.text()
         mpl_data_model = self.get_log_data(barcodes)
         mpl_data_model.record().indexOf("id")
         for i in range(mpl_data_model.rowCount()):
             record = mpl_data_model.record(i)
             time.append(int(record.value("time").toString()))
-            data.append(float(record.value("temp").toString()))
+            data.append(float(record.value(item).toString()))
         mpls[0].setFocus()
-        self.plot(mpls[0].axes, time, data)
-        # for i in mpls:
-        # mpl_data_model.setFilter("barcode = '" + barcodes[i] + "'")
-        #     mpls[i].setFocus()
-        #     mpl_handler.plot(self.mplwidget.axes)
+        self.plot(mpls[0], time, data)
 
-    def plot(self, axes, t, d):
-        axes.plot(t, d)
+    def plot(self, mpl_widget, t, d):
+        mpl_widget.axes.plot(t, d)
+        mpl_widget.draw()
 
 
 if __name__ == "__main__":

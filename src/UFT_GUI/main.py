@@ -33,7 +33,7 @@ class MainWidget(QtGui.QWidget):
         self.ui.submit_pushButton.clicked.connect(self.ui.submit_config)
         self.ui.search_lineEdit.returnPressed.connect(self.ui.search)
         self.ui.search_pushButton.clicked.connect(self.ui.search)
-
+        self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
 
 def main():
     app = QApplication(sys.argv)
