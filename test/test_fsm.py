@@ -14,14 +14,20 @@ TestStates = 0xA0
 
 
 class MainFunc(IFunc):
+    def __init__(self):
+        self.progress = 0
+        super(MainFunc, self).__init__()
+
     def init(self):
         self.device = aardvark.Adapter()
+        self.progress += 1
         print "init"
 
     def idle(self):
         print "idle"
 
     def work(self, states):
+        self.progress += 1
         if(states == TestStates):
             self.device.sleep(5)
             print "work"
@@ -34,11 +40,14 @@ class MainFunc(IFunc):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
+    import time
     m = MainFunc()
 
     f = StateMachine(m)
     f.en_queue(States.INIT)
     f.run()
 
-    f.en_queue(TestStates)
-    f.en_queue(States.EXIT)
+    while 1:
+        print m.progress
+        time.sleep(2)
+        f.en_queue(TestStates)
