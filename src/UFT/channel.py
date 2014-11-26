@@ -8,12 +8,13 @@ __version__ = "0.1"
 __author__ = "@boqiling"
 __all__ = ["Channel", "ChannelStates"]
 
-from UFT.fsm import IFunc, StateMachine, States
 from UFT.devices import pwr, load, aardvark
 from UFT.models import DUT_STATUS, Cycle
 from UFT.backend import load_config, load_test_item
 from UFT.backend.session import SessionManager
 from UFT.config import *
+import threading
+from Queue import Queue
 import logging
 import time
 logger = logging.getLogger(__name__)
@@ -28,8 +29,9 @@ def get_sensor_status():
     return [1, 0, 0, 0]
 
 
-class ChannelStates(States):
-    HARDWARE_INIT = 0x0A
+class ChannelStates(object):
+    EXIT = -1
+    INIT = 0x0A
     POWER_ON = 0x0B
     LOAD_DISCHARGE = 0x0C
     CHECK_POWER_FAIL = 0x0D
@@ -43,9 +45,11 @@ class ChannelStates(States):
     LOAD_DISCHARGE = 0x1F
 
 
-class Channel(IFunc):
-    def __init__(self, barcode_list, channel_id=0):
+class Channel(threading.Thread):
+    def __init__(self, name, barcode_list, channel_id=0):
         """initialize channel
+        :param name: thread name
+        :param barcode_list: list of 2D barcode of dut.
         :param channel_id: channel ID, from 0 to 7
         :return: None
         """
@@ -63,10 +67,10 @@ class Channel(IFunc):
         self.barcode_list = barcode_list
 
         # setup load
-        #self.ld = load.DCLoad(port=LD_PORT, timeout=LD_DELAY)
+        self.ld = load.DCLoad(port=LD_PORT, timeout=LD_DELAY)
 
         # setup main power supply
-        #self.ps = pwr.PowerSupply()
+        self.ps = pwr.PowerSupply()
 
         # setup database
         # db should be prepared in cli.py
@@ -78,11 +82,15 @@ class Channel(IFunc):
         # counter, to calculate charge and discharge time based on interval
         self.counter = 0
 
-        super(Channel, self).__init__()
+        # exit flag and queue for threading
+        self.exit = False
+        self.queue = Queue()
+
+        super(Channel, self).__init__(name=name)
 
     def init(self):
         # open aardvark
-        #self.adk.open(portnum=ADK_PORT)
+        self.adk.open(portnum=ADK_PORT)
 
         # setup dut_list
         for s in get_sensor_status():
@@ -104,8 +112,6 @@ class Channel(IFunc):
             i += 1
         print self.dut_list
 
-        self.reset_dut()
-
         # setup load
         for slot in range(TOTAL_SLOTNUM):
             self.ld.select_channel(slot)
@@ -126,6 +132,9 @@ class Channel(IFunc):
         assert (PS_VOLT-1) < volt < (PS_VOLT+1)
         assert curr >= 0
 
+        # reset DUT
+        self.reset_dut()
+
         # clear progress bar
         self.progressbar = 0
 
@@ -137,8 +146,8 @@ class Channel(IFunc):
         for dut in self.dut_list:
             if dut is not None:
                 self.switch_to_dut(dut.slotnum)
-                # disable self discharge
-                dut.self_discharge(status=False)
+                # disable self discharge, dut has no power
+                #dut.self_discharge(status=False)
 
                 # disable charge
                 charge_config = load_test_item(self.config_list[dut.slotnum],
@@ -173,7 +182,7 @@ class Channel(IFunc):
             self.auto_discharge(slot=dut.slotnum, status=False)
             # disable self discharge
             self.switch_to_dut(dut.slotnum)
-            dut.self_discharge(status=False)
+            #dut.self_discharge(status=False)
             # start charge
             charge_config = load_test_item(self.config_list[dut.slotnum],
                                            "Charge")
@@ -192,7 +201,7 @@ class Channel(IFunc):
                                                "Charge")
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
-                this_cycle.temp = dut.check_temp()
+                #this_cycle.temp = dut.check_temp()
                 this_cycle.time = self.counter
                 self.counter += 1
 
@@ -293,30 +302,6 @@ class Channel(IFunc):
                     dut.slotnum, dut.status, dut.errormessage))
             time.sleep(INTERVAL)
 
-    def idle(self):
-        pass
-
-    def work(self, state):
-        if(state == ChannelStates.CHARGE):
-            self.charge_dut()
-            self.progressbar += 30
-        elif(state == ChannelStates.LOAD_DISCHARGE):
-            self.discharge_dut()
-            self.progressbar += 30
-        elif(state == ChannelStates.AUTO_DISCHARGE):
-            pass
-        elif(state == ChannelStates.SELF_DISCHARGE):
-            pass
-        elif(state == ChannelStates.PROGRAM_VPD):
-            pass
-        elif(state == ChannelStates.CHECK_ENCRYPTED_IC):
-            pass
-        elif(state == ChannelStates.CHECK_LED):
-            pass
-        else:
-            logging.debug("unknown dut state, exit...")
-            self.queue.put(ChannelStates.EXIT)
-
     def auto_discharge(self, slot, status=False):
         """output PRESENT/AUTO_DISCH signal on TCA9555 on mother board.
            When status=True, discharge;
@@ -412,26 +397,62 @@ class Channel(IFunc):
         val = (val & (0x01 << slot)) >> slot
         return val != 0
 
+    def run(self):
+        """ override thread.run()
+        :return: None
+        """
+        while(not self.exit):
+            state = self.queue.get()
+            if(state == ChannelStates.EXIT):
+                self.exit = True
+            elif(state == ChannelStates.INIT):
+                self.progressbar += 10
+                self.init()
+            elif(state == ChannelStates.CHARGE):
+                self.progressbar += 30
+                self.charge_dut()
+            elif(state == ChannelStates.LOAD_DISCHARGE):
+                self.progressbar += 30
+                self.discharge_dut()
+            elif(state == ChannelStates.AUTO_DISCHARGE):
+                pass
+            elif(state == ChannelStates.SELF_DISCHARGE):
+                pass
+            elif(state == ChannelStates.PROGRAM_VPD):
+                pass
+            elif(state == ChannelStates.CHECK_ENCRYPTED_IC):
+                pass
+            elif(state == ChannelStates.CHECK_LED):
+                pass
+            else:
+                logging.debug("unknown dut state, exit...")
+                self.queue.put(ChannelStates.EXIT)
+
+    def empty(self):
+        for i in range(self.queue.qsize()):
+            self.queue.get()
+
     def error(self):
         pass
 
-    def exit(self):
-        pass
+    def quit(self):
+        self.empty()
+        self.queue.put(ChannelStates.EXIT)
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.INFO)
 
     barcode = "AGIGA9601-002BCA02143500000002-04"
-    ch = Channel([barcode, "", "", ""], channel_id=0)
+    ch = Channel(barcode_list=[barcode, "", "", ""], channel_id=0,
+                 name="UFT_CHANNEL")
+    ch.start()
 
-    f = StateMachine(ch)
-    f.en_queue(ChannelStates.INIT)
-    f.run()
+    ch.queue.put(ChannelStates.INIT)
+    ch.queue.put(ChannelStates.CHARGE)
+    ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    ch.queue.put(ChannelStates.EXIT)
 
-    f.en_queue(ChannelStates.CHARGE)
-    f.en_queue(ChannelStates.LOAD_DISCHARGE)
-
-    #while(ch.progressbar < 60):
-    #    print ch.progressbar
-    #    time.sleep(5)
+    while(ch.progressbar <= 60):
+        print "progress bar: {0}".format(ch.progressbar)
+        time.sleep(1)

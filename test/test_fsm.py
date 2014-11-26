@@ -28,7 +28,7 @@ class MainFunc(FiniteStateMachine):
 
     def work(self, states):
         self.progress += 1
-        if(self.progress >= 10):
+        if(self.progress >= 50):
             self.quit()     # quit() will call close()
         if(states == TestStates):
             self.device.sleep(5)

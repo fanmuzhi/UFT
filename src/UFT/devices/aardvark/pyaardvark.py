@@ -15,6 +15,7 @@ from array import array
 import imp
 import sys
 
+logger = logging.getLogger(__name__)
 
 DEFAULT_REG_VAL = 0xFF
 PORT_NOT_FREE = 0x8000
@@ -157,14 +158,14 @@ class Adapter(object):
 
         try:
             self.api = imp.load_dynamic('aardvark', aardvark32)
-            logging.debug("aardvark loaded: " + aardvark32)
+            logger.debug("aardvark loaded: " + aardvark32)
         except Exception as e:
-            logging.error(e)
+            logger.error(e)
             try:
                 self.api = imp.load_dynamic('aardvark', aardvark64)
-                logging.debug("aardvark loaded: " + aardvark64)
+                logger.debug("aardvark loaded: " + aardvark64)
             except Exception as e:
-                logging.error(e)
+                logger.error(e)
                 self.api = None
 
         if not self.api:
@@ -210,13 +211,13 @@ class Adapter(object):
         config the aardvark tool params like bitrate, slave address etc,
         '''
         ports = self.find_devices()
-        logging.debug("find ports: " + str(ports))
+        logger.debug("find ports: " + str(ports))
         self.port = None
         if(serialnumber):
             for port in ports:
                 handle = self.api.py_aa_open(port)
                 if(self.api.py_aa_unique_id(handle) == serialnumber):
-                    logging.debug("SN: " + str(self.api.py_aa_unique_id(handle)))
+                    logger.debug("SN: " + str(self.api.py_aa_unique_id(handle)))
                     self.port = port
                     self.api.py_aa_close(handle)
                     break
@@ -228,7 +229,7 @@ class Adapter(object):
         else:
             self.port = 0
 
-        logging.debug("open: " + str(self.port))
+        logger.debug("open: " + str(self.port))
         self.handle = self.api.py_aa_open(self.port)
 
         if(self.handle <= 0):

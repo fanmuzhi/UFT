@@ -84,7 +84,7 @@ class DCLoad(object):
         self._write("SYST:ERR?")
         errmsg = self._read()
         if(not re.match(r"\+0,\"No\serror\"", errmsg)):
-            logging.error("DC Load Error: " + errmsg)
+            logger.error("DC Load Error: " + errmsg)
             raise DCLoadException(errmsg)
 
     def select_channel(self, chnum):
@@ -152,7 +152,7 @@ if __name__ == "__main__":
 
     load = DCLoad(port="COM3", timeout=3)
 
-    load.select_channel(1)
+    load.select_channel(0)
     load.input_off()
     load.protect_on()
 
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     #load.change_func(DCLoad.ModeRes)
     #load.set_res(20)     # 20 ohm
 
-    load.input_on()
+    #load.input_on()
 
     print load.read_curr()
     print load.read_volt()
