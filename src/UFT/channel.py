@@ -146,8 +146,12 @@ class Channel(threading.Thread):
         for dut in self.dut_list:
             if dut is not None:
                 self.switch_to_dut(dut.slotnum)
-                # disable self discharge, dut has no power
-                #dut.self_discharge(status=False)
+                try:
+                    # disable self discharge
+                    dut.self_discharge(status=False)
+                except:
+                    #maybe dut has no power, doesn't response
+                    pass
 
                 # disable charge
                 charge_config = load_test_item(self.config_list[dut.slotnum],
@@ -180,9 +184,13 @@ class Channel(threading.Thread):
             # disable auto discharge
             self.switch_to_mb()
             self.auto_discharge(slot=dut.slotnum, status=False)
-            # disable self discharge
             self.switch_to_dut(dut.slotnum)
-            #dut.self_discharge(status=False)
+            try:
+                # disable self discharge
+                dut.self_discharge(status=False)
+            except:
+                #maybe dut has no power, doesn't response
+                pass
             # start charge
             charge_config = load_test_item(self.config_list[dut.slotnum],
                                            "Charge")
@@ -201,8 +209,13 @@ class Channel(threading.Thread):
                                                "Charge")
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
-                #this_cycle.temp = dut.check_temp()
                 this_cycle.time = self.counter
+                try:
+                    temperature = dut.check_temp()
+                except USBI2CAdapterException:
+                    # temp ic not ready
+                    temperature = 0
+                this_cycle.temp = temperature
                 self.counter += 1
 
                 self.ld.select_channel(dut.slotnum)
@@ -273,7 +286,12 @@ class Channel(threading.Thread):
 
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
-                this_cycle.temp = dut.check_temp()
+                try:
+                    temperature = dut.check_temp()
+                except USBI2CAdapterException:
+                    # temp ic not ready
+                    temperature = 0
+                this_cycle.temp = temperature
                 this_cycle.time = self.counter
                 self.counter += 1
 

@@ -75,16 +75,20 @@ def _query_map(mymap, **kvargs):
     return r
 
 
+class USBI2CAdapterException(Exception):
+    pass
+
+
 def raise_i2c_ex(num):
     ex = _query_map(I2C_STATUS_MAP, code=num)[0]
     if(ex["code"] != 0):
-        raise RuntimeError(True, ex["code"], ex["msg"])
+        raise USBI2CAdapterException(ex["msg"])
 
 
 def raise_aa_ex(num):
     ex = _query_map(AA_STATUS_MAP, code=num)[0]
     if(ex["code"] != 0):
-        raise RuntimeError(True, ex["code"], ex["msg"])
+        raise USBI2CAdapterException(ex["msg"])
 
 
 class I2CConfig(object):

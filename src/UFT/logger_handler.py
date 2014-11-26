@@ -5,7 +5,6 @@
 
 __version__ = "0.1"
 __author__ = "@boqiling"
-__all__ = [""]
 
 import sys
 import logging
@@ -115,7 +114,8 @@ class ColorizingStreamHandler(logging.StreamHandler):
                                 color = 0x07
                             else:
                                 pass    # error condition ignored
-                        ctypes.windll.kernel32.SetConsoleTextAttribute(h, color)
+                        ctypes.windll.kernel32.SetConsoleTextAttribute(h,
+                                                                       color)
 
     def colorize(self, message, record):
         if record.levelno in self.level_map:
@@ -184,7 +184,7 @@ class ColorizingStreamHandler(logging.StreamHandler):
 
 
 def init_logger(mylogger, level=logging.INFO):
-    formatter = logging.Formatter('[ %(asctime)s ] %(levelname)s %(message)s')
+    formatter = logging.Formatter('[ %(asctime)s ] (%(threadName)s) %(module)s : %(message)s')
 
     # stdout handler
     #stdhl = logging.StreamHandler(sys.stdout)
