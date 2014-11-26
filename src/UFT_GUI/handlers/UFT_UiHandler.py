@@ -111,22 +111,25 @@ class UFT_UiHandler(UFT_UiForm):
             self.log_tableView.setModel(test_log_model)
 
     def push_multi_mpls(self):
-        time = []
-        data = []
         mpls = [self.mplwidget, self.mplwidget_2, self.mplwidget_3, self.mplwidget_4]
-        barcodes = ["AGIGA9811-001BCA02143500000001-01"]
+        barcodes = ["AGIGA9811-001BCA02143500000001-01", "", "", ""]
         item = ""
         for i in self.buttonGroup.buttons():
             if i.isChecked():
                 item = i.text()
         mpl_data_model = self.get_log_data(barcodes)
         mpl_data_model.record().indexOf("id")
-        for i in range(mpl_data_model.rowCount()):
-            record = mpl_data_model.record(i)
-            time.append(int(record.value("time").toString()))
-            data.append(float(record.value(item).toString()))
-        mpls[0].setFocus()
-        self.plot(mpls[0], time, data)
+        for i in range(len(mpls)):
+            time = []
+            data = []
+            mpls[i].setFocus()
+            mpl_data_model.setFilter("barcode = '" + barcodes[i] + "'")
+            mpl_data_model.select()
+            for j in range(mpl_data_model.rowCount()):
+                record = mpl_data_model.record(j)
+                time.append(int(record.value("time").toString()))
+                data.append(float(record.value(item).toString()))
+            self.plot(mpls[i], time, data)
 
     def plot(self, mpl_widget, t, d):
         mpl_widget.axes.plot(t, d)

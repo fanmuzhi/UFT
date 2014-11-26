@@ -9,7 +9,6 @@ import time
 import logging
 from PyQt4 import QtCore, QtGui
 from UFT_GUI import UFT_Ui
-import threading
 
 
 class XStream(QtCore.QObject):
@@ -48,8 +47,9 @@ class QtHandler(logging.Handler):
 
     def emit(self, record):
         record = self.format(record)
-        if record: XStream.stdout().write('%s\n' % record)
-        # originally: XStream.stdout().write("{}\n".format(record))
+        if record:
+            XStream.stdout().write('%s\n' % record)
+            # XStream.stdout().write("{}\n".format(record))
 
 
 logger = logging.getLogger(__name__)
