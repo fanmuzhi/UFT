@@ -111,8 +111,17 @@ class UFT_UiHandler(UFT_UiForm):
             self.log_tableView.setModel(test_log_model)
 
     def push_multi_mpls(self):
-        mpls = [self.mplwidget, self.mplwidget_2, self.mplwidget_3, self.mplwidget_4]
-        barcodes = ["AGIGA9811-001BCA02143500000001-01", "", "", ""]
+        mpls = [self.mplwidget,
+                self.mplwidget_2,
+                self.mplwidget_3,
+                self.mplwidget_4]
+        barcodes = [str(self.sn_lineEdit_1.text()),
+                    str(self.sn_lineEdit_2.text()),
+                    str(self.sn_lineEdit_3.text()),
+                    str(self.sn_lineEdit_4.text())]
+        for i in barcodes:
+            if not i:
+                i = ""
         item = ""
         for i in self.buttonGroup.buttons():
             if i.isChecked():

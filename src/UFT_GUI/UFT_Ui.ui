@@ -58,7 +58,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>1</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="info">
       <attribute name="title">
@@ -80,7 +80,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QLineEdit" name="lineEdit">
+             <widget class="QLineEdit" name="sn_lineEdit_1">
               <property name="text">
                <string/>
               </property>
@@ -117,7 +117,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_9">
             <item>
-             <widget class="QLineEdit" name="lineEdit_7">
+             <widget class="QLineEdit" name="sn_lineEdit_2">
               <property name="placeholderText">
                <string>Serial Number</string>
               </property>
@@ -151,7 +151,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_8">
             <item>
-             <widget class="QLineEdit" name="lineEdit_6">
+             <widget class="QLineEdit" name="sn_lineEdit_3">
               <property name="placeholderText">
                <string>Serial Number</string>
               </property>
@@ -185,7 +185,7 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
-             <widget class="QLineEdit" name="lineEdit_5">
+             <widget class="QLineEdit" name="sn_lineEdit_4">
               <property name="placeholderText">
                <string>Serial Number</string>
               </property>
@@ -540,9 +540,9 @@
  <resources/>
  <connections>
   <connection>
-   <sender>lineEdit</sender>
+   <sender>sn_lineEdit_1</sender>
    <signal>returnPressed()</signal>
-   <receiver>lineEdit_7</receiver>
+   <receiver>sn_lineEdit_2</receiver>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -556,9 +556,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>lineEdit_7</sender>
+   <sender>sn_lineEdit_2</sender>
    <signal>returnPressed()</signal>
-   <receiver>lineEdit_6</receiver>
+   <receiver>sn_lineEdit_3</receiver>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -572,9 +572,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>lineEdit_6</sender>
+   <sender>sn_lineEdit_3</sender>
    <signal>returnPressed()</signal>
-   <receiver>lineEdit_5</receiver>
+   <receiver>sn_lineEdit_4</receiver>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
