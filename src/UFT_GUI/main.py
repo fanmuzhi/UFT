@@ -25,7 +25,8 @@ class MainWidget(QtGui.QWidget):
         self.__setupSignal()
 
     def __setupSignal(self):
-        '''start_pushButton for log display test, to be changed as "start" function later'''
+        '''start_pushButton for log display test,
+        to be changed as "start" function later'''
         self.ui.start_pushButton.clicked.connect(log_handler.test)
         self.ui.show_image("./res/icons/despicableMe.jpg")
         self.ui.partNum_comboBox.currentIndexChanged.connect(

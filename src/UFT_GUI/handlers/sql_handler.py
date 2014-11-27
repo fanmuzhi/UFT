@@ -10,8 +10,8 @@ from UFT_GUI import UFT_Ui
 
 class MyDB():
     def __init__(self):
-        self.db = QtSql.QSqlDatabase.addDatabase(
-            "QSQLITE")  # select database type
+        # select database type
+        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
         self.query = None
 
     def open(self):
