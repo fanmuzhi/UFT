@@ -10,7 +10,8 @@ from UFT_GUI import UFT_Ui
 
 class MyDB():
     def __init__(self):
-        self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")  # select database type
+        self.db = QtSql.QSqlDatabase.addDatabase(
+            "QSQLITE")  # select database type
         self.query = None
 
     def open(self):
@@ -19,7 +20,8 @@ class MyDB():
             self.query = QtSql.QSqlQuery()  # sql handler
 
     def switch_to_configuration(self):
-        self.db.setDatabaseName("./res/db/configuration.db")  # set database name
+        self.db.setDatabaseName(
+            "./res/db/configuration.db")  # set database name
         self.db.open()
 
     def switch_to_pgem(self):
@@ -36,7 +38,8 @@ class TableModel(QtSql.QSqlTableModel):
 
 
 class RelationModel(QtSql.QSqlRelationalTableModel):
-    def __init__(self, parent, table1_name, table1_index_num, rel_table_name, rel_index_name, rel_cols=u""):
+    def __init__(self, parent, table1_name, table1_index_num, rel_table_name,
+                 rel_index_name, rel_cols=u""):
         QtSql.QSqlRelationalTableModel.__init__(self, parent)
         self.setTable(table1_name)
         self.setRelation(table1_index_num,
@@ -64,7 +67,8 @@ if __name__ == "__main__":
 
     pop_comboBox(w.partNum_comboBox, config_model, "PARTNUMBER")
     test_item_view = w.test_item_tableView
-    test_item_model = RelationModel(test_item_view, 'test_item', 1, 'configuration', 'ID', u"")
+    test_item_model = RelationModel(test_item_view, 'test_item', 1,
+                                    'configuration', 'ID', u"")
 
     #
     test_item_view.setModel(test_item_model)
@@ -79,13 +83,13 @@ if __name__ == "__main__":
         config1 = TableModel(None, "configuration")
         current_pn = w.partNum_comboBox.currentText()
         current_rev = w.revision_comboBox.currentText()
-        filter_combo = "PARTNUMBER = '" + current_pn + "' AND REVISION = '" + current_rev + "'"
+        filter_combo = "PARTNUMBER = '" + current_pn + "' AND REVISION = '" + \
+                       current_rev + "'"
         config1.setFilter(filter_combo)
         config1.select()
         config_id = config1.record(0).value('ID').toString()
         description = config1.record(0).value('DESCRIPTION').toString()
         w.descriptionLabel.setText(description)
-        # test_item_model = RelationModel(test_item_view, "configuration", 0, "test_item", "CONFIGID")
         test_item_model.setFilter("CONFIGID = " + config_id)
         test_item_model.select()
 

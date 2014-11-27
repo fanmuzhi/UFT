@@ -28,12 +28,15 @@ class MainWidget(QtGui.QWidget):
         '''start_pushButton for log display test, to be changed as "start" function later'''
         self.ui.start_pushButton.clicked.connect(log_handler.test)
         self.ui.show_image("./res/icons/despicableMe.jpg")
-        self.ui.partNum_comboBox.currentIndexChanged.connect(self.ui.testItem_update)
-        self.ui.revision_comboBox.currentIndexChanged.connect(self.ui.update_table)
+        self.ui.partNum_comboBox.currentIndexChanged.connect(
+            self.ui.testItem_update)
+        self.ui.revision_comboBox.currentIndexChanged.connect(
+            self.ui.update_table)
         self.ui.submit_pushButton.clicked.connect(self.ui.submit_config)
         self.ui.search_lineEdit.returnPressed.connect(self.ui.search)
         self.ui.search_pushButton.clicked.connect(self.ui.search)
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
+
 
 def main():
     app = QApplication(sys.argv)

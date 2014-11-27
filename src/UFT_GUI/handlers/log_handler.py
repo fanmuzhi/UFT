@@ -76,7 +76,8 @@ if __name__ == '__main__':
     ui.setupUi(Form)
 
     def append_formatData(data):
-        ui.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t") + data)
+        ui.info_textBrowser.insertPlainText(
+            time.strftime("%Y-%m-%d %X\t") + data)
         ui.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
 
     # XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)

@@ -19,7 +19,8 @@ class UFT_UiHandler(UFT_UiForm):
         UFT_UiForm.__init__(self)
         self.dut_image = None
         self.config_table = QtGui.QTableView()
-        log_handler.XStream.stdout().messageWritten.connect(self.__append_format_data)
+        log_handler.XStream.stdout().messageWritten.connect(
+            self.__append_format_data)
         self.my_db = sql_handler.MyDB()
         self.config_model = None
         self.test_item_model = None
@@ -29,13 +30,16 @@ class UFT_UiHandler(UFT_UiForm):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
         ''' initial configuration tab combobox and table  '''
         self.my_db.switch_to_configuration()
-        self.config_model = sql_handler.TableModel(self.config_table, "configuration")
-        self.test_item_model = sql_handler.RelationModel(self.test_item_tableView,
-                                                         "test_item",
-                                                         1,
-                                                         "configuration",
-                                                         "CONFIGID")
-        self.__popComboBox(self.partNum_comboBox, self.config_model, "PARTNUMBER")
+        self.config_model = sql_handler.TableModel(self.config_table,
+                                                   "configuration")
+        self.test_item_model = sql_handler.RelationModel(
+            self.test_item_tableView,
+            "test_item",
+            1,
+            "configuration",
+            "CONFIGID")
+        self.__popComboBox(self.partNum_comboBox, self.config_model,
+                           "PARTNUMBER")
         self.test_item_tableView.setModel(self.test_item_model)
         self.testItem_update()
         ''''''
@@ -43,12 +47,14 @@ class UFT_UiHandler(UFT_UiForm):
 
     def __append_format_data(self, data):
         if data:
-            self.info_textBrowser.insertPlainText(time.strftime("%Y-%m-%d %X\t") + data)
+            self.info_textBrowser.insertPlainText(
+                time.strftime("%Y-%m-%d %X\t") + data)
             self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
-        my_scaled_pixmap = my_pixmap.scaled(self.imageLabel.size(), QtCore.Qt.KeepAspectRatio)
+        my_scaled_pixmap = my_pixmap.scaled(self.imageLabel.size(),
+                                            QtCore.Qt.KeepAspectRatio)
         self.imageLabel.setPixmap(my_scaled_pixmap)
 
     def __popComboBox(self, combobox, model, column):
