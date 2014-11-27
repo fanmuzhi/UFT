@@ -54,6 +54,7 @@ class DCLoad(object):
             logger.info("DC Load found: " + idn)
         else:
             logger.debug("unknown device found: " + idn)
+            raise DCLoadException("DC Load is not founded.")
 
         # clean error
         self._write("SYST:ERR?")
@@ -83,11 +84,12 @@ class DCLoad(object):
         self._write("SYST:ERR?")
         errmsg = self._read()
         if(not re.match(r"\+0,\"No\serror\"", errmsg)):
-            logging.error("DC Load Error: " + errmsg)
+            logger.error("DC Load Error: " + errmsg)
             raise DCLoadException(errmsg)
 
     def select_channel(self, chnum):
-        if(chnum in range(1, 5)):
+        chnum += 1
+        if(chnum in range(4)):
             self._write("CHAN " + str(chnum))
         else:
             raise DCLoadException("Invalid channel number")
@@ -110,6 +112,14 @@ class DCLoad(object):
         self._write("MEAS:CURR?")
         result = self._read()
         self._check_error()
+        logger.debug("Load current: {0}".format(result))
+        return float(result)
+
+    def read_volt(self):
+        self._write("MEAS:VOLT?")
+        result = self._read()
+        self._check_error()
+        logger.debug("Load voltage: {0}".format(result))
         return float(result)
 
     def protect_on(self):
@@ -129,12 +139,6 @@ class DCLoad(object):
         self._write("RES " + str(resistance))
         self._check_error()
 
-    def read_volt(self):
-        self._write("MEAS:VOLT?")
-        result = self._read()
-        self._check_error()
-        return float(result)
-
     def input_on(self):
         self._write("INP ON")
         self._check_error()
@@ -148,7 +152,7 @@ if __name__ == "__main__":
 
     load = DCLoad(port="COM3", timeout=3)
 
-    load.select_channel(1)
+    load.select_channel(0)
     load.input_off()
     load.protect_on()
 
@@ -158,7 +162,7 @@ if __name__ == "__main__":
     #load.change_func(DCLoad.ModeRes)
     #load.set_res(20)     # 20 ohm
 
-    load.input_on()
+    #load.input_on()
 
     print load.read_curr()
     print load.read_volt()

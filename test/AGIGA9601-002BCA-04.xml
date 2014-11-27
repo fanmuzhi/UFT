@@ -1,0 +1,64 @@
+<?xml version="1.0" ?>
+<entity>
+    <testitems>
+        <Self_Discharge>
+            <enable>1</enable>
+            <description>IO Expander, limitation in seconds</description>
+            <min>30.0</min>
+            <max>50.0</max>
+            <misc>Threshold=4.0V</misc>
+            <stoponfail>1</stoponfail>
+        </Self_Discharge>
+        <Charge>
+            <enable>1</enable>
+            <description>Charge DUT with BQ24707, limitation in seconds</description>
+            <min>90.0</min>
+            <max>120.0</max>
+            <misc>Threshold=4.6V;ChargeOption=0x1990;ChargeCurrent=0x01C0;ChargeVoltage=0x1200;InputCurrent=0x0400</misc>
+            <stoponfail>1</stoponfail>
+        </Charge>
+        <Auto_Discharge>
+            <enable>1</enable>
+            <description>IO present/auto_disch, limitation in seconds</description>
+            <min>30.0</min>
+            <max>50.0</max>
+            <misc>Threshold=4.0V</misc>
+            <stoponfail>1</stoponfail>
+        </Auto_Discharge>
+        <Check_Temp>
+            <enable>1</enable>
+            <description>Check Temperature on chip SE97BTP, data in degree</description>
+            <min>5.0</min>
+            <max>30.0</max>
+            <misc>None</misc>
+            <stoponfail>0</stoponfail>
+        </Check_Temp>
+        <Program_VPD>
+            <enable>1</enable>
+            <description>write ebf file to VPD</description>
+            <min>0.0</min>
+            <max>0.0</max>
+            <misc>File=C:\Users\qibo\Documents\UFT\test\101-40028-01-Rev02 Crystal2 VPD.ebf</misc>
+            <stoponfail>1</stoponfail>
+        </Program_VPD>
+        <Discharge>
+            <enable>1</enable>
+            <description>Discharge DUT with N3300A, limitation in seconds</description>
+            <min>120.0</min>
+            <max>360.0</max>
+            <misc>Threshold=2.0V;Current=0.8A</misc>
+            <stoponfail>1</stoponfail>
+        </Discharge>
+        <Check_EncryptedIC>
+            <enable>1</enable>
+            <description>Check Encrypted IC</description>
+            <min>0.0</min>
+            <max>0.0</max>
+            <misc>None</misc>
+            <stoponfail>0</stoponfail>
+        </Check_EncryptedIC>
+    </testitems>
+    <partnumber>AGIGA9601-002BCA</partnumber>
+    <description>Crystal</description>
+    <revision>04</revision>
+</entity>

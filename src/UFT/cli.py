@@ -4,61 +4,46 @@
 """
 __version__ = "0.1"
 __author__ = "@boqiling"
-
-from UFT.models import base
-from UFT.devices import pwr
-from UFT.devices import load
-from UFT.devices import aardvark
+from UFT.channel import ChannelStates, Channel
 import time
 
+# pass args
 
-def run():
+# cli command to prepare database
 
-    # setup load
-    ld = load.DCLoad(port="COM3", timeout=3)
-    for ch in range(1, 2):
-        ld.select_channel(ch)
-        ld.input_off()
-        ld.protect_on()
-        ld.change_func(load.DCLoad.ModeCURR)
-        ld.set_curr(0.8)
+# cli command to synchronize the dut config
 
-    # setup main power 12V
-    ps = pwr.PowerSupply()
-    ps.selectChannel(node=5, ch=1)
 
-    try:
-        setting = {"volt": 12.0, "curr": 2, "ovp": 13.0, "ocp": 3.0}
-        ps.set(setting)
-        ps.activateOutput()
-        time.sleep(1)
+# cli command to debug hardware
 
-        volt = ps.measureVolt()
-        curr = ps.measureCurr()
+# cli command to run single test
+def single_test():
 
-        assert 11 < volt < 13
-        assert curr >= 0
+    barcode = "AGIGA9601-002BCA02143500000002-04"
+    ch = Channel(barcode_list=[barcode, "", "", ""], channel_id=0,
+                 name="UFT_CHANNEL")
+    ch.start()
 
-        # base
-        adk = aardvark.Adapter()
-        adk.open(portnum=0)
+    ch.queue.put(ChannelStates.INIT)
+    ch.queue.put(ChannelStates.CHARGE)
+    ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    ch.queue.put(ChannelStates.EXIT)
 
-        crystal1 = base.PGEMBase(device=adk, slot=0)
-        crystal1.switch()   # to dut
-        crystal1.charge(True)
+    while(ch.is_alive):
+        print "test progress: {0}%".format(ch.progressbar)
+        time.sleep(2)
 
-        v = ld.read_volt()
-        while(v < 4.6):
-            v = ld.read_volt()
-            print v
-    except Exception:
-        print Exception.args
-        print Exception.message
-    finally:
-        # end, cleanup
-        ld.input_on()
-        ps.deactivateOutput()
+# cli command to generate test reports
 
+# cli command to generate dut charts
+
+# calculate capacitor
+# t = (C * (V0 - V1)) / I                # constant current
+# C = (I * t) / (V0 - V1)
+
+
+# t = (0.5 * C * (V0**2 - V1**2) / P     # constant power
+# t = - C * R * ln(V1 / V0)              # constant resistance
 
 if __name__ == "__main__":
-    run()
+    single_test()

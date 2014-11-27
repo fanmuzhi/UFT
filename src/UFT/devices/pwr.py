@@ -3,12 +3,12 @@
 """pwr.py: API for SCPI commands for
 kikusui PWR1600L though PIA4850 usb control model
 """
-import usbtmc
 
 __version__ = "0.0.1"
 __author__ = "@boqiling"
 __all__ = ["PowerSupply"]
 
+import usbtmc
 import re
 import logging
 import time
@@ -27,15 +27,20 @@ class PowerSupply(object):
 
     def __init__(self):
         self.instr = usbtmc.Instrument(vid, pid)
+
+        try:
+            # clean err msg
+            errmsg = self.instr.ask("ERR?")
+            while(errmsg != "0"):
+                errmsg = self.instr.ask("ERR?")
+        except Exception:
+            pass
+
         idn = self.instr.ask("*IDN?")
         if re.match(r"KIKUSUI[\w|\s|\.|,]+PIA4850", idn):
             logger.info("Power Supply Found: " + idn)
         else:
             raise PowerSupplyException("No power supply found.")
-        # clean err msg
-        errmsg = self.instr.ask("ERR?")
-        while(errmsg != "0"):
-            errmsg = self.instr.ask("ERR?")
 
     def reset(self):
         self.instr.write("*RST")

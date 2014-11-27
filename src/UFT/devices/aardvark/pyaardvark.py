@@ -15,39 +15,7 @@ from array import array
 import imp
 import sys
 
-try:
-    # try to load dll from the same directory or in an egg.
-    from pkg_resources import resource_filename
-    if sys.platform == "win32":
-        aardvark32 = resource_filename(__name__, 'aardvark32.pyd')
-        aardvark64 = resource_filename(__name__, 'aardvark64.pyd')
-    else:
-        aardvark32 = resource_filename(__name__, 'aardvark32.so')
-        aardvark64 = resource_filename(__name__, 'aardvark64.so')
-except NotImplementedError:
-    if hasattr(sys, "frozen"):
-        # if program is frozen to exe,
-        # trick for cx_freeze, the *pyd, *so and *dll need be copied to
-        # same directory of the executable file.
-        if sys.platform == "win32":
-            aardvark32 = "aardvark32.pyd"
-            aardvark64 = "aardvark64.pyd"
-        else:
-            aardvark32 = "aardvark32.so"
-            aardvark64 = "aardvark64.so"
-
-try:
-    api = imp.load_dynamic('aardvark', aardvark32)
-except Exception as e:
-    logging.error(e)
-    try:
-        api = imp.load_dynamic('aardvark', aardvark64)
-    except Exception as e:
-        logging.error(e)
-        api = None
-
-if not api:
-    raise RuntimeError('Pyaardvark, Unable to find suitable binary interface.')
+logger = logging.getLogger(__name__)
 
 DEFAULT_REG_VAL = 0xFF
 PORT_NOT_FREE = 0x8000
@@ -107,16 +75,20 @@ def _query_map(mymap, **kvargs):
     return r
 
 
+class USBI2CAdapterException(Exception):
+    pass
+
+
 def raise_i2c_ex(num):
     ex = _query_map(I2C_STATUS_MAP, code=num)[0]
     if(ex["code"] != 0):
-        raise RuntimeError(True, ex["code"], ex["msg"])
+        raise USBI2CAdapterException(ex["msg"])
 
 
 def raise_aa_ex(num):
     ex = _query_map(AA_STATUS_MAP, code=num)[0]
     if(ex["code"] != 0):
-        raise RuntimeError(True, ex["code"], ex["msg"])
+        raise USBI2CAdapterException(ex["msg"])
 
 
 class I2CConfig(object):
@@ -167,6 +139,42 @@ class Adapter(object):
         self.slave_addr = 0
         self.port = None
 
+        try:
+            # try to load dll from the same directory or in an egg.
+            from pkg_resources import resource_filename
+            if sys.platform == "win32":
+                aardvark32 = resource_filename(__name__, 'aardvark32.pyd')
+                aardvark64 = resource_filename(__name__, 'aardvark64.pyd')
+            else:
+                aardvark32 = resource_filename(__name__, 'aardvark32.so')
+                aardvark64 = resource_filename(__name__, 'aardvark64.so')
+        except NotImplementedError:
+            if hasattr(sys, "frozen"):
+                # if program is frozen to exe,
+                # trick for cx_freeze, the *pyd, *so and *dll need be copied to
+                # same directory of the executable file.
+                if sys.platform == "win32":
+                    aardvark32 = "aardvark32.pyd"
+                    aardvark64 = "aardvark64.pyd"
+                else:
+                    aardvark32 = "aardvark32.so"
+                    aardvark64 = "aardvark64.so"
+
+        try:
+            self.api = imp.load_dynamic('aardvark', aardvark32)
+            logger.debug("aardvark loaded: " + aardvark32)
+        except Exception as e:
+            logger.error(e)
+            try:
+                self.api = imp.load_dynamic('aardvark', aardvark64)
+                logger.debug("aardvark loaded: " + aardvark64)
+            except Exception as e:
+                logger.error(e)
+                self.api = None
+
+        if not self.api:
+            raise RuntimeError('Pyaardvark, Unable to find suitable binary interface.')
+
     def __del__(self):
         '''destructor
         '''
@@ -186,11 +194,11 @@ class Adapter(object):
 
         # first fetch the number of attached devices, so we can create a buffer
         # with the exact amount of entries. api expects array of u16
-        num_devices = api.py_aa_find_devices(0, array_u16(0))
+        num_devices = self.api.py_aa_find_devices(0, array_u16(0))
         assert num_devices > 0
 
         devices = array_u16(num_devices)
-        num_devices = api.py_aa_find_devices(num_devices, devices)
+        num_devices = self.api.py_aa_find_devices(num_devices, devices)
         assert num_devices > 0
 
         del devices[num_devices:]
@@ -207,17 +215,17 @@ class Adapter(object):
         config the aardvark tool params like bitrate, slave address etc,
         '''
         ports = self.find_devices()
-        logging.debug("find ports: " + str(ports))
+        logger.debug("find ports: " + str(ports))
         self.port = None
         if(serialnumber):
             for port in ports:
-                handle = api.py_aa_open(port)
-                if(api.py_aa_unique_id(handle) == serialnumber):
-                    logging.debug("SN: " + str(api.py_aa_unique_id(handle)))
+                handle = self.api.py_aa_open(port)
+                if(self.api.py_aa_unique_id(handle) == serialnumber):
+                    logger.debug("SN: " + str(self.api.py_aa_unique_id(handle)))
                     self.port = port
-                    api.py_aa_close(handle)
+                    self.api.py_aa_close(handle)
                     break
-                api.py_aa_close(handle)
+                self.api.py_aa_close(handle)
             if(self.port is None):
                 raise_aa_ex(-601)
         elif(portnum is not None):
@@ -225,28 +233,28 @@ class Adapter(object):
         else:
             self.port = 0
 
-        logging.debug("open: " + str(self.port))
-        self.handle = api.py_aa_open(self.port)
+        logger.debug("open: " + str(self.port))
+        self.handle = self.api.py_aa_open(self.port)
 
         if(self.handle <= 0):
             raise_aa_ex(self.handle)
         # Ensure that the I2C subsystem is enabled
-        api.py_aa_configure(self.handle,  I2CConfig.AA_CONFIG_SPI_I2C)
-        api.py_aa_i2c_pullup(self.handle, I2CConfig.AA_I2C_PULLUP_BOTH)
-        api.py_aa_target_power(self.handle, I2CConfig.AA_TARGET_POWER_NONE)
+        self.api.py_aa_configure(self.handle,  I2CConfig.AA_CONFIG_SPI_I2C)
+        self.api.py_aa_i2c_pullup(self.handle, I2CConfig.AA_I2C_PULLUP_BOTH)
+        self.api.py_aa_target_power(self.handle, I2CConfig.AA_TARGET_POWER_NONE)
         # Set the bitrate, in khz
-        self.bitrate = api.py_aa_i2c_bitrate(self.handle, self.bitrate)
+        self.bitrate = self.api.py_aa_i2c_bitrate(self.handle, self.bitrate)
         # Set the bus lock timeout, in ms
-        api.py_aa_i2c_bus_timeout(self.handle, self.bus_timeout)
+        self.api.py_aa_i2c_bus_timeout(self.handle, self.bus_timeout)
         # Free bus
-        api.py_aa_i2c_free_bus(self.handle)
+        self.api.py_aa_i2c_free_bus(self.handle)
 
     def unique_id(self):
         """Return the unique identifier of the device. The identifier is the
         serial number you can find on the aapter without the ash. Eg. the
         serial number 0012-345678 would be 12345678.
         """
-        return api.py_aa_unique_id(self.handle)
+        return self.api.py_aa_unique_id(self.handle)
 
     def unique_id_str(self):
         """Return the unique identifier. But unlike :func:`unique_id`, the ID
@@ -269,13 +277,13 @@ class Adapter(object):
             length = len(wata)
         else:
             raise TypeError("i2c ata to be written is not valid")
-        (ret, num_written) = api.py_aa_i2c_write_ext(self.handle,
+        (ret, num_written) = self.api.py_aa_i2c_write_ext(self.handle,
                                                      self.slave_addr,
                                                      config,
                                                      length,
                                                      ata_out)
         if(ret != 0):
-            api.py_aa_i2c_free_bus(self.handle)
+            self.api.py_aa_i2c_free_bus(self.handle)
             raise_i2c_ex(ret)
         if(num_written != length):
             raise_aa_ex(-103)
@@ -287,13 +295,13 @@ class Adapter(object):
         # read 1 byte each time for easy
         #length = 2
         ata_in = array_u08(length)
-        (ret, num_read) = api.py_aa_i2c_read_ext(self.handle,
+        (ret, num_read) = self.api.py_aa_i2c_read_ext(self.handle,
                                                  self.slave_addr,
                                                  config,
                                                  length,
                                                  ata_in)
         if(ret != 0):
-            api.py_aa_i2c_free_bus(self.handle)
+            self.api.py_aa_i2c_free_bus(self.handle)
             raise_i2c_ex(ret)
         if(num_read != length):
             raise_aa_ex(-102)
@@ -332,12 +340,12 @@ class Adapter(object):
     def sleep(self, ms):
         '''sleep for specified number of milliseconds
         '''
-        api.py_aa_sleep_ms(ms)
+        self.api.py_aa_sleep_ms(ms)
 
     def close(self):
         '''close device
         '''
-        api.py_aa_close(self.handle)
+        self.api.py_aa_close(self.handle)
 
 
 if __name__ == "__main__":
