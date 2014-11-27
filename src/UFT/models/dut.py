@@ -24,6 +24,7 @@ class DUT(SQLBase):
     id = Column(Integer, primary_key=True)
     barcode = Column(String(30), nullable=False)
     partnumber = Column(String(30), nullable=False)
+    capacitance_measured = Column(Integer)
 
     temphist = Column(Integer)
     caphist = Column(Integer)
@@ -43,7 +44,7 @@ class DUT(SQLBase):
     initialcap = Column(Integer)
 
     slotnum = Column(Integer)
-    archieved = Column(Integer)   # 0 for running and 1 for archieved.
+    archived = Column(Integer)   # 0 for running and 1 for archieved.
     status = Column(Integer, nullable=False)
     errormessage = Column(String(20))
     testdate = Column(DateTime, default=datetime.datetime.utcnow)
@@ -60,6 +61,7 @@ class Cycle(SQLBase):
     vin = Column(Float)
     vcap = Column(Float)
     time = Column(Integer)
+    state = Column(String(20))
     dutid = Column(Integer, ForeignKey("dut.id"))
 
 
