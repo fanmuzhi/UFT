@@ -184,7 +184,8 @@ class ColorizingStreamHandler(logging.StreamHandler):
 
 
 def init_logger(mylogger, level=logging.INFO):
-    formatter = logging.Formatter('[ %(asctime)s ] (%(threadName)s) %(module)s : %(message)s')
+    formatter = logging.Formatter('[ %(asctime)s ] (%(threadName)s)'
+                                  ' %(module)s : %(message)s')
 
     # stdout handler
     #stdhl = logging.StreamHandler(sys.stdout)

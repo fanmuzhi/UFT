@@ -9,7 +9,7 @@ __author__ = "@boqiling"
 __all__ = ["Channel", "ChannelStates"]
 
 from UFT.devices import pwr, load, aardvark
-from UFT.models import DUT_STATUS, Cycle
+from UFT.models import DUT_STATUS, DUT, Cycle
 from UFT.backend import load_config, load_test_item
 from UFT.backend.session import SessionManager
 from UFT.config import *
@@ -34,7 +34,6 @@ class ChannelStates(object):
     INIT = 0x0A
     POWER_ON = 0x0B
     LOAD_DISCHARGE = 0x0C
-    CHECK_POWER_FAIL = 0x0D
     CHARGE = 0x0E
     PROGRAM_VPD = 0x0F
     CHECK_LED = 0x1A
@@ -42,7 +41,6 @@ class ChannelStates(object):
     CHECK_TEMP = 0x1C
     AUTO_DISCHARGE = 0x1D
     SELF_DISCHARGE = 0x1E
-    LOAD_DISCHARGE = 0x1F
 
 
 class Channel(threading.Thread):
@@ -74,13 +72,18 @@ class Channel(threading.Thread):
 
         # setup database
         # db should be prepared in cli.py
-        self.session = SessionManager().get_session(RESULT_DB)
+        sm = SessionManager()
+        sm.prepare_db(RESULT_DB, [DUT, Cycle])
+        self.session = sm.get_session(RESULT_DB)
 
         # progress bar, 0 to 100
         self.progressbar = 0
 
         # counter, to calculate charge and discharge time based on interval
         self.counter = 0
+
+        # discharge current, default to 0.5A
+        self.current = 0.5
 
         # exit flag and queue for threading
         self.exit = False
@@ -110,7 +113,6 @@ class Channel(threading.Thread):
                 self.dut_list.append(None)
                 self.config_list.append(None)
             i += 1
-        print self.dut_list
 
         # setup load
         for slot in range(TOTAL_SLOTNUM):
@@ -126,7 +128,7 @@ class Channel(threading.Thread):
                    "ovp": PS_OVP, "ocp": PS_OCP}
         self.ps.set(setting)
         self.ps.activateOutput()
-        time.sleep(1)
+        time.sleep(1.5)
         volt = self.ps.measureVolt()
         curr = self.ps.measureCurr()
         assert (PS_VOLT-1) < volt < (PS_VOLT+1)
@@ -173,6 +175,11 @@ class Channel(threading.Thread):
                     time.sleep(INTERVAL)
                 self.ld.input_off()
 
+                self.switch_to_mb()
+                if(not self.check_power_fail(dut.slotnum)):
+                    dut.status = DUT_STATUS.Fail
+                    dut.errormessage = "Power Int Test Fail"
+
     def charge_dut(self):
         """charge
         """
@@ -212,10 +219,11 @@ class Channel(threading.Thread):
                 this_cycle.time = self.counter
                 try:
                     temperature = dut.check_temp()
-                except USBI2CAdapterException:
+                except aardvark.USBI2CAdapterException:
                     # temp ic not ready
                     temperature = 0
                 this_cycle.temp = temperature
+                this_cycle.state = "charge"
                 self.counter += 1
 
                 self.ld.select_channel(dut.slotnum)
@@ -269,8 +277,8 @@ class Channel(threading.Thread):
             discharge_config = load_test_item(self.config_list[dut.slotnum],
                                               "Discharge")
 
-            current = float(discharge_config["Current"].strip("aAvV"))
-            self.ld.set_curr(current)  # set discharge current
+            self.current = float(discharge_config["Current"].strip("aAvV"))
+            self.ld.set_curr(self.current)  # set discharge current
             self.ld.input_on()
 
             dut.status = DUT_STATUS.Discharging
@@ -288,11 +296,12 @@ class Channel(threading.Thread):
                 this_cycle.vin = self.ps.measureVolt()
                 try:
                     temperature = dut.check_temp()
-                except USBI2CAdapterException:
+                except aardvark.USBI2CAdapterException:
                     # temp ic not ready
                     temperature = 0
                 this_cycle.temp = temperature
                 this_cycle.time = self.counter
+                this_cycle.state = "discharge"
                 self.counter += 1
 
                 self.ld.select_channel(dut.slotnum)
@@ -319,6 +328,28 @@ class Channel(threading.Thread):
                 logger.info("dut: {0} status: {1} message: {2}".format(
                     dut.slotnum, dut.status, dut.errormessage))
             time.sleep(INTERVAL)
+        self.calculate_capacitance()
+
+    def calculate_capacitance(self):
+        for dut in self.dut_list:
+            if dut is None:
+                continue
+            cap_list = []
+            pre_vcap, pre_time = None, None
+            for cycle in dut.cycles:
+                if cycle.state == "discharge":
+                    if pre_vcap is None:
+                        pre_vcap = cycle.vcap
+                        pre_time = cycle.time
+                    else:
+                        cur_vcap = cycle.vcap
+                        cur_time = cycle.time
+                        cap = (self.current * (cur_time - pre_time) *
+                               INTERVAL) / (pre_vcap - cur_vcap)
+                        cap_list.append(cap)
+            print cap_list
+            capacitor = sum(cap_list) / float(len(cap_list))
+            dut.capacitance_measured = capacitor
 
     def auto_discharge(self, slot, status=False):
         """output PRESENT/AUTO_DISCH signal on TCA9555 on mother board.
@@ -415,6 +446,54 @@ class Channel(threading.Thread):
         val = (val & (0x01 << slot)) >> slot
         return val != 0
 
+    def program_dut(self):
+        for dut in self.dut_list:
+            if dut is None:
+                continue
+            program_config = load_test_item(self.config_list[dut.slotnum],
+                                            "Program_VPD")
+            # power should be OK.
+            self.switch_to_mb()
+            if(self.check_power_fail(dut.slotnum)):
+                dut.status = DUT_STATUS.Fail
+                dut.errormessage = "Power Int Test Fail"
+
+            self.switch_to_dut(dut.slotnum)
+            try:
+                dut.write_vpd(program_config["File"])
+                dut.read_vpd()
+            except AssertionError:
+                dut.status = DUT_STATUS.Fail
+                dut.errormessage = "Programming VPD Fail"
+
+    def check_encryptedic_dut(self):
+        for dut in self.dut_list:
+            if dut is None:
+                continue
+            if(not dut.encrypted_ic()):
+                dut.status = DUT_STATUS.Fail
+                dut.errormessage = "Check I2C on Encrypted IC Fail."
+
+    def prepare_to_exit(self):
+        """
+        cleanup and save to database before exit.
+        :return: None
+        """
+        for dut in self.dut_list:
+            if dut is None:
+                continue
+            if(dut.status == DUT_STATUS.Idle):
+                dut.status = DUT_STATUS.Pass
+
+            for pre_dut in self.session.query(DUT).filter(
+                            DUT.barcode == dut.barcode).all():
+                pre_dut.archived = 1
+                self.session.add(pre_dut)
+                self.session.commit()
+            dut.archived = 0
+            self.session.add(dut)
+            self.session.commit()
+
     def run(self):
         """ override thread.run()
         :return: None
@@ -422,6 +501,7 @@ class Channel(threading.Thread):
         while(not self.exit):
             state = self.queue.get()
             if(state == ChannelStates.EXIT):
+                self.prepare_to_exit()
                 self.exit = True
             elif(state == ChannelStates.INIT):
                 self.progressbar += 10
@@ -437,9 +517,11 @@ class Channel(threading.Thread):
             elif(state == ChannelStates.SELF_DISCHARGE):
                 pass
             elif(state == ChannelStates.PROGRAM_VPD):
-                pass
+                self.progressbar += 10
+                self.program_dut()
             elif(state == ChannelStates.CHECK_ENCRYPTED_IC):
-                pass
+                self.progressbar += 10
+                self.check_encryptedic_dut()
             elif(state == ChannelStates.CHECK_LED):
                 pass
             else:
@@ -459,7 +541,7 @@ class Channel(threading.Thread):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.ERROR)    # quiet
 
     barcode = "AGIGA9601-002BCA02143500000002-04"
     ch = Channel(barcode_list=[barcode, "", "", ""], channel_id=0,
@@ -468,9 +550,11 @@ if __name__ == "__main__":
 
     ch.queue.put(ChannelStates.INIT)
     ch.queue.put(ChannelStates.CHARGE)
+    ch.queue.put(ChannelStates.PROGRAM_VPD)
+    ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
     ch.queue.put(ChannelStates.LOAD_DISCHARGE)
     ch.queue.put(ChannelStates.EXIT)
 
-    while(ch.progressbar <= 60):
+    while(ch.is_alive()):
         print "progress bar: {0}".format(ch.progressbar)
-        time.sleep(1)
+        time.sleep(5)
