@@ -5,10 +5,8 @@ Created on Nov 01, 2014
 '''
 
 import sys
-import time
 import logging
-from PyQt4 import QtCore, QtGui
-from UFT_GUI import UFT_Ui
+from PyQt4 import QtCore
 
 
 class XStream(QtCore.QObject):
@@ -50,39 +48,3 @@ class QtHandler(logging.Handler):
         if record:
             XStream.stdout().write('%s\n' % record)
             # XStream.stdout().write("{}\n".format(record))
-
-
-logger = logging.getLogger(__name__)
-handler = QtHandler()
-handler.setFormatter(logging.Formatter("%(levelname)s: %(message)s"))
-logger.addHandler(handler)
-logger.setLevel(logging.DEBUG)
-
-
-def test():
-    logger.debug('debug message')
-    logger.info('info message')
-    logger.warning('warning message')
-    logger.error('error message')
-    print 'Old school hand made print message'
-
-
-if __name__ == '__main__':
-    app = None
-    if (not QtGui.QApplication.instance()):
-        app = QtGui.QApplication([])
-        Form = QtGui.QWidget()
-    ui = UFT_Ui.Ui_Form()
-    ui.setupUi(Form)
-
-    def append_formatData(data):
-        ui.info_textBrowser.insertPlainText(
-            time.strftime("%Y-%m-%d %X\t") + data)
-        ui.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
-
-    # XStream.stdout().messageWritten.connect(ui.info_textBrowser.append)
-    XStream.stdout().messageWritten.connect(append_formatData)
-    ui.start_pushButton.clicked.connect(test)
-    Form.show()
-    if (app):
-        app.exec_()

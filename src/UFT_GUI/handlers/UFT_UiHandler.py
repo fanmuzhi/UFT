@@ -26,6 +26,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.test_item_model = None
         self.data_table = QtGui.QTableView()
 
+
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
         ''' initial configuration tab combobox and table  '''
