@@ -49,7 +49,7 @@ class DCLoad(object):
 
         # check IDN
         self._write("*IDN?")
-        idn = self._read()
+        idn = self._read().rstrip()
         if(re.match(r"Agilent\sTechnologies,N3300A", idn)):
             logger.info("DC Load found: " + idn)
         else:

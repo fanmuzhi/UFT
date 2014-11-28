@@ -20,6 +20,9 @@ import logging
 from UFT.channel import Channel, ChannelStates
 import time
 
+handler = log_handler.QtHandler()
+UFT.logger.addHandler(handler)
+UFT.logger.setLevel(logging.INFO)
 
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -44,9 +47,6 @@ class MainWidget(QtGui.QWidget):
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
 
 def start_click():
-    handler = log_handler.QtHandler()
-    UFT.logger.addHandler(handler)
-    UFT.logger.setLevel(logging.DEBUG)
 
     UFT.logger.debug("clicked.")
 
