@@ -6,7 +6,7 @@
             <description>IO Expander, limitation in seconds</description>
             <min>30.0</min>
             <max>50.0</max>
-            <misc>Threshold=4.0V</misc>
+            <misc>Threshold=2.0V</misc>
             <stoponfail>1</stoponfail>
         </Self_Discharge>
         <Charge>
@@ -22,7 +22,7 @@
             <description>IO present/auto_disch, limitation in seconds</description>
             <min>30.0</min>
             <max>50.0</max>
-            <misc>Threshold=4.0V</misc>
+            <misc>Threshold=3.0V</misc>
             <stoponfail>1</stoponfail>
         </Auto_Discharge>
         <Check_Temp>
