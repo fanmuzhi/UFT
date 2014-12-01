@@ -248,11 +248,11 @@ class PGEMBase(DUT):
         val = (ata_in[1] << 8) + ata_in[0]
         return val
 
-    def charge(self, option, status=True):
+    def charge(self, status=True, **kvargs):
         """Send charge option to charge IC to start the charge.
         Charge IC BQ24707 is used as default.
         Override this function is use other IC instead.
-        :param option: option dict of charge option, charge voltage, etc.
+        :param kvargs: option dict of charge option, charge voltage, etc.
         :param status: status=True, start charge; status=False, stop charge.
         """
         # BQ24707 register address
@@ -267,30 +267,34 @@ class PGEMBase(DUT):
         logger.debug("BQ24707 ID {0} {1}".format(self.read_bq24707(
             MAN_ID_ADDR), self.read_bq24707(DEV_ID_ADDR)))
 
-        # convert options from string to int
-        for k, v in option.items():
-            if k in ["ChargeCurrent", "ChargeVoltage",
-                     "ChargeOption", "InputCurrent"]:
-                option[k] = int(v, 0)
-
-        # write options
-        charge_option = option["ChargeOption"]    # 0x1990
         if status:
-            # start charge
+            option = kvargs.get("option")
+        # start charge
+            # convert options from string to int
+            for k, v in option.items():
+                if k in ["ChargeCurrent", "ChargeVoltage",
+                         "ChargeOption", "InputCurrent"]:
+                    option[k] = int(v, 0)
+
+            # write options
+            charge_option = option["ChargeOption"]    # 0x1990
             charge_option &= ~(0x01)    # clear last bit
+
+            self.write_bq24707(CHG_OPT_ADDR, charge_option)
+            self.write_bq24707(CHG_CUR_ADDR, option["ChargeCurrent"])   # 0x01C0
+            self.write_bq24707(CHG_VOL_ADDR, option["ChargeVoltage"])   # 0x1200
+            self.write_bq24707(INPUT_CUR_ADDR, option["InputCurrent"])  # 0x0400
+
+            # read back to check if written successfully
+            assert self.read_bq24707(CHG_OPT_ADDR) == charge_option
+            assert self.read_bq24707(CHG_CUR_ADDR) == option["ChargeCurrent"]
+            assert self.read_bq24707(CHG_VOL_ADDR) == option["ChargeVoltage"]
+            assert self.read_bq24707(INPUT_CUR_ADDR) == option["InputCurrent"]
         else:
+            charge_option = self.read_bq24707(CHG_OPT_ADDR)
             # stop charge
             charge_option |= 0x01   # set last bit
-        self.write_bq24707(CHG_OPT_ADDR, charge_option)
-        self.write_bq24707(CHG_CUR_ADDR, option["ChargeCurrent"])   # 0x01C0
-        self.write_bq24707(CHG_VOL_ADDR, option["ChargeVoltage"])   # 0x1200
-        self.write_bq24707(INPUT_CUR_ADDR, option["InputCurrent"])  # 0x0400
-
-        # read back to check if written successfully
-        assert self.read_bq24707(CHG_OPT_ADDR) == charge_option
-        assert self.read_bq24707(CHG_CUR_ADDR) == option["ChargeCurrent"]
-        assert self.read_bq24707(CHG_VOL_ADDR) == option["ChargeVoltage"]
-        assert self.read_bq24707(INPUT_CUR_ADDR) == option["InputCurrent"]
+            self.write_bq24707(CHG_OPT_ADDR, charge_option)
 
     @staticmethod
     def _calc_temp(temp):

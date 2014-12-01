@@ -28,6 +28,9 @@ if __name__ == "__main__":
     print charge_settings["max"]
     programming = load_test_item(config, "Program_VPD")
     print programming["File"]
+    print programming["stoponfail"]
+    print programming["enable"]
+
 
     import os
     print os.path.isfile(programming["File"])
