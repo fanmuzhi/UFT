@@ -9,6 +9,9 @@ import sys
 import time
 from PyQt4 import QtCore, QtGui
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
+import UFT
+from UFT.channel import Channel, ChannelStates
+import logging
 import log_handler
 import mpl_handler
 import sql_handler
@@ -17,6 +20,9 @@ import sql_handler
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
+        handler = log_handler.QtHandler()
+        UFT.logger.addHandler(handler)
+        UFT.logger.setLevel(logging.DEBUG)
         self.dut_image = None
         self.config_table = QtGui.QTableView()
         log_handler.XStream.stdout().messageWritten.connect(
@@ -25,7 +31,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.config_model = None
         self.test_item_model = None
         self.data_table = QtGui.QTableView()
-
+        self.msg = QtGui.QMessageBox()
 
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
@@ -51,6 +57,36 @@ class UFT_UiHandler(UFT_UiForm):
             self.info_textBrowser.insertPlainText(
                 time.strftime("%Y-%m-%d %X\t") + data)
             self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
+
+    def barcodes(self):
+        barcodes = [str(self.sn_lineEdit_1.text()),
+                    str(self.sn_lineEdit_2.text()),
+                    str(self.sn_lineEdit_3.text()),
+                    str(self.sn_lineEdit_4.text())]
+        for i in barcodes:
+            if not i:
+                i = ""
+        return barcodes
+
+    def start_click(self):
+        try:
+            UFT.logger.debug("clicked.")
+            self.ch = Channel(barcode_list = self.barcodes(), channel_id=0,
+                         name="UFT_CHANNEL")
+            self.ch.start()
+            self.ch.queue.put(ChannelStates.INIT)
+            self.ch.queue.put(ChannelStates.CHARGE)
+            self.ch.queue.put(ChannelStates.PROGRAM_VPD)
+            self.ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+            self.ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+            self.ch.queue.put(ChannelStates.EXIT)
+        except Exception as e:
+            self.msg.setText(e.message)
+            self.msg.show()
+            self.msg.exec_()
+
+    def auto_enable_disable_widgets(self):
+        pass
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
@@ -122,13 +158,7 @@ class UFT_UiHandler(UFT_UiForm):
                 self.mplwidget_2,
                 self.mplwidget_3,
                 self.mplwidget_4]
-        barcodes = [str(self.sn_lineEdit_1.text()),
-                    str(self.sn_lineEdit_2.text()),
-                    str(self.sn_lineEdit_3.text()),
-                    str(self.sn_lineEdit_4.text())]
-        for i in barcodes:
-            if not i:
-                i = ""
+        barcodes = self.barcodes()
         item = ""
         for i in self.buttonGroup.buttons():
             if i.isChecked():

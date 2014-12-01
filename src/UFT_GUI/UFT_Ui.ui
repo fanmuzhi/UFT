@@ -587,6 +587,22 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>start_pushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>info_textBrowser</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>980</x>
+     <y>116</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>350</x>
+     <y>319</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <buttongroups>
   <buttongroup name="buttonGroup"/>

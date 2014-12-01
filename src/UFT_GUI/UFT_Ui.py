@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Wed Nov 26 14:08:45 2014
+# Created: Fri Nov 28 17:07:09 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -322,6 +322,7 @@ class Ui_Form(object):
         QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.setFocus)
+        QtCore.QObject.connect(self.start_pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.info_textBrowser.clear)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
