@@ -183,9 +183,7 @@ class ColorizingStreamHandler(logging.StreamHandler):
 #        return XStream._stderr
 
 
-def init_logger(mylogger, level=logging.INFO):
-    formatter = logging.Formatter('[ %(asctime)s ] (%(threadName)s)'
-                                  ' %(module)s : %(message)s')
+def init_logger(mylogger, formatter, level=logging.INFO):
 
     # stdout handler
     #stdhl = logging.StreamHandler(sys.stdout)

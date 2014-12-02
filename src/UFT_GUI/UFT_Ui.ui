@@ -82,7 +82,7 @@
             <item>
              <widget class="QLineEdit" name="sn_lineEdit_1">
               <property name="text">
-               <string/>
+               <string>AGIGA9601-002BCA02143500000001-04</string>
               </property>
               <property name="placeholderText">
                <string>Serial Number</string>

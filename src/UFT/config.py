@@ -35,13 +35,13 @@ ADK_PORT = 0
 
 # load Settings
 # load RS232 port
-LD_PORT = "COM3"
+LD_PORT = "COM5"
 LD_DELAY = 3
 
 # database settings
 # database for dut test result
 #RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
-RESULT_DB = "sqlite:///C:\\Users\\qibo\\Documents\\UFT\\test\\pgem.db"
+RESULT_DB = "sqlite:///C:\\UFT_DB\\pgem.db"
 # database for dut configuration
 #CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
-CONFIG_DB = "sqlite:///C:\\Users\\qibo\\Documents\\UFT\\test\\pgem_config.db"
+CONFIG_DB = "sqlite:///C:\\UFT_DB\\pgem_config.db"

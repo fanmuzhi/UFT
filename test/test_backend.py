@@ -8,7 +8,7 @@ __author__ = "@boqiling"
 
 from UFT.backend import load_config, sync_config, load_test_item
 
-test_uri = "sqlite:///pgem_config.db"
+test_uri = "sqlite:///C:\\UFT_DB\\pgem_config.db"
 
 
 #config = load_config(test_uri, partnumber="AGIGA9601-002BCA", revision="04")

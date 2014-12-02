@@ -6,7 +6,7 @@ Created on Nov 01, 2014
 import sys
 from PyQt4 import QtCore, QtSql
 from UFT_GUI import UFT_Ui
-
+from UFT.config import RESULT_DB, CONFIG_DB
 
 class MyDB():
     def __init__(self):
@@ -20,12 +20,11 @@ class MyDB():
             self.query = QtSql.QSqlQuery()  # sql handler
 
     def switch_to_configuration(self):
-        self.db.setDatabaseName(
-            "./res/db/configuration.db")  # set database name
+        self.db.setDatabaseName("C:/UFT_DB/pgem_config.db")  # set database name
         self.db.open()
 
     def switch_to_pgem(self):
-        self.db.setDatabaseName("./res/db/pgem.db")  # set database name
+        self.db.setDatabaseName("C:/UFT_DB/pgem.db")  # set database name
         self.db.open()
 
 

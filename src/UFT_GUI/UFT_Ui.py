@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Fri Nov 28 17:07:09 2014
+# Created: Tue Dec 02 14:26:15 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,7 +66,6 @@ class Ui_Form(object):
         self.verticalLayout = QtGui.QVBoxLayout(self.groupBox)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.sn_lineEdit_1 = QtGui.QLineEdit(self.groupBox)
-        self.sn_lineEdit_1.setText(_fromUtf8(""))
         self.sn_lineEdit_1.setObjectName(_fromUtf8("sn_lineEdit_1"))
         self.verticalLayout.addWidget(self.sn_lineEdit_1)
         self.label_2 = QtGui.QLabel(self.groupBox)
@@ -329,6 +328,7 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form", None))
         self.label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.0", None))
         self.groupBox.setTitle(_translate("Form", "Slot #1", None))
+        self.sn_lineEdit_1.setText(_translate("Form", "AGIGA9601-002BCA02143500000001-04", None))
         self.sn_lineEdit_1.setPlaceholderText(_translate("Form", "Serial Number", None))
         self.label_2.setText(_translate("Form", "Test Result", None))
         self.groupBox_4.setTitle(_translate("Form", "Slot #2", None))

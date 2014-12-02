@@ -233,8 +233,12 @@ class Adapter(object):
         else:
             self.port = 0
 
-        logger.debug("open: " + str(self.port))
+        try:
+            self.api.py_aa_close(self.port)
+        except Exception:
+            pass
         self.handle = self.api.py_aa_open(self.port)
+        logger.info("aardvark opened: " + str(self.port))
 
         if(self.handle <= 0):
             raise_aa_ex(self.handle)

@@ -46,5 +46,5 @@ class QtHandler(logging.Handler):
     def emit(self, record):
         record = self.format(record)
         if record:
-            XStream.stdout().write('%s\n' % record)
-            # XStream.stdout().write("{}\n".format(record))
+            #XStream.stdout().write('%s' % record)
+            XStream.stdout().write("{}\n".format(record))

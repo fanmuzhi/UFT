@@ -9,20 +9,25 @@ import sys
 import time
 from PyQt4 import QtCore, QtGui
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
-import UFT
-from UFT.channel import Channel, ChannelStates
+
 import logging
 import log_handler
 import mpl_handler
 import sql_handler
+try:
+    import UFT
+    from UFT.channel import Channel, ChannelStates
+except Exception as e:
+    print e.message
 
 
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
         handler = log_handler.QtHandler()
+        handler.setFormatter(UFT.formatter)
         UFT.logger.addHandler(handler)
-        UFT.logger.setLevel(logging.DEBUG)
+        UFT.logger.setLevel(logging.INFO)
         self.dut_image = None
         self.config_table = QtGui.QTableView()
         log_handler.XStream.stdout().messageWritten.connect(
@@ -31,7 +36,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.config_model = None
         self.test_item_model = None
         self.data_table = QtGui.QTableView()
-        self.msg = QtGui.QMessageBox()
+
 
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
@@ -54,8 +59,7 @@ class UFT_UiHandler(UFT_UiForm):
 
     def __append_format_data(self, data):
         if data:
-            self.info_textBrowser.insertPlainText(
-                time.strftime("%Y-%m-%d %X\t") + data)
+            self.info_textBrowser.insertPlainText(data)
             self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
 
     def barcodes(self):
@@ -70,23 +74,28 @@ class UFT_UiHandler(UFT_UiForm):
 
     def start_click(self):
         try:
-            UFT.logger.debug("clicked.")
-            self.ch = Channel(barcode_list = self.barcodes(), channel_id=0,
+            ch = Channel(barcode_list = self.barcodes(), channel_id=0,
                          name="UFT_CHANNEL")
-            self.ch.start()
-            self.ch.queue.put(ChannelStates.INIT)
-            self.ch.queue.put(ChannelStates.CHARGE)
-            self.ch.queue.put(ChannelStates.PROGRAM_VPD)
-            self.ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-            self.ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-            self.ch.queue.put(ChannelStates.EXIT)
+            ch.setDaemon(True)
+            ch.start()
+            ch.queue.put(ChannelStates.INIT)
+            ch.queue.put(ChannelStates.CHARGE)
+            ch.queue.put(ChannelStates.PROGRAM_VPD)
+            ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+            ch.queue.put(ChannelStates.EXIT)
+            #ch.isAlive.connect(self.auto_enable_disable_widgets)
         except Exception as e:
-            self.msg.setText(e.message)
-            self.msg.show()
-            self.msg.exec_()
+            msg = QtGui.QMessageBox()
+            msg.setText(e.message)
+            msg.show()
+            msg.exec_()
 
-    def auto_enable_disable_widgets(self):
-        pass
+    def auto_enable_disable_widgets(self, ch_is_alive):
+        if ch_is_alive:
+            self.start_pushButton.setDisabled(True)
+        else:
+            self.start_pushButton.setDisabled(False)
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
