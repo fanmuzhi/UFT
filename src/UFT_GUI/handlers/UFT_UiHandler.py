@@ -76,10 +76,11 @@ class UFT_UiHandler(UFT_UiForm):
 
     def set_status_text(self, dut_list):
         if dut_list:
-            self.label_1.setText(str(dut_list[0].status))
-            self.label_2.setText(str(dut_list[1].status))
-            self.label_3.setText(str(dut_list[2].status))
-            self.label_4.setText(str(dut_list[4].status))
+            print dut_list[0], dut_list[1], dut_list[2], dut_list[3]
+            self.label_1.setText(dut_list[0].status)
+            self.label_2.setText(dut_list[1].status)
+            self.label_3.setText(dut_list[2].status)
+            self.label_4.setText(dut_list[4].status)
 
     def barcodes(self):
         barcodes = [str(self.sn_lineEdit_1.text()),

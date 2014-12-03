@@ -90,27 +90,33 @@ class MainWidget(QtGui.QWidget):
 
 
         # refresh pb.progressbar
-
-        self.u = Update()
+        ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
+                     name="UFT_CHANNEL")
+        ch.setDaemon(True)
+        ch.queue.put(ChannelStates.INIT)
+        ch.queue.put(ChannelStates.CHARGE)
+        ch.queue.put(ChannelStates.PROGRAM_VPD)
+        ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+        ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+        ch.queue.put(ChannelStates.EXIT)
+        self.u = Update(ch)
         self.u.start()
         self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
                            self.ui.progressBar.setValue)
         self.qtobj.connect(self.qtobj, QtCore.SIGNAL('dut_list'),
                            self.ui.set_status_text)
-        # self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
-        #                    self.ui.auto_enable_disable_widgets)
+        self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
+                           self.ui.auto_enable_disable_widgets)
 
 
 from UFT_GUI.test_elements import Progressbar
 
 
 class Update(QtCore.QThread):
-    def __init__(self):
+    def __init__(self, ch):
         QtCore.QThread.__init__(self)
-        # self.ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
-        #              name="UFT_CHANNEL")
-        # self.ch.setDaemon(True)
-        self.ch = Progressbar()
+        self.ch = ch
+        # self.ch = Progressbar()
 
     def __del__(self):
         self.wait()
@@ -121,8 +127,8 @@ class Update(QtCore.QThread):
             time.sleep(1)
             self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
             self.emit(QtCore.SIGNAL("dut_list"), self.ch.dut_list)
-            # self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
-
+            self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
+        self.emit(QtCore.SIGNAL("is_alive"), 0)
         self.terminate()
 
 
