@@ -51,9 +51,7 @@ class ChannelStates(object):
 
 class Channel(threading.Thread):
     # aardvark
-    adk = aardvark.Adapter()
-    # open aardvark
-    adk.open(portnum=ADK_PORT)
+    adk = aardvark.Adapter(portnum=ADK_PORT)
     # setup load
     ld = load.DCLoad(port=LD_PORT, timeout=LD_DELAY)
     # setup main power supply
@@ -608,6 +606,11 @@ class Channel(threading.Thread):
                 continue
             if(dut.status == DUT_STATUS.Idle):
                 dut.status = DUT_STATUS.Pass
+                msg = "passed"
+            else:
+                msg = dut.errormessage
+            logger.info("TEST RESULT: dut {0} ===> {1}".format(
+                dut.slotnum, msg))
 
             for pre_dut in self.session.query(DUT).\
                     filter(DUT.barcode == dut.barcode).all():
@@ -687,6 +690,17 @@ class Channel(threading.Thread):
                 logger.error("unknown dut state, exit...")
                 self.exit = True
 
+    def auto_test(self):
+        self.queue.put(ChannelStates.INIT)
+        self.queue.put(ChannelStates.CHARGE)
+        self.queue.put(ChannelStates.PROGRAM_VPD)
+        self.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+        self.queue.put(ChannelStates.CHECK_TEMP)
+        self.queue.put(ChannelStates.LOAD_DISCHARGE)
+        self.queue.put(ChannelStates.CHECK_CAPACITANCE)
+        self.queue.put(ChannelStates.EXIT)
+        self.start()
+
     def empty(self):
         for i in range(self.queue.qsize()):
             self.queue.get()
@@ -711,13 +725,13 @@ if __name__ == "__main__":
     barcode = "AGIGA9601-002BCA02143500000002-04"
     ch = Channel(barcode_list=[barcode, "", "", ""], channel_id=0,
                  name="UFT_CHANNEL")
-    ch.start()
-
-    ch.queue.put(ChannelStates.INIT)
-    ch.queue.put(ChannelStates.CHARGE)
-    ch.queue.put(ChannelStates.PROGRAM_VPD)
-    ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-    ch.queue.put(ChannelStates.CHECK_TEMP)
-    ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-    ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
-    ch.queue.put(ChannelStates.EXIT)
+    #ch.start()
+    #ch.queue.put(ChannelStates.INIT)
+    #ch.queue.put(ChannelStates.CHARGE)
+    #ch.queue.put(ChannelStates.PROGRAM_VPD)
+    #ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+    #ch.queue.put(ChannelStates.CHECK_TEMP)
+    #ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    #ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
+    #ch.queue.put(ChannelStates.EXIT)
+    ch.auto_test()

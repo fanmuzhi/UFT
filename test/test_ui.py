@@ -56,7 +56,7 @@ class Ui_Form(QtGui.QWidget):
         self.pushButton.setText(_translate("Form", "START", None))
 
     def start(self):
-        self.add("start!")
+        #self.add("start!")
         self.workThread = WorkThread()
         self.connect(self.workThread, QtCore.SIGNAL("update(QString)"), self.add)
         self.workThread.start()
@@ -67,15 +67,26 @@ class Ui_Form(QtGui.QWidget):
 
 class WorkThread(QtCore.QThread):
     def __init__(self):
+        self.pb = ProgressBar()
+
         QtCore.QThread.__init__(self)
 
     def __del__(self):
         self.wait()
 
     def run(self):
-        for i in range(10000):
-            time.sleep(0.1) # artificial time delay
-            self.emit(QtCore.SIGNAL('update(QString)'), "from work thread " + str(i))
+        self.pb.start()
+        self.emit(QtCore.SIGNAL('update(QString)'), "pb started.")
+
+        while(self.pb.isAlive()):
+        #for i in range(100):
+            time.sleep(0.1)
+            self.emit(QtCore.SIGNAL('update(QString)'), "progress " +
+                      str(self.pb.progress))
+
+        #for i in range(10000):
+        #    time.sleep(0.1) # artificial time delay
+        #    self.emit(QtCore.SIGNAL('update(QString)'), "from work thread " + str(i))
 
         #ch = Chan()
         #ch.
@@ -84,7 +95,21 @@ class WorkThread(QtCore.QThread):
         #    self.emit(, ch.dut_list.)
         #    time.sleep(1)
 
+        self.emit(QtCore.SIGNAL('update(QString)'), "pb stopped.")
         self.terminate()
+
+
+import threading
+
+class ProgressBar(threading.Thread):
+    def __init__(self):
+        self.progress = 0
+        super(ProgressBar, self).__init__()
+
+    def run(self):
+        while(self.progress < 100):
+            time.sleep(0.1)
+            self.progress += 1
 
 
 if __name__ == "__main__":

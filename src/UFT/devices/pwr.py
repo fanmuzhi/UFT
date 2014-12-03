@@ -42,6 +42,15 @@ class PowerSupply(object):
         else:
             raise PowerSupplyException("No power supply found.")
 
+    def __del__(self):
+        try:
+            self.close()
+        except:
+            pass
+
+    def close(self):
+        self.instr.close()
+
     def reset(self):
         self.instr.write("*RST")
 
