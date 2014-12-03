@@ -10,15 +10,22 @@ __version__ = "1.0"
 __email__ = "mzfa@cypress.com"
 
 import sys
+import logging
+import time
 from PyQt4.QtGui import QApplication
 from PyQt4 import QtGui, QtCore
 from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 from UFT_GUI.handlers import log_handler, sql_handler
-
+try:
+    import UFT
+    from UFT.channel import Channel, ChannelStates
+except Exception as e:
+    print e.message
 
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
+        self.qtobj = QtCore.QObject()
         self.ui = UFT_UiHandler()
         self.ui.setupUi(self)
         self.ui.setupWidget(self)
@@ -27,7 +34,13 @@ class MainWidget(QtGui.QWidget):
     def __setupSignal(self):
         '''start_pushButton for log display test,
         to be changed as "start" function later'''
-        self.ui.start_pushButton.clicked.connect(self.ui.start_click)
+        handler = log_handler.QtHandler()
+        handler.setFormatter(UFT.formatter)
+        UFT.logger.addHandler(handler)
+        UFT.logger.setLevel(logging.INFO)
+        log_handler.XStream.stdout().messageWritten.connect(
+            self.ui.append_format_data)
+        self.ui.start_pushButton.clicked.connect(self.start_click)
         self.ui.show_image("./res/icons/despicableMe.jpg")
         self.ui.partNum_comboBox.currentIndexChanged.connect(
             self.ui.testItem_update)
@@ -38,7 +51,79 @@ class MainWidget(QtGui.QWidget):
         self.ui.search_pushButton.clicked.connect(self.ui.search)
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
 
+    def start_click(self):
+        # # try:
+        # ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
+        #              name="UFT_CHANNEL")
+        # ch.setDaemon(True)
+        # ch.start()
+        # self.connect(self.qtobj, QtCore.SIGNAL("progress_bar"), self.ui.progressBar.setValue)
+        # self.connect(self.qtobj, QtCore.SIGNAL("is_alive"), self.ui.auto_enable_disable_widgets)
+        # ch.queue.put(ChannelStates.INIT)
+        # ch.queue.put(ChannelStates.CHARGE)
+        # ch.queue.put(ChannelStates.PROGRAM_VPD)
+        # ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+        # ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+        # ch.queue.put(ChannelStates.EXIT)
+        # # self.qtobj.connect(self.qtobj, QtCore.SIGNAL('is_alive'),
+        # #                    self.ui.auto_enable_disable_widgets)
+        # self.qtobj.connect(self.qtobj, QtCore.SIGNAL('progress_bar'),
+        #                    self.ui.progressBar.setValue)
+        # # self.qtobj.connect(self.qtobj, QtCore.SIGNAL('dut_list'),
+        # #                    self.ui.set_status_text)
+        # QtCore.QObject.connect(QtCore.QObject(), QtCore.SIGNAL('is_alive'),
+        #                    self.ui.auto_enable_disable_widgets)
+        # QtCore.QObject.connect(QtCore.QObject(), QtCore.SIGNAL('progress_bar'),
+        #                    self.ui.progressBar.setValue)
+        # QtCore.QObject.connect(QtCore.QObject(), QtCore.SIGNAL('dut_list'),
+        #                    self.ui.set_status_text)
+        # update = Update()
+        # update.run(ch)
+        # # except Exception as e:
+        # #     msg = QtGui.QMessageBox()
+        # #     msg.setText(e.message)
+        # #     msg.show()
+        # #     msg.exec_()
 
+        from UFT_GUI.test_elements import Progressbar
+        # self.qtobj.connect(update, qt)
+
+
+        # refresh pb.progressbar
+
+        self.u = Update()
+        self.u.start()
+        self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
+                           self.ui.progressBar.setValue)
+        self.qtobj.connect(self.qtobj, QtCore.SIGNAL('dut_list'),
+                           self.ui.set_status_text)
+        # self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
+        #                    self.ui.auto_enable_disable_widgets)
+
+
+from UFT_GUI.test_elements import Progressbar
+
+
+class Update(QtCore.QThread):
+    def __init__(self):
+        QtCore.QThread.__init__(self)
+        # self.ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
+        #              name="UFT_CHANNEL")
+        # self.ch.setDaemon(True)
+        self.ch = Progressbar()
+
+    def __del__(self):
+        self.wait()
+
+    def run(self):
+        self.ch.start()
+        while self.ch.isAlive():
+            time.sleep(1)
+            self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
+            self.emit(QtCore.SIGNAL("dut_list"), self.ch.dut_list)
+            # self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
+
+        self.terminate()
 
 
 def main():

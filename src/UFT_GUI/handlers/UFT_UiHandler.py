@@ -14,24 +14,22 @@ import logging
 import log_handler
 import mpl_handler
 import sql_handler
-try:
-    import UFT
-    from UFT.channel import Channel, ChannelStates
-except Exception as e:
-    print e.message
+# try:
+#     import UFT
+#     from UFT.channel import Channel, ChannelStates
+# except Exception as e:
+#     print e.message
 
 
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
-        handler = log_handler.QtHandler()
-        handler.setFormatter(UFT.formatter)
-        UFT.logger.addHandler(handler)
-        UFT.logger.setLevel(logging.INFO)
+        # handler = log_handler.QtHandler()
+        # handler.setFormatter(UFT.formatter)
+        # UFT.logger.addHandler(handler)
+        # UFT.logger.setLevel(logging.INFO)
         self.dut_image = None
         self.config_table = QtGui.QTableView()
-        log_handler.XStream.stdout().messageWritten.connect(
-            self.__append_format_data)
         self.my_db = sql_handler.MyDB()
         self.config_model = None
         self.test_item_model = None
@@ -57,10 +55,31 @@ class UFT_UiHandler(UFT_UiForm):
         ''''''
         # self.push_multi_mpls()
 
-    def __append_format_data(self, data):
+    def auto_enable_disable_widgets(self, ch_is_alive):
+        if ch_is_alive:
+            self.start_pushButton.setDisabled(True)
+            self.sn_lineEdit_1.setDisabled(True)
+            self.sn_lineEdit_2.setDisabled(True)
+            self.sn_lineEdit_3.setDisabled(True)
+            self.sn_lineEdit_4.setDisabled(True)
+        else:
+            self.start_pushButton.setDisabled(False)
+            self.sn_lineEdit_1.setDisabled(False)
+            self.sn_lineEdit_2.setDisabled(False)
+            self.sn_lineEdit_3.setDisabled(False)
+            self.sn_lineEdit_4.setDisabled(False)
+
+    def append_format_data(self, data):
         if data:
             self.info_textBrowser.insertPlainText(data)
             self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
+
+    def set_status_text(self, dut_list):
+        if dut_list:
+            self.label_1.setText(str(dut_list[0].status))
+            self.label_2.setText(str(dut_list[1].status))
+            self.label_3.setText(str(dut_list[2].status))
+            self.label_4.setText(str(dut_list[4].status))
 
     def barcodes(self):
         barcodes = [str(self.sn_lineEdit_1.text()),
@@ -72,30 +91,30 @@ class UFT_UiHandler(UFT_UiForm):
                 i = ""
         return barcodes
 
-    def start_click(self):
-        try:
-            ch = Channel(barcode_list = self.barcodes(), channel_id=0,
-                         name="UFT_CHANNEL")
-            ch.setDaemon(True)
-            ch.start()
-            ch.queue.put(ChannelStates.INIT)
-            ch.queue.put(ChannelStates.CHARGE)
-            ch.queue.put(ChannelStates.PROGRAM_VPD)
-            ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-            ch.queue.put(ChannelStates.EXIT)
-            #ch.isAlive.connect(self.auto_enable_disable_widgets)
-        except Exception as e:
-            msg = QtGui.QMessageBox()
-            msg.setText(e.message)
-            msg.show()
-            msg.exec_()
+    # def start_click(self):
+    #     try:
+    #         ch = Channel(barcode_list = self.barcodes(), channel_id=0,
+    #                      name="UFT_CHANNEL")
+    #         ch.setDaemon(True)
+    #         ch.start()
+    #         ch.queue.put(ChannelStates.INIT)
+    #         ch.queue.put(ChannelStates.CHARGE)
+    #         ch.queue.put(ChannelStates.PROGRAM_VPD)
+    #         ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+    #         ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    #         ch.queue.put(ChannelStates.EXIT)
+    #         #ch.isAlive.connect(self.auto_enable_disable_widgets)
+    #     except Exception as e:
+    #         msg = QtGui.QMessageBox()
+    #         msg.setText(e.message)
+    #         msg.show()
+    #         msg.exec_()
 
-    def auto_enable_disable_widgets(self, ch_is_alive):
-        if ch_is_alive:
-            self.start_pushButton.setDisabled(True)
-        else:
-            self.start_pushButton.setDisabled(False)
+    # def auto_enable_disable_widgets(self, ch_is_alive):
+    #     if ch_is_alive:
+    #         self.start_pushButton.setDisabled(True)
+    #     else:
+    #         self.start_pushButton.setDisabled(False)
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
