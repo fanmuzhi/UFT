@@ -6,8 +6,20 @@ __version__ = "0.1"
 __author__ = "@boqiling"
 from UFT.channel import ChannelStates, Channel
 import time
+import argparse
 
 # pass args
+def parse_args():
+    parser = argparse.ArgumentParser(description="Universal Functional Test "
+                                                 "Program for Agigatech PGEM. "
+                                                 "@boqiling 2014.")
+
+    parser.add_argument('-s', dest='singlevalue', action='store', help='store a value')
+    parser.add_argument('-v', dest='verbose', action='store_true', help='verbose', default=False)
+    parser.add_argument('word', action='store', help='word to action')
+
+    args = parser.parse_args()
+    return args
 
 # cli command to prepare database
 

@@ -43,6 +43,7 @@ class ChannelStates(object):
     LOAD_DISCHARGE = 0x0C
     CHARGE = 0x0E
     PROGRAM_VPD = 0x0F
+    CHECK_CAPACITANCE = 0x1A
     CHECK_ENCRYPTED_IC = 0x1B
     CHECK_TEMP = 0x1C
     DUT_DISCHARGE = 0x1D
@@ -340,7 +341,6 @@ class Channel(threading.Thread):
                             format(dut.slotnum, dut.status, this_cycle.vcap,
                                    this_cycle.temp, dut.errormessage))
             time.sleep(INTERVAL)
-        self.calculate_capacitance()
 
     def check_dut_discharge(self):
         """ check auto/self discharge function on each DUT.
@@ -399,7 +399,7 @@ class Channel(threading.Thread):
             self.ld.select_channel(dut.slotnum)
             this_cycle.vcap = self.ld.read_volt()
             self.counter += 1
-        pass
+        #TODO Need check voltage change.
 
     def program_dut(self):
         """ program vpd of DUT.
@@ -569,6 +569,12 @@ class Channel(threading.Thread):
         for dut in self.dut_list:
             if dut is None:
                 continue
+            config = load_test_item(self.config_list[dut.slotnum],
+                                    "Capacitor")
+            if(not config["enable"]):
+                continue
+            if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
+                continue
             if dut.status != DUT_STATUS.Idle:
                 continue
             cap_list = []
@@ -587,6 +593,11 @@ class Channel(threading.Thread):
             if(len(cap_list) > 0):
                 capacitor = sum(cap_list) / float(len(cap_list))
                 dut.capacitance_measured = capacitor
+            else:
+                dut.capacitance_measured = 0
+            if not (config["min"] < dut.capacitance_measured < config["max"]):
+                dut.status = DUT_STATUS.Fail
+                dut.errormessage = "Capacitor out of range."
 
     def prepare_to_exit(self):
         """ cleanup and save to database before exit.
@@ -623,7 +634,7 @@ class Channel(threading.Thread):
                     self.error(e)
             elif(state == ChannelStates.INIT):
                 try:
-                    self.progressbar += 10
+                    self.progressbar += 20
                     logger.info("Channel: Initialize.")
                     self.init()
                 except Exception as e:
@@ -644,23 +655,30 @@ class Channel(threading.Thread):
                     self.error(e)
             elif(state == ChannelStates.PROGRAM_VPD):
                 try:
-                    self.progressbar += 10
+                    self.progressbar += 5
                     logger.info("Channel: Program VPD.")
                     self.program_dut()
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.CHECK_ENCRYPTED_IC):
                 try:
-                    self.progressbar += 10
+                    self.progressbar += 5
                     logger.info("Channel: Check Encrypted IC.")
                     self.check_encryptedic_dut()
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.CHECK_TEMP):
                 try:
-                    self.progressbar += 10
+                    self.progressbar += 5
                     logger.info("Channel: Check Temperature")
                     self.check_temperature_dut()
+                except Exception as e:
+                    self.error(e)
+            elif(state == ChannelStates.CHECK_CAPACITANCE):
+                try:
+                    self.progressbar += 5
+                    logger.info("Channel: Check Capacitor Value")
+                    self.calculate_capacitance()
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.DUT_DISCHARGE):
@@ -701,4 +719,5 @@ if __name__ == "__main__":
     ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
     ch.queue.put(ChannelStates.CHECK_TEMP)
     ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
     ch.queue.put(ChannelStates.EXIT)

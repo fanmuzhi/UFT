@@ -173,7 +173,8 @@ class Adapter(object):
                 self.api = None
 
         if not self.api:
-            raise RuntimeError('Pyaardvark, Unable to find suitable binary interface.')
+            raise RuntimeError('aardvark '
+                               'unable to find suitable binary interface.')
 
     def __del__(self):
         '''destructor
