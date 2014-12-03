@@ -67,9 +67,6 @@ class PGEMBase(DUT):
         else:
             raise PGEMException("Unvalide barcode.")
 
-    def __del__(self):
-        self.device.close()
-
     @staticmethod
     def _query_map(mymap, **kvargs):
         """method to search the map (the list of dict, [{}, {}])

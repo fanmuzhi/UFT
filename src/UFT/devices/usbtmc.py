@@ -285,6 +285,9 @@ class Instrument(object):
     def reset(self):
         if os.name == 'posix':
             self.device.reset()
+
+    def close(self):
+        usb.util.dispose_resources(self.device)
     
     def is_usb488(self):
         return self.iface.bInterfaceProtocol == USB488_bInterfaceProtocol

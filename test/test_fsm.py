@@ -7,7 +7,6 @@ __version__ = "0.1"
 __author__ = "@boqiling"
 
 from UFT.fsm import FiniteStateMachine, States
-from UFT.devices import aardvark
 import logging
 
 TestStates = 0xA0
@@ -19,7 +18,6 @@ class MainFunc(FiniteStateMachine):
         super(MainFunc, self).__init__()
 
     def init(self):
-        self.device = aardvark.Adapter()
         self.progress += 1
         print "init"
 
@@ -31,7 +29,6 @@ class MainFunc(FiniteStateMachine):
         if(self.progress >= 50):
             self.quit()     # quit() will call close()
         if(states == TestStates):
-            self.device.sleep(5)
             print "work"
 
     def error(self):
