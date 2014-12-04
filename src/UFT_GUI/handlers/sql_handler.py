@@ -8,6 +8,7 @@ from PyQt4 import QtCore, QtSql
 from UFT_GUI import UFT_Ui
 from UFT.config import RESULT_DB, CONFIG_DB
 
+
 class MyDB():
     def __init__(self):
         # select database type

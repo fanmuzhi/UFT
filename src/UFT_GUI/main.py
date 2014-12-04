@@ -16,11 +16,13 @@ from PyQt4.QtGui import QApplication
 from PyQt4 import QtGui, QtCore
 from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 from UFT_GUI.handlers import log_handler, sql_handler
+
 try:
     import UFT
     from UFT.channel import Channel, ChannelStates
 except Exception as e:
     print e.message
+
 
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -53,7 +55,7 @@ class MainWidget(QtGui.QWidget):
 
     def start_click(self):
         # try:
-        ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
+        ch = Channel(barcode_list=self.ui.barcodes(), channel_id=0,
                      name="UFT_CHANNEL")
         ch.setDaemon(True)
         ch.queue.put(ChannelStates.INIT)
@@ -72,6 +74,7 @@ class MainWidget(QtGui.QWidget):
                            self.ui.auto_enable_disable_widgets)
         self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
                            self.ui.set_status_text)
+
 
 from UFT_GUI.test_elements import Progressbar
 
