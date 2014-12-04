@@ -52,44 +52,7 @@ class MainWidget(QtGui.QWidget):
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
 
     def start_click(self):
-        # # try:
-        # ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
-        #              name="UFT_CHANNEL")
-        # ch.setDaemon(True)
-        # ch.start()
-        # self.connect(self.qtobj, QtCore.SIGNAL("progress_bar"), self.ui.progressBar.setValue)
-        # self.connect(self.qtobj, QtCore.SIGNAL("is_alive"), self.ui.auto_enable_disable_widgets)
-        # ch.queue.put(ChannelStates.INIT)
-        # ch.queue.put(ChannelStates.CHARGE)
-        # ch.queue.put(ChannelStates.PROGRAM_VPD)
-        # ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-        # ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-        # ch.queue.put(ChannelStates.EXIT)
-        # # self.qtobj.connect(self.qtobj, QtCore.SIGNAL('is_alive'),
-        # #                    self.ui.auto_enable_disable_widgets)
-        # self.qtobj.connect(self.qtobj, QtCore.SIGNAL('progress_bar'),
-        #                    self.ui.progressBar.setValue)
-        # # self.qtobj.connect(self.qtobj, QtCore.SIGNAL('dut_list'),
-        # #                    self.ui.set_status_text)
-        # QtCore.QObject.connect(QtCore.QObject(), QtCore.SIGNAL('is_alive'),
-        #                    self.ui.auto_enable_disable_widgets)
-        # QtCore.QObject.connect(QtCore.QObject(), QtCore.SIGNAL('progress_bar'),
-        #                    self.ui.progressBar.setValue)
-        # QtCore.QObject.connect(QtCore.QObject(), QtCore.SIGNAL('dut_list'),
-        #                    self.ui.set_status_text)
-        # update = Update()
-        # update.run(ch)
-        # # except Exception as e:
-        # #     msg = QtGui.QMessageBox()
-        # #     msg.setText(e.message)
-        # #     msg.show()
-        # #     msg.exec_()
-
-        from UFT_GUI.test_elements import Progressbar
-        # self.qtobj.connect(update, qt)
-
-
-        # refresh pb.progressbar
+        # try:
         ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
                      name="UFT_CHANNEL")
         ch.setDaemon(True)
@@ -97,17 +60,18 @@ class MainWidget(QtGui.QWidget):
         ch.queue.put(ChannelStates.CHARGE)
         ch.queue.put(ChannelStates.PROGRAM_VPD)
         ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+        ch.queue.put(ChannelStates.CHECK_TEMP)
         ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+        ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
         ch.queue.put(ChannelStates.EXIT)
         self.u = Update(ch)
         self.u.start()
         self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
                            self.ui.progressBar.setValue)
-        self.qtobj.connect(self.qtobj, QtCore.SIGNAL('dut_list'),
-                           self.ui.set_status_text)
         self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
                            self.ui.auto_enable_disable_widgets)
-
+        self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
+                           self.ui.set_status_text)
 
 from UFT_GUI.test_elements import Progressbar
 
@@ -116,7 +80,6 @@ class Update(QtCore.QThread):
     def __init__(self, ch):
         QtCore.QThread.__init__(self)
         self.ch = ch
-        # self.ch = Progressbar()
 
     def __del__(self):
         self.wait()
@@ -126,8 +89,14 @@ class Update(QtCore.QThread):
         while self.ch.isAlive():
             time.sleep(1)
             self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
-            self.emit(QtCore.SIGNAL("dut_list"), self.ch.dut_list)
             self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
+            for dut in self.ch.dut_list:
+                self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
+
+        self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
+        for dut in self.ch.dut_list:
+            self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
+
         self.emit(QtCore.SIGNAL("is_alive"), 0)
         self.terminate()
 

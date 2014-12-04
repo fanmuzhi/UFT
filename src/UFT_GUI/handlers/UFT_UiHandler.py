@@ -71,16 +71,22 @@ class UFT_UiHandler(UFT_UiForm):
 
     def append_format_data(self, data):
         if data:
-            self.info_textBrowser.insertPlainText(data)
-            self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
+            self.info_textBrowser.append(data)
+            # self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
+        else:
+            pass
 
-    def set_status_text(self, dut_list):
-        if dut_list:
-            print dut_list[0], dut_list[1], dut_list[2], dut_list[3]
-            self.label_1.setText(dut_list[0].status)
-            self.label_2.setText(dut_list[1].status)
-            self.label_3.setText(dut_list[2].status)
-            self.label_4.setText(dut_list[4].status)
+
+    def set_status_text(self, slotnum, status):
+        status_list = ["Idle", "Pass", "Fail", "Charging", "Discharging"]
+        label = [self.label_1, self.label_2, self.label_3, self.label_4]
+        color_list = ["background-color: wheat",
+                      "background-color: green",
+                      "background-color: red",
+                      "background-color: yellow",
+                      "background-color: yellow"]
+        label[slotnum].setText(status_list[status])
+        label[slotnum].setStyleSheet(color_list[status])
 
     def barcodes(self):
         barcodes = [str(self.sn_lineEdit_1.text()),
@@ -91,31 +97,6 @@ class UFT_UiHandler(UFT_UiForm):
             if not i:
                 i = ""
         return barcodes
-
-    # def start_click(self):
-    #     try:
-    #         ch = Channel(barcode_list = self.barcodes(), channel_id=0,
-    #                      name="UFT_CHANNEL")
-    #         ch.setDaemon(True)
-    #         ch.start()
-    #         ch.queue.put(ChannelStates.INIT)
-    #         ch.queue.put(ChannelStates.CHARGE)
-    #         ch.queue.put(ChannelStates.PROGRAM_VPD)
-    #         ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-    #         ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-    #         ch.queue.put(ChannelStates.EXIT)
-    #         #ch.isAlive.connect(self.auto_enable_disable_widgets)
-    #     except Exception as e:
-    #         msg = QtGui.QMessageBox()
-    #         msg.setText(e.message)
-    #         msg.show()
-    #         msg.exec_()
-
-    # def auto_enable_disable_widgets(self, ch_is_alive):
-    #     if ch_is_alive:
-    #         self.start_pushButton.setDisabled(True)
-    #     else:
-    #         self.start_pushButton.setDisabled(False)
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
@@ -163,11 +144,12 @@ class UFT_UiHandler(UFT_UiForm):
         self.my_db.switch_to_pgem()
         test_log_model = sql_handler.RelationModel(self.data_table,
                                                    "cycle",
-                                                   5,
+                                                   6,
                                                    "dut",
                                                    "id",
-                                                   u"barcode")
-        test_log_model.setFilter("barcode IN ('" + "', ".join(barcodes) + "')")
+                                                   u"barcode, archived")
+        test_log_model.record().indexOf("id")
+        test_log_model.setFilter("barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
         test_log_model.select()
         self.data_table.setModel(test_log_model)
         return test_log_model
@@ -192,14 +174,16 @@ class UFT_UiHandler(UFT_UiForm):
         for i in self.buttonGroup.buttons():
             if i.isChecked():
                 item = i.text()
-        mpl_data_model = self.get_log_data(barcodes)
-        mpl_data_model.record().indexOf("id")
+        # mpl_data_model = self.get_log_data(barcodes)
+        # mpl_data_model.record().indexOf("id")
         for i in range(len(mpls)):
             time = []
             data = []
             mpls[i].setFocus()
-            mpl_data_model.setFilter("barcode = '" + barcodes[i] + "'")
-            mpl_data_model.select()
+            mpl_data_model = self.get_log_data([barcodes[i]])
+            # mpl_data_model.record().indexOf("id")
+            # mpl_data_model.setFilter("barcode = '" + barcodes[i] + "'")
+            # mpl_data_model.select()
             for j in range(mpl_data_model.rowCount()):
                 record = mpl_data_model.record(j)
                 time.append(int(record.value("time").toString()))

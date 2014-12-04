@@ -30,7 +30,7 @@
             <description>write ebf file to VPD</description>
             <min>0.0</min>
             <max>0.0</max>
-            <misc>File=C:\Users\qibo\Documents\UFT\test\101-40028-01-Rev02 Crystal2 VPD.ebf</misc>
+            <misc>File=D:\PycharmProjects\UFT\test\101-40028-01-Rev02 Crystal2 VPD.ebf</misc>
             <stoponfail>1</stoponfail>
         </Program_VPD>
         <Discharge>

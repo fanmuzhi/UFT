@@ -141,8 +141,6 @@ class Channel(threading.Thread):
         # reset DUT
         self.reset_dut()
 
-        # clear progress bar
-        self.progressbar = 0
 
     def reset_dut(self):
         """disable all charge and self-discharge, enable auto-discharge.
@@ -631,7 +629,6 @@ class Channel(threading.Thread):
                 try:
                     self.prepare_to_exit()
                     self.exit = True
-                    self.close()
                     logger.info("Channel: Exit Successfully.")
                 except Exception as e:
                     self.error(e)
@@ -709,10 +706,6 @@ class Channel(threading.Thread):
         logger.error(e.message)
         self.exit = True
         raise e
-
-    def close(self):
-        self.dut_list = []
-        self.config_list = []
 
     def quit(self):
         self.empty()
