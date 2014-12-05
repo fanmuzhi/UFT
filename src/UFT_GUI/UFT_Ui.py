@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Fri Dec 05 12:29:39 2014
+# Created: Fri Dec 05 15:38:09 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -308,7 +308,7 @@ class Ui_Form(object):
         self.log_tableView = QtGui.QTableView(self.tab)
         self.log_tableView.setMinimumSize(QtCore.QSize(994, 0))
         self.log_tableView.setMaximumSize(QtCore.QSize(994, 16777215))
-        self.log_tableView.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked|QtGui.QAbstractItemView.EditKeyPressed)
+        self.log_tableView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.log_tableView.setObjectName(_fromUtf8("log_tableView"))
         self.gridLayout_5.addWidget(self.log_tableView, 1, 0, 1, 1)
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
@@ -330,7 +330,7 @@ class Ui_Form(object):
         self.gridLayout.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(3)
         QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.setFocus)

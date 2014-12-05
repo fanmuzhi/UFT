@@ -75,7 +75,7 @@ class MainWidget(QtGui.QWidget):
             self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
                                self.ui.set_status_text)
             self.qtobj.connect(self.u, QtCore.SIGNAL("time_used"),
-                               self.ui.lcdNumber.setNumDigits)
+                               self.ui.lcdNumber.intValue)
         except Exception as e:
             msg = QtGui.QMessageBox()
             msg.critical(self, "error", e.message)
