@@ -16,11 +16,13 @@ from PyQt4.QtGui import QApplication
 from PyQt4 import QtGui, QtCore
 from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 from UFT_GUI.handlers import log_handler, sql_handler
+
 try:
     import UFT
     from UFT.channel import Channel, ChannelStates
 except Exception as e:
     print e.message
+
 
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
@@ -52,28 +54,33 @@ class MainWidget(QtGui.QWidget):
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
 
     def start_click(self):
-        # try:
-        ch = Channel(barcode_list = self.ui.barcodes(), channel_id=0,
-                     name="UFT_CHANNEL")
-        ch.setDaemon(True)
-        ch.queue.put(ChannelStates.INIT)
-        ch.queue.put(ChannelStates.CHARGE)
-        ch.queue.put(ChannelStates.PROGRAM_VPD)
-        ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-        ch.queue.put(ChannelStates.CHECK_TEMP)
-        ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-        ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
-        ch.queue.put(ChannelStates.EXIT)
-        self.u = Update(ch)
-        self.u.start()
-        self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
-                           self.ui.progressBar.setValue)
-        self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
-                           self.ui.auto_enable_disable_widgets)
-        self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
-                           self.ui.set_status_text)
-
-from UFT_GUI.test_elements import Progressbar
+        try:
+            ch = Channel(barcode_list=self.ui.barcodes(), channel_id=0,
+                         name="UFT_CHANNEL")
+            ch.setDaemon(True)
+            ch.queue.put(ChannelStates.INIT)
+            ch.queue.put(ChannelStates.CHARGE)
+            ch.queue.put(ChannelStates.PROGRAM_VPD)
+            ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+            ch.queue.put(ChannelStates.CHECK_TEMP)
+            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+            ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
+            ch.queue.put(ChannelStates.EXIT)
+            self.u = Update(ch)
+            self.u.start()
+            self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
+                               self.ui.progressBar.setValue)
+            self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
+                               self.ui.auto_enable_disable_widgets)
+            self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
+                               self.ui.set_status_text)
+            self.qtobj.connect(self.u, QtCore.SIGNAL("time_used"),
+                               self.ui.lcdNumber.setNumDigits)
+        except Exception as e:
+            msg = QtGui.QMessageBox()
+            msg.critical(self, "error", e.message)
+            # msg.show()
+            # msg.exec_()
 
 
 class Update(QtCore.QThread):
@@ -89,6 +96,8 @@ class Update(QtCore.QThread):
         while self.ch.isAlive():
             time.sleep(1)
             self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
+            self.emit(QtCore.SIGNAL("time_used"),
+                      self.ch.counter * UFT.config.INTERVAL)
             self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
             for dut in self.ch.dut_list:
                 self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)

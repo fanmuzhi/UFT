@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Thu Dec 04 13:25:59 2014
+# Created: Fri Dec 05 12:29:39 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -42,12 +42,6 @@ class Ui_Form(object):
         self.title_label.setTextFormat(QtCore.Qt.AutoText)
         self.title_label.setObjectName(_fromUtf8("title_label"))
         self.gridLayout.addWidget(self.title_label, 0, 0, 1, 1)
-        self.progressBar = QtGui.QProgressBar(Form)
-        self.progressBar.setEnabled(True)
-        self.progressBar.setProperty("value", 0)
-        self.progressBar.setTextVisible(True)
-        self.progressBar.setObjectName(_fromUtf8("progressBar"))
-        self.gridLayout.addWidget(self.progressBar, 3, 0, 1, 1)
         self.tabWidget = QtGui.QTabWidget(Form)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.info = QtGui.QWidget()
@@ -319,6 +313,21 @@ class Ui_Form(object):
         self.gridLayout_5.addWidget(self.log_tableView, 1, 0, 1, 1)
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
         self.gridLayout.addWidget(self.tabWidget, 1, 0, 1, 1)
+        self.horizontalLayout_4 = QtGui.QHBoxLayout()
+        self.horizontalLayout_4.setObjectName(_fromUtf8("horizontalLayout_4"))
+        self.progressBar = QtGui.QProgressBar(Form)
+        self.progressBar.setEnabled(True)
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setTextVisible(True)
+        self.progressBar.setObjectName(_fromUtf8("progressBar"))
+        self.horizontalLayout_4.addWidget(self.progressBar)
+        self.lcdNumber = QtGui.QLCDNumber(Form)
+        self.lcdNumber.setSmallDecimalPoint(False)
+        self.lcdNumber.setSegmentStyle(QtGui.QLCDNumber.Flat)
+        self.lcdNumber.setProperty("intValue", 0)
+        self.lcdNumber.setObjectName(_fromUtf8("lcdNumber"))
+        self.horizontalLayout_4.addWidget(self.lcdNumber)
+        self.gridLayout.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(0)

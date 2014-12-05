@@ -15,8 +15,8 @@ import log_handler
 import mpl_handler
 import sql_handler
 # try:
-#     import UFT
-#     from UFT.channel import Channel, ChannelStates
+# import UFT
+# from UFT.channel import Channel, ChannelStates
 # except Exception as e:
 #     print e.message
 
@@ -137,7 +137,14 @@ class UFT_UiHandler(UFT_UiForm):
         for i in range(self.test_item_model.rowCount()):
             record = self.test_item_model.record(i)
             self.test_item_model.setRecord(i, record)
-        self.test_item_model.submitAll()
+        re = self.test_item_model.submitAll()
+        msg = QtGui.QMessageBox()
+        if re:
+            msg.setText("Update Success!")
+            msg.exec_()
+        else:
+            msg.critical(msg, "error",
+                         "fail to update configuration, please check again")
 
 
     def get_log_data(self, barcodes):
@@ -149,7 +156,8 @@ class UFT_UiHandler(UFT_UiForm):
                                                    "id",
                                                    u"barcode, archived")
         test_log_model.record().indexOf("id")
-        test_log_model.setFilter("barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
+        test_log_model.setFilter(
+            "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
         test_log_model.select()
         self.data_table.setModel(test_log_model)
         return test_log_model

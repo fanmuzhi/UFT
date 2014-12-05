@@ -8,11 +8,13 @@ from PyQt4 import QtCore, QtSql
 from UFT_GUI import UFT_Ui
 from UFT.config import RESULT_DB, CONFIG_DB
 
+
 class MyDB():
     def __init__(self):
         # select database type
         self.db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
         self.query = None
+        self.current_db = None
 
     def open(self):
         if not self.db.open():
@@ -20,12 +22,21 @@ class MyDB():
             self.query = QtSql.QSqlQuery()  # sql handler
 
     def switch_to_configuration(self):
-        self.db.setDatabaseName("C:/UFT_DB/pgem_config.db")  # set database name
-        self.db.open()
+        if not self.current_db == "pgem_config":
+            self.db.setDatabaseName(
+                "C:/UFT_DB/pgem_config.db")  # set database name
+            self.db.open()
+            self.current_db = "pgem_config"
+        else:
+            return
 
     def switch_to_pgem(self):
-        self.db.setDatabaseName("C:/UFT_DB/pgem.db")  # set database name
-        self.db.open()
+        if not self.current_db == "pgem":
+            self.db.setDatabaseName("C:/UFT_DB/pgem.db")  # set database name
+            self.db.open()
+            self.current_db = "pgem"
+        else:
+            return
 
 
 class TableModel(QtSql.QSqlTableModel):
