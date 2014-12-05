@@ -54,29 +54,32 @@ class MainWidget(QtGui.QWidget):
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
 
     def start_click(self):
-        # try:
-        ch = Channel(barcode_list=self.ui.barcodes(), channel_id=0,
-                     name="UFT_CHANNEL")
-        ch.setDaemon(True)
-        ch.queue.put(ChannelStates.INIT)
-        ch.queue.put(ChannelStates.CHARGE)
-        ch.queue.put(ChannelStates.PROGRAM_VPD)
-        ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-        ch.queue.put(ChannelStates.CHECK_TEMP)
-        ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-        ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
-        ch.queue.put(ChannelStates.EXIT)
-        self.u = Update(ch)
-        self.u.start()
-        self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
-                           self.ui.progressBar.setValue)
-        self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
-                           self.ui.auto_enable_disable_widgets)
-        self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
-                           self.ui.set_status_text)
+        try:
+            ch = Channel(barcode_list=self.ui.barcodes(), channel_id=0,
+                         name="UFT_CHANNEL")
+            ch.setDaemon(True)
+            ch.queue.put(ChannelStates.INIT)
+            ch.queue.put(ChannelStates.CHARGE)
+            ch.queue.put(ChannelStates.PROGRAM_VPD)
+            ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+            ch.queue.put(ChannelStates.CHECK_TEMP)
+            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+            ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
+            ch.queue.put(ChannelStates.EXIT)
+            self.u = Update(ch)
+            self.u.start()
+            self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
+                               self.ui.progressBar.setValue)
+            self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
+                               self.ui.auto_enable_disable_widgets)
+            self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
+                               self.ui.set_status_text)
+        except Exception as e:
+            msg = QtGui.QMessageBox()
+            msg.critical(self, "error", e.message)
+            # msg.show()
+            # msg.exec_()
 
-
-from UFT_GUI.test_elements import Progressbar
 
 
 class Update(QtCore.QThread):
