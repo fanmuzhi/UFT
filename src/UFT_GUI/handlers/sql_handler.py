@@ -23,7 +23,8 @@ class MyDB():
 
     def switch_to_configuration(self):
         if not self.current_db == "pgem_config":
-            self.db.setDatabaseName("C:/UFT_DB/pgem_config.db")  # set database name
+            self.db.setDatabaseName(
+                "C:/UFT_DB/pgem_config.db")  # set database name
             self.db.open()
             self.current_db = "pgem_config"
         else:
@@ -36,6 +37,7 @@ class MyDB():
             self.current_db = "pgem"
         else:
             return
+
 
 class TableModel(QtSql.QSqlTableModel):
     def __init__(self, parent, table_name):

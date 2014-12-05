@@ -16,7 +16,7 @@ import mpl_handler
 import sql_handler
 # try:
 # import UFT
-#     from UFT.channel import Channel, ChannelStates
+# from UFT.channel import Channel, ChannelStates
 # except Exception as e:
 #     print e.message
 
@@ -143,8 +143,8 @@ class UFT_UiHandler(UFT_UiForm):
             msg.setText("Update Success!")
             msg.exec_()
         else:
-            msg.critical(msg, "error", "fail to update configuration, please check again")
-
+            msg.critical(msg, "error",
+                         "fail to update configuration, please check again")
 
 
     def get_log_data(self, barcodes):
