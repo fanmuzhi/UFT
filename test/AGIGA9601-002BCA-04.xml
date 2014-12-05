@@ -49,6 +49,14 @@
             <misc>None</misc>
             <stoponfail>0</stoponfail>
         </Check_EncryptedIC>
+        <Check_PowerFailInt>
+            <enable>1</enable>
+            <description>Check POWER_FAIL_INT IO</description>
+            <min>0.0</min>
+            <max>0.0</max>
+            <misc>ON=0;OFF=1</misc>
+            <stoponfail>1</stoponfail>
+        </Check_PowerFailInt>
     </testitems>
     <partnumber>AGIGA9601-002BCA</partnumber>
     <description>Crystal</description>

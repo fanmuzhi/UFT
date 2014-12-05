@@ -34,6 +34,7 @@ def get_sensor_status():
             result.append(1)
         else:
             raise RuntimeError("unvalid sensor status.")
+    logger.info("dut list: {0}".format(result))
     return result
 
 
@@ -175,10 +176,6 @@ class Channel(threading.Thread):
                     time.sleep(INTERVAL)
                 self.ld.input_off()
 
-                if(not self.check_power_fail(dut.slotnum)):
-                    dut.status = DUT_STATUS.Fail
-                    dut.errormessage = "Power Int Test Fail"
-
     def charge_dut(self):
         """charge
         """
@@ -216,8 +213,11 @@ class Channel(threading.Thread):
                                         "Charge")
                 if(not config["enable"]):
                     continue
-                if(config["stoponfail"]) & (dut.status != DUT_STATUS.Charging):
+                if(config["stoponfail"]) & \
+                        (dut.status != DUT_STATUS.Charging):
                     continue
+                self.switch_to_dut(dut.slotnum)
+
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
                 this_cycle.time = self.counter
@@ -298,6 +298,7 @@ class Channel(threading.Thread):
                 if(config["stoponfail"]) & \
                         (dut.status != DUT_STATUS.Discharging):
                     continue
+                self.switch_to_dut(dut.slotnum)
 
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
@@ -410,19 +411,16 @@ class Channel(threading.Thread):
                 continue
             if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
                 continue
-            # power should be OK.
-            self.switch_to_mb()
-            if(self.check_power_fail(dut.slotnum)):
-                dut.status = DUT_STATUS.Fail
-                dut.errormessage = "Power Int Test Fail"
-
             self.switch_to_dut(dut.slotnum)
+
             try:
                 dut.write_vpd(config["File"])
                 dut.read_vpd()
             except AssertionError:
                 dut.status = DUT_STATUS.Fail
                 dut.errormessage = "Programming VPD Fail"
+                logger.info("dut: {0} status: {1} message: {2} ".
+                            format(dut.slotnum, dut.status, dut.errormessage))
 
     def check_temperature_dut(self):
         """
@@ -438,10 +436,13 @@ class Channel(threading.Thread):
                 continue
             if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
                 continue
+            self.switch_to_dut(dut.slotnum)
             temp = dut.check_temp()
             if not (config["min"] < temp < config["max"]):
                 dut.status = DUT_STATUS.Fail
                 dut.errormessage = "Temperature out of range."
+                logger.info("dut: {0} status: {1} message: {2} ".
+                            format(dut.slotnum, dut.status, dut.errormessage))
 
     def check_encryptedic_dut(self):
         """ check the data in encrypted ic, if data is not all zero, dut is
@@ -459,9 +460,13 @@ class Channel(threading.Thread):
                 continue
             if dut.status != DUT_STATUS.Idle:
                 continue
+
+            self.switch_to_dut(dut.slotnum)
             if(not dut.encrypted_ic()):
                 dut.status = DUT_STATUS.Fail
                 dut.errormessage = "Check I2C on Encrypted IC Fail."
+                logger.info("dut: {0} status: {1} message: {2} ".
+                            format(dut.slotnum, dut.status, dut.errormessage))
 
     def auto_discharge(self, slot, status=False):
         """output PRESENT/AUTO_DISCH signal on TCA9555 on mother board.
@@ -534,29 +539,43 @@ class Channel(threading.Thread):
         # mother board
         self.adk.write(wdata)
 
-    def check_power_fail(self, slot):
+    def check_power_fail(self, status="OFF"):
         """check power_fail_int signal on TCA9555 on mother board
-        return true if power failed.
         """
-        chnum = self.channel
+        self.switch_to_mb()
+        for dut in self.dut_list:
+            if dut is None:
+                continue
+            config = load_test_item(self.config_list[dut.slotnum],
+                                    "Check_PowerFailInt")
+            if(not config["enable"]):
+                continue
+            if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
+                continue
+            if dut.status != DUT_STATUS.Idle:
+                continue
 
-        self.adk.slave_addr = 0x20 + chnum
-        REG_INPUT = 0x00
-        #REG_OUTPUT = 0x02
-        REG_CONFIG = 0x06
+            chnum = self.channel
+            self.adk.slave_addr = 0x20 + chnum
+            REG_INPUT = 0x00
+            #REG_OUTPUT = 0x02
+            REG_CONFIG = 0x06
+            # config PIO-0 to output and PIO-1 to input
+            # first PIO-0 then PIO-1
+            wdata = [REG_CONFIG, 0x00, 0xFF]
+            self.adk.write(wdata)
+            # read reg_input
+            val = self.adk.read_reg(REG_INPUT, length=2)
+            val = val[1]    # only need port 1 value
+            # check current slot
+            val = (val & (0x01 << dut.slotnum)) >> dut.slotnum
 
-        # config PIO-0 to output and PIO-1 to input
-        # first PIO-0 then PIO-1
-        wdata = [REG_CONFIG, 0x00, 0xFF]
-        self.adk.write(wdata)
-
-        # read reg_input
-        val = self.adk.read_reg(REG_INPUT, length=2)
-        val = val[1]    # only need port 1 value
-
-        # check current slot
-        val = (val & (0x01 << slot)) >> slot
-        return val != 0
+            if(val != int(config[status])):
+                dut.status = DUT_STATUS.Fail
+                dut.errormessage = "check power_fail_int fail."
+                logger.info("dut: {0} status: {1} int_io: {2} message: {3} ".
+                            format(dut.slotnum, dut.status,
+                                   val, dut.errormessage))
 
     def calculate_capacitance(self):
         """ calculate the capacitance of DUT, based on vcap list in discharging.
@@ -594,6 +613,8 @@ class Channel(threading.Thread):
             if not (config["min"] < dut.capacitance_measured < config["max"]):
                 dut.status = DUT_STATUS.Fail
                 dut.errormessage = "Capacitor out of range."
+                logger.info("dut: {0} status: {1} message: {2} ".
+                            format(dut.slotnum, dut.status, dut.errormessage))
 
     def prepare_to_exit(self):
         """ cleanup and save to database before exit.
@@ -634,51 +655,53 @@ class Channel(threading.Thread):
                     self.error(e)
             elif(state == ChannelStates.INIT):
                 try:
-                    self.progressbar += 20
                     logger.info("Channel: Initialize.")
                     self.init()
+                    self.check_power_fail(status="OFF")
+                    self.progressbar += 20
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.CHARGE):
                 try:
-                    self.progressbar += 30
                     logger.info("Channel: Charge DUT.")
                     self.charge_dut()
+                    self.progressbar += 30
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.LOAD_DISCHARGE):
                 try:
-                    self.progressbar += 30
                     logger.info("Channel: Discharge DUT.")
                     self.discharge_dut()
+                    self.progressbar += 30
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.PROGRAM_VPD):
                 try:
-                    self.progressbar += 5
                     logger.info("Channel: Program VPD.")
+                    self.check_power_fail(status="ON")
                     self.program_dut()
+                    self.progressbar += 5
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.CHECK_ENCRYPTED_IC):
                 try:
-                    self.progressbar += 5
                     logger.info("Channel: Check Encrypted IC.")
                     self.check_encryptedic_dut()
+                    self.progressbar += 5
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.CHECK_TEMP):
                 try:
-                    self.progressbar += 5
                     logger.info("Channel: Check Temperature")
                     self.check_temperature_dut()
+                    self.progressbar += 5
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.CHECK_CAPACITANCE):
                 try:
-                    self.progressbar += 5
                     logger.info("Channel: Check Capacitor Value")
                     self.calculate_capacitance()
+                    self.progressbar += 5
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.DUT_DISCHARGE):

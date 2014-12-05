@@ -7,16 +7,22 @@ __version__ = "0.1"
 __author__ = "@boqiling"
 __all__ = [""]
 
-from UFT.models import base
-from UFT.devices.aardvark import pyaardvark
+from UFT import channel
+import logging
 
-adk = pyaardvark.Adapter()
-adk.open(portnum=0)
+barcode_list = ["AGIGA9601-002BCA02143500000001-04",
+                "AGIGA9601-002BCA02143500000002-04",
+                "AGIGA9601-002BCA02143500000003-04",
+                "AGIGA9601-002BCA02143500000004-04"]
 
-barcode = "AGIGA9811-001BCA02143500000002-01"
-dut = base.PGEMBase(device=adk, barcode=barcode, slot=1)
+ch = channel.Channel(name="test", barcode_list=barcode_list)
 
-dut.switch_back()
-print dut.check_power_fail()
+ch.init()
+print ch.dut_list[0].barcode
+print ch.dut_list[0].status
+ch.charge_dut()
+ch.check_power_fail()
+print ch.dut_list[0].barcode
+print ch.dut_list[0].status
 
-adk.close()
+
