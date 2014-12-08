@@ -8,7 +8,7 @@ __version__ = "0.1"
 __author__ = "@boqiling"
 __all__ = ["Channel", "ChannelStates"]
 
-from UFT.devices import pwr, load, aardvark, multimeter
+from UFT.devices import pwr, load, aardvark
 from UFT.models import DUT_STATUS, DUT, Cycle
 from UFT.backend import load_config, load_test_item
 from UFT.backend.session import SessionManager
@@ -20,22 +20,22 @@ import time
 logger = logging.getLogger(__name__)
 
 
-def get_sensor_status():
-    """
-    get sensor status of each DUT present.
-    :return: list of 1 and 0, 1 for present, 0 for not.
-    """
-    result = []
-    for i in range(TOTAL_SLOTNUM):
-        a = multimeter.read_analog_ch(i)
-        if(a > 8):
-            result.append(0)
-        elif(a < 1):
-            result.append(1)
-        else:
-            raise RuntimeError("unvalid sensor status.")
-    logger.info("dut list: {0}".format(result))
-    return result
+#def get_sensor_status():
+#    """
+#    get sensor status of each DUT present.
+#    :return: list of 1 and 0, 1 for present, 0 for not.
+#    """
+#    result = []
+#    for i in range(TOTAL_SLOTNUM):
+#        a = multimeter.read_analog_ch(i)
+#        if(a > 8):
+#            result.append(0)
+#        elif(a < 1):
+#            result.append(1)
+#        else:
+#            raise RuntimeError("unvalid sensor status.")
+#    logger.info("dut list: {0}".format(result))
+#    return result
 
 
 class ChannelStates(object):
@@ -102,12 +102,12 @@ class Channel(threading.Thread):
         :return: None.
         """
         # setup dut_list
-        for i, s in enumerate(get_sensor_status()):
-            if s:
+        for i, bc in enumerate(self.barcode_list):
+            if bc != "":
                 # dut is present
                 dut = PGEM_MODEL(device=self.adk,
                                  slot=i,
-                                 barcode=self.barcode_list[i])
+                                 barcode=bc)
                 dut.status = DUT_STATUS.Idle
                 self.dut_list.append(dut)
                 dut_config = load_config(CONFIG_DB,
