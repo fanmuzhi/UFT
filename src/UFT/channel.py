@@ -58,11 +58,6 @@ class Channel(threading.Thread):
     # setup main power supply
     ps = pwr.PowerSupply()
 
-    # setup database
-    # db should be prepared in cli.py
-    sm = SessionManager()
-    sm.prepare_db(RESULT_DB, [DUT, Cycle])
-    session = sm.get_session(RESULT_DB)
 
     def __init__(self, name, barcode_list, channel_id=0):
         """initialize channel
@@ -87,12 +82,18 @@ class Channel(threading.Thread):
         # counter, to calculate charge and discharge time based on interval
         self.counter = 0
 
-        # pre-discharge current, default to 0.5A
-        self.current = 0.5
+        # pre-discharge current, default to 0.8A
+        self.current = 0.8
 
         # exit flag and queue for threading
         self.exit = False
         self.queue = Queue()
+
+        # setup database
+        # db should be prepared in cli.py
+        sm = SessionManager()
+        sm.prepare_db(RESULT_DB, [DUT, Cycle])
+        self.session = sm.get_session(RESULT_DB)
 
         super(Channel, self).__init__(name=name)
 
@@ -142,7 +143,6 @@ class Channel(threading.Thread):
         # reset DUT
         self.reset_dut()
 
-
     def reset_dut(self):
         """disable all charge and self-discharge, enable auto-discharge.
         just like the dut is not present.
@@ -169,7 +169,7 @@ class Channel(threading.Thread):
                 self.ld.select_channel(dut.slotnum)
                 val = self.ld.read_volt()
                 if(val > 0.2):
-                    self.ld.set_curr(0.5)
+                    self.ld.set_curr(self.current)
                     self.ld.input_on()
                 while(val > 0.2):
                     val = self.ld.read_volt()
@@ -608,13 +608,15 @@ class Channel(threading.Thread):
             if(len(cap_list) > 0):
                 capacitor = sum(cap_list) / float(len(cap_list))
                 dut.capacitance_measured = capacitor
+                logger.debug(cap_list)
             else:
                 dut.capacitance_measured = 0
             if not (config["min"] < dut.capacitance_measured < config["max"]):
                 dut.status = DUT_STATUS.Fail
                 dut.errormessage = "Capacitor out of range."
-                logger.info("dut: {0} status: {1} message: {2} ".
-                            format(dut.slotnum, dut.status, dut.errormessage))
+                logger.info("dut: {0} capacitor: {1} message: {2} ".
+                            format(dut.slotnum, dut.capacitance_measured,
+                                   dut.errormessage))
 
     def prepare_to_exit(self):
         """ cleanup and save to database before exit.
@@ -639,6 +641,8 @@ class Channel(threading.Thread):
             dut.archived = 0
             self.session.add(dut)
             self.session.commit()
+
+            self.session.close()
 
     def run(self):
         """ override thread.run()
