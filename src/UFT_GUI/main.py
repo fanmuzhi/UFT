@@ -74,8 +74,8 @@ class MainWidget(QtGui.QWidget):
                                self.ui.auto_enable_disable_widgets)
             self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
                                self.ui.set_status_text)
-            self.qtobj.connect(self.u, QtCore.SIGNAL("time_used"),
-                               self.ui.lcdNumber.display)
+            self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
+                               self.ui.count_time)
         except Exception as e:
             msg = QtGui.QMessageBox()
             msg.critical(self, "error", e.message)
@@ -96,15 +96,17 @@ class Update(QtCore.QThread):
         while self.ch.isAlive():
             time.sleep(1)
             self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
-            self.emit(QtCore.SIGNAL("time_used"),
-                      self.ch.counter * UFT.config.INTERVAL)
+            # self.emit(QtCore.SIGNAL("time_used"),
+            #           self.ch.counter * UFT.config.INTERVAL)
             self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
             for dut in self.ch.dut_list:
-                self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
+                if dut:
+                    self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
 
         self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
         for dut in self.ch.dut_list:
-            self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
+            if dut:
+                self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
 
         self.emit(QtCore.SIGNAL("is_alive"), 0)
         self.terminate()

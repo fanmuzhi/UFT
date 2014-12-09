@@ -58,6 +58,8 @@ class Channel(threading.Thread):
     # setup main power supply
     ps = pwr.PowerSupply()
 
+    sm = SessionManager()
+    sm.prepare_db(RESULT_DB, [DUT, Cycle])
 
     def __init__(self, name, barcode_list, channel_id=0):
         """initialize channel
@@ -91,9 +93,7 @@ class Channel(threading.Thread):
 
         # setup database
         # db should be prepared in cli.py
-        sm = SessionManager()
-        sm.prepare_db(RESULT_DB, [DUT, Cycle])
-        self.session = sm.get_session(RESULT_DB)
+        self.session = self.sm.get_session(RESULT_DB)
 
         super(Channel, self).__init__(name=name)
 
@@ -642,7 +642,7 @@ class Channel(threading.Thread):
             self.session.add(dut)
             self.session.commit()
 
-            self.session.close()
+            # self.session.close()
 
     def run(self):
         """ override thread.run()
