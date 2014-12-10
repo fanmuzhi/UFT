@@ -202,11 +202,17 @@ class UFT_UiHandler(UFT_UiForm):
         mpl_widget.axes.plot(t, d)
         mpl_widget.draw()
 
-    def count_time(self):
-        # timer = QtCore.QTimer()
-        # timer.setInterval(1000)
-        # timer.start()
-        self.lcdNumber.display("hello")
+    def forBC(self, t):
+        if t < 10 :
+            return "0" + str(t)
+        else:
+            return str(t)
+
+    def print_time(self, t):
+        a = t // 60
+        t = t - a * 60
+        b = t
+        self.lcdNumber.display(str(a)+":"+self.forBC(b))
 
 
 if __name__ == "__main__":
