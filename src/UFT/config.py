@@ -38,10 +38,15 @@ ADK_PORT = 0
 LD_PORT = "COM5"
 LD_DELAY = 3
 
+# self discharge counter
+SD_COUNTER = 10
+
 # database settings
 # database for dut test result
 #RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
-RESULT_DB = "sqlite:///C:\\UFT_DB\\pgem.db"
+#RESULT_DB = "sqlite:///C:\\UFT\\db\\pgem.db"
+RESULT_DB = "C:\\UFT\\db\\pgem.db"
 # database for dut configuration
 #CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
-CONFIG_DB = "sqlite:///C:\\UFT_DB\\pgem_config.db"
+#CONFIG_DB = "sqlite:///C:\\UFT\\db\\pgem_config.db"
+CONFIG_DB = "C:\\UFT\\db\\pgem_config.db"

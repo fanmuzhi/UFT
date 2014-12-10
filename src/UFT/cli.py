@@ -4,10 +4,12 @@
 """
 __version__ = "0.1"
 __author__ = "@boqiling"
-from UFT.channel import ChannelStates, Channel
 from UFT import config
 import time
 import argparse
+import logging
+
+logger = logging.getLogger(__name__)
 
 # pass args
 def parse_args():
@@ -26,7 +28,7 @@ def parse_args():
                         default=False)
     parser.add_argument('--syncdb',
                         dest='syncdb',
-                        action='store_true',
+                        action='store',
                         help='synchronize the configuration file with '
                              'configuration database',
                         default=False)
@@ -44,15 +46,25 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-# cli command to prepare database
 
 # cli command to synchronize the dut config
+def synchronize_db(directory):
+    from UFT.backend import sync_config
+    import os
+
+    if os.path.isdir(directory):
+        db_uri = "sqlite:///" + config.CONFIG_DB
+        sync_config(db_uri, directory)
+    else:
+        logger.error("Not valid path: {0}".format(directory))
 
 
 # cli command to debug hardware
 
 # cli command to run single test
 def single_test():
+    from UFT.channel import ChannelStates, Channel
+
     #barcode = "AGIGA9601-002BCA02143500000002-04"
     barcode_list = []
     for i in range(config.TOTAL_SLOTNUM):
@@ -70,6 +82,8 @@ def single_test():
 #TODO cli command to generate dut charts
 
 def main():
+    logging.basicConfig(level=logging.INFO)
+
     args = parse_args()
     if args.silent:
         pass
@@ -78,9 +92,10 @@ def main():
     if args.debug:
         pass
     if args.syncdb:
-        pass
+        synchronize_db(args.syncdb)
     if args.run:
         single_test()
+
 
 if __name__ == "__main__":
     main()
