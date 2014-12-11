@@ -17,6 +17,7 @@ import threading
 from Queue import Queue
 import logging
 import time
+import math
 logger = logging.getLogger(__name__)
 
 
@@ -59,7 +60,7 @@ class Channel(threading.Thread):
     ps = pwr.PowerSupply()
 
     sm = SessionManager()
-    sm.prepare_db(RESULT_DB, [DUT, Cycle])
+    sm.prepare_db("sqlite:///" + RESULT_DB, [DUT, Cycle])
 
     def __init__(self, name, barcode_list, channel_id=0):
         """initialize channel
@@ -93,7 +94,7 @@ class Channel(threading.Thread):
 
         # setup database
         # db should be prepared in cli.py
-        self.session = self.sm.get_session(RESULT_DB)
+        self.session = self.sm.get_session("sqlite:///" + RESULT_DB)
 
         super(Channel, self).__init__(name=name)
 
@@ -110,7 +111,7 @@ class Channel(threading.Thread):
                                  barcode=bc)
                 dut.status = DUT_STATUS.Idle
                 self.dut_list.append(dut)
-                dut_config = load_config(CONFIG_DB,
+                dut_config = load_config("sqlite:///" + CONFIG_DB,
                                          dut.partnumber, dut.revision)
                 self.config_list.append(dut_config)
             else:
@@ -171,10 +172,12 @@ class Channel(threading.Thread):
                 if(val > 0.2):
                     self.ld.set_curr(self.current)
                     self.ld.input_on()
+                    dut.status = DUT_STATUS.Discharging
                 while(val > 0.2):
                     val = self.ld.read_volt()
                     time.sleep(INTERVAL)
                 self.ld.input_off()
+                dut.status = DUT_STATUS.Idle
 
     def charge_dut(self):
         """charge
@@ -343,60 +346,95 @@ class Channel(threading.Thread):
         """ check auto/self discharge function on each DUT.
         :return: None
         """
-        volt_list = {}      # start voltage
         for dut in self.dut_list:
             if dut is None:
                 continue
             config = load_test_item(self.config_list[dut.slotnum],
-                                    "Auto_Discharge")
+                                    "Self_Measured_Capacitor")
             if(not config["enable"]):
                 continue
             if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
                 continue
-            # record current voltage
-            self.ld.select_channel(dut.slotnum)
-            volt_list.update({dut.slotnum: self.ld.read_volt()})
 
             # disable auto discharge
             self.switch_to_mb()
             self.auto_discharge(slot=dut.slotnum, status=False)
-            # disable self discharge
-            self.switch_to_dut(dut.slotnum)
-            dut.self_discharge(status=False)
             # disable charge
+            self.switch_to_dut(dut.slotnum)
             dut.charge(status=False)
 
-        time.sleep(INTERVAL)
+            # enable self discharge
+            dut.self_discharge(status=True)
+
+        for i in range(SD_COUNTER):
+            for dut in self.dut_list:
+                if dut is None:
+                    continue
+                if(not config["enable"]):
+                    continue
+                if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
+                    continue
+
+                self.switch_to_dut(dut.slotnum)
+                this_cycle = Cycle()
+                this_cycle.vin = self.ps.measureVolt()
+                try:
+                    temperature = dut.check_temp()
+                except aardvark.USBI2CAdapterException:
+                    # temp ic not ready
+                    temperature = 0
+                this_cycle.temp = temperature
+                this_cycle.time = self.counter
+                this_cycle.state = "self_discharge"
+                self.ld.select_channel(dut.slotnum)
+                this_cycle.vcap = self.ld.read_volt()
+                self.counter += 1
+                logger.info("dut: {0} status: {1} vcap: {2} "
+                            "temp: {3} message: {4} ".
+                            format(dut.slotnum, dut.status, this_cycle.vcap,
+                                   this_cycle.temp, dut.errormessage))
+                dut.cycles.append(this_cycle)
+            time.sleep(INTERVAL)
+
         for dut in self.dut_list:
             if dut is None:
                 continue
             config = load_test_item(self.config_list[dut.slotnum],
-                                    "Auto_Discharge")
+                                    "Self_Measured_Capacitor")
             if(not config["enable"]):
                 continue
             if(config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
                 continue
-            # enable auto discharge
-            self.switch_to_mb()
-            self.auto_discharge(slot=dut.slotnum, status=True)
-            # disable self discharge
-            self.switch_to_dut(dut.slotnum)
-            dut.self_discharge(status=False)
+            if dut.status != DUT_STATUS.Idle:
+                continue
+            cap_list = []
+            pre_vcap, pre_time = None, None
+            for cycle in dut.cycles:
+                if cycle.state == "self_discharge":
+                    if pre_vcap is None:
+                        pre_vcap = cycle.vcap
+                        pre_time = cycle.time
+                    else:
+                        cur_vcap = cycle.vcap
+                        cur_time = cycle.time
+                        cap = ((cur_time - pre_time) * INTERVAL)\
+                            / (float(config["Resistance"]) * math.log(pre_vcap /
+                                                                      cur_vcap))
+                        cap_list.append(cap)
+            if(len(cap_list) > 0):
+                capacitor = sum(cap_list) / float(len(cap_list))
+                dut.self_capacitance_measured = capacitor
+                logger.debug(cap_list)
+            else:
+                dut.capacitance_measured = 0
+            if not (config["min"] < dut.self_capacitance_measured <
+                    config["max"]):
+                dut.status = DUT_STATUS.Fail
+                dut.errormessage = "Capacitor out of range."
+                logger.info("dut: {0} self meas capacitor: {1} message: {2} ".
+                            format(dut.slotnum, dut.capacitance_measured,
+                                   dut.errormessage))
 
-            this_cycle = Cycle()
-            this_cycle.vin = self.ps.measureVolt()
-            try:
-                temperature = dut.check_temp()
-            except aardvark.USBI2CAdapterException:
-                # temp ic not ready
-                temperature = 0
-            this_cycle.temp = temperature
-            this_cycle.time = self.counter
-            this_cycle.state = "discharge"
-            self.ld.select_channel(dut.slotnum)
-            this_cycle.vcap = self.ld.read_volt()
-            self.counter += 1
-        #TODO Need check voltage change.
 
     def program_dut(self):
         """ program vpd of DUT.
@@ -676,7 +714,7 @@ class Channel(threading.Thread):
                 try:
                     logger.info("Channel: Discharge DUT.")
                     self.discharge_dut()
-                    self.progressbar += 30
+                    self.progressbar += 20
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.PROGRAM_VPD):
@@ -709,7 +747,12 @@ class Channel(threading.Thread):
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.DUT_DISCHARGE):
-                pass
+                try:
+                    logger.info("Channel: Self Mesaured Capacitor")
+                    self.check_dut_discharge()
+                    self.progressbar += 10
+                except Exception as e:
+                    self.error(e)
             else:
                 logger.error("unknown dut state, exit...")
                 self.exit = True
@@ -720,6 +763,7 @@ class Channel(threading.Thread):
         self.queue.put(ChannelStates.PROGRAM_VPD)
         self.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
         self.queue.put(ChannelStates.CHECK_TEMP)
+        self.queue.put(ChannelStates.DUT_DISCHARGE)
         self.queue.put(ChannelStates.LOAD_DISCHARGE)
         self.queue.put(ChannelStates.CHECK_CAPACITANCE)
         self.queue.put(ChannelStates.EXIT)
@@ -740,7 +784,7 @@ class Channel(threading.Thread):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)    # quiet
+    logging.basicConfig(level=logging.DEBUG)    # quiet
 
     barcode = "AGIGA9601-002BCA02143500000002-04"
     ch = Channel(barcode_list=[barcode, "", "", ""], channel_id=0,

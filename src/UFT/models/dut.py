@@ -16,6 +16,7 @@ class DUT_STATUS(object):
     Fail = 2    # fail in test
     Charging = 3
     Discharging = 4
+    Self_Discharging = 5
 
 
 class DUT(SQLBase):
@@ -25,6 +26,7 @@ class DUT(SQLBase):
     barcode = Column(String(30), nullable=False)
     partnumber = Column(String(30), nullable=False)
     capacitance_measured = Column(Integer)
+    self_capacitance_measured = Column(Integer)
 
     temphist = Column(Integer)
     caphist = Column(Integer)

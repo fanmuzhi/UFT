@@ -23,8 +23,7 @@ class MyDB():
 
     def switch_to_configuration(self):
         if not self.current_db == "pgem_config":
-            self.db.setDatabaseName(
-                "C:/UFT_DB/pgem_config.db")  # set database name
+            self.db.setDatabaseName(CONFIG_DB)  # set database name
             self.db.open()
             self.current_db = "pgem_config"
         else:
@@ -32,7 +31,7 @@ class MyDB():
 
     def switch_to_pgem(self):
         if not self.current_db == "pgem":
-            self.db.setDatabaseName("C:/UFT_DB/pgem.db")  # set database name
+            self.db.setDatabaseName(RESULT_DB)  # set database name
             self.db.open()
             self.current_db = "pgem"
         else:
