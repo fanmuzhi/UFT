@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Mon Dec 08 15:46:19 2014
+# Created: Thu Dec 11 15:38:39 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -338,7 +338,7 @@ class Ui_Form(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Form", None))
+        Form.setWindowTitle(_translate("Form", "AGIGA-UFT-TEST", None))
         self.title_label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.0", None))
         self.groupBox_1.setTitle(_translate("Form", "Slot #1", None))
         self.sn_lineEdit_1.setText(_translate("Form", "AGIGA9601-002BCA02143500000001-04", None))

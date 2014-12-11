@@ -24,10 +24,10 @@ import sql_handler
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
-        # handler = log_handler.QtHandler()
-        # handler.setFormatter(UFT.formatter)
-        # UFT.logger.addHandler(handler)
-        # UFT.logger.setLevel(logging.INFO)
+        UFT_UiForm.setWindowTitle(
+            QtGui.QApplication.translate("Form",
+                                         "AGIGA-ENDURANCE-TEST-MONITOR",
+                                         None, QtGui.QApplication.UnicodeUTF8))
         self.dut_image = None
         self.config_table = QtGui.QTableView()
         self.my_db = sql_handler.MyDB()
