@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Thu Dec 11 15:38:39 2014
+# Created: Thu Dec 11 17:21:56 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -148,17 +148,31 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
         self.groupBox_5.setSizePolicy(sizePolicy)
         self.groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
-        self.gridLayout_7 = QtGui.QGridLayout(self.groupBox_5)
+        self.gridLayout_14 = QtGui.QGridLayout(self.groupBox_5)
+        self.gridLayout_14.setObjectName(_fromUtf8("gridLayout_14"))
+        self.gridLayout_7 = QtGui.QGridLayout()
         self.gridLayout_7.setObjectName(_fromUtf8("gridLayout_7"))
         self.imageLabel = QtGui.QLabel(self.groupBox_5)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.imageLabel.sizePolicy().hasHeightForWidth())
-        self.imageLabel.setSizePolicy(sizePolicy)
-        self.imageLabel.setMinimumSize(QtCore.QSize(400, 400))
+        self.imageLabel.setMaximumSize(QtCore.QSize(233, 235))
+        self.imageLabel.setText(_fromUtf8(""))
         self.imageLabel.setObjectName(_fromUtf8("imageLabel"))
         self.gridLayout_7.addWidget(self.imageLabel, 0, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.label_10 = QtGui.QLabel(self.groupBox_5)
+        self.label_10.setMaximumSize(QtCore.QSize(232, 235))
+        self.label_10.setText(_fromUtf8(""))
+        self.label_10.setObjectName(_fromUtf8("label_10"))
+        self.gridLayout_7.addWidget(self.label_10, 0, 1, 1, 1)
+        self.label_9 = QtGui.QLabel(self.groupBox_5)
+        self.label_9.setMaximumSize(QtCore.QSize(233, 234))
+        self.label_9.setText(_fromUtf8(""))
+        self.label_9.setObjectName(_fromUtf8("label_9"))
+        self.gridLayout_7.addWidget(self.label_9, 1, 0, 1, 1)
+        self.label = QtGui.QLabel(self.groupBox_5)
+        self.label.setMaximumSize(QtCore.QSize(232, 234))
+        self.label.setText(_fromUtf8(""))
+        self.label.setObjectName(_fromUtf8("label"))
+        self.gridLayout_7.addWidget(self.label, 1, 1, 1, 1)
+        self.gridLayout_14.addLayout(self.gridLayout_7, 0, 0, 1, 1)
         self.gridLayout_6.addWidget(self.groupBox_5, 0, 1, 1, 1)
         self.groupBox_6 = QtGui.QGroupBox(self.info)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
@@ -351,7 +365,6 @@ class Ui_Form(object):
         self.sn_lineEdit_4.setPlaceholderText(_translate("Form", "Serial Number", None))
         self.start_pushButton.setText(_translate("Form", "START", None))
         self.groupBox_5.setTitle(_translate("Form", "item picture", None))
-        self.imageLabel.setText(_translate("Form", "TextLabel", None))
         self.groupBox_6.setTitle(_translate("Form", "info", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.info), _translate("Form", "test", None))
         self.radioButton.setText(_translate("Form", "vin", None))

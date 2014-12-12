@@ -24,10 +24,6 @@ import sql_handler
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
-        UFT_UiForm.setWindowTitle(
-            QtGui.QApplication.translate("Form",
-                                         "AGIGA-ENDURANCE-TEST-MONITOR",
-                                         None, QtGui.QApplication.UnicodeUTF8))
         self.dut_image = None
         self.config_table = QtGui.QTableView()
         self.my_db = sql_handler.MyDB()
@@ -100,7 +96,7 @@ class UFT_UiHandler(UFT_UiForm):
 
     def show_image(self, image):
         my_pixmap = QtGui.QPixmap(image)
-        my_scaled_pixmap = my_pixmap.scaled(self.imageLabel.size(),
+        my_scaled_pixmap = my_pixmap.scaled(self.imageLabel.maximumSize(),
                                             QtCore.Qt.KeepAspectRatio)
         self.imageLabel.setPixmap(my_scaled_pixmap)
 
