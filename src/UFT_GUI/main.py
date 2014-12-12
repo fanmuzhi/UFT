@@ -43,7 +43,6 @@ class MainWidget(QtGui.QWidget):
         log_handler.XStream.stdout().messageWritten.connect(
             self.ui.append_format_data)
         self.ui.start_pushButton.clicked.connect(self.start_click)
-        self.ui.show_image("./res/icons/despicableMe.jpg")
         self.ui.partNum_comboBox.currentIndexChanged.connect(
             self.ui.testItem_update)
         self.ui.revision_comboBox.currentIndexChanged.connect(
