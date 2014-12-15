@@ -61,11 +61,11 @@ class UFT_UiHandler(UFT_UiForm):
             self.sn_lineEdit_3.setDisabled(True)
             self.sn_lineEdit_4.setDisabled(True)
         else:
-            self.start_pushButton.setDisabled(False)
-            self.sn_lineEdit_1.setDisabled(False)
-            self.sn_lineEdit_2.setDisabled(False)
-            self.sn_lineEdit_3.setDisabled(False)
-            self.sn_lineEdit_4.setDisabled(False)
+            self.start_pushButton.setEnabled(True)
+            self.sn_lineEdit_1.setEnabled(True)
+            self.sn_lineEdit_2.setEnabled(True)
+            self.sn_lineEdit_3.setEnabled(True)
+            self.sn_lineEdit_4.setEnabled(True)
 
     def append_format_data(self, data):
         if data:
