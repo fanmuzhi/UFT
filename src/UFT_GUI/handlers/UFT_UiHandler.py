@@ -20,7 +20,7 @@ from UFT.models import base
 # import UFT
 # from UFT.channel import Channel, ChannelStates
 # except Exception as e:
-#     print e.message
+# print e.message
 
 
 class UFT_UiHandler(UFT_UiForm):
@@ -112,8 +112,9 @@ class UFT_UiHandler(UFT_UiForm):
                 image_file = "./res/dut_image/" + partnumber + ".jpg"
                 if os.path.isfile(image_file):
                     my_pixmap = QtGui.QPixmap(image_file)
-                    my_scaled_pixmap = my_pixmap.scaled(image_labels[i].maximumSize(),
-                                                QtCore.Qt.KeepAspectRatio)
+                    my_scaled_pixmap = my_pixmap.scaled(
+                        image_labels[i].maximumSize(),
+                        QtCore.Qt.KeepAspectRatio)
                     image_labels[i].setPixmap(my_scaled_pixmap)
                 else:
                     image_labels[i].setText("No dut image found")
@@ -220,7 +221,7 @@ class UFT_UiHandler(UFT_UiForm):
         mpl_widget.draw()
 
     def forBC(self, t):
-        if t < 10 :
+        if t < 10:
             return "0" + str(t)
         else:
             return str(t)
@@ -229,7 +230,7 @@ class UFT_UiHandler(UFT_UiForm):
         a = t // 60
         t = t - a * 60
         b = t
-        self.lcdNumber.display(str(a)+":"+self.forBC(b))
+        self.lcdNumber.display(str(a) + ":" + self.forBC(b))
 
 
 if __name__ == "__main__":
