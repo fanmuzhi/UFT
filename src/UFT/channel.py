@@ -207,6 +207,7 @@ class Channel(threading.Thread):
 
         all_charged = False
         self.counter = 0
+        start_time = time.time()
         while(not all_charged):
             all_charged = True
             for dut in self.dut_list:
@@ -223,7 +224,8 @@ class Channel(threading.Thread):
 
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
-                this_cycle.time = self.counter
+                this_cycle.counter = self.counter
+                this_cycle.time = time.time()
                 try:
                     temperature = dut.check_temp()
                 except aardvark.USBI2CAdapterException:
@@ -242,11 +244,13 @@ class Channel(threading.Thread):
 
                 if(this_cycle.vcap > threshold):
                     all_charged &= True
-                    dut.charge(status=False)
-                    if((self.counter * INTERVAL) < min_chargetime):
+                    #dut.charge(status=False)
+                    charge_time = this_cycle.time - start_time
+                    dut.charge_time = charge_time
+                    if(charge_time < min_chargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Charge Time Too Short."
-                    elif((self.counter * INTERVAL) > max_chargetime):
+                    elif(charge_time > max_chargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Charge Time Too Long."
                     else:
@@ -289,6 +293,7 @@ class Channel(threading.Thread):
 
         # start discharge cycle
         all_discharged = False
+        start_time = time.time()
         while(not all_discharged):
             all_discharged = True
             for dut in self.dut_list:
@@ -311,7 +316,9 @@ class Channel(threading.Thread):
                     # temp ic not ready
                     temperature = 0
                 this_cycle.temp = temperature
-                this_cycle.time = self.counter
+                this_cycle.counter = self.counter
+                this_cycle.time = time.time()
+
                 this_cycle.state = "discharge"
                 self.ld.select_channel(dut.slotnum)
                 this_cycle.vcap = self.ld.read_volt()
@@ -323,12 +330,15 @@ class Channel(threading.Thread):
 
                 if(this_cycle.vcap < threshold):
                     all_discharged &= True
+                    discharge_time = this_cycle.time - start_time
+                    dut.discharge_time = discharge_time
+
                     self.ld.select_channel(dut.slotnum)
                     self.ld.input_off()
-                    if((self.counter * INTERVAL) < min_dischargetime):
+                    if(discharge_time < min_dischargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Discharge Time Too Short."
-                    elif((self.counter * INTERVAL) > max_dischargetime):
+                    elif(discharge_time > max_dischargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Discharge Time Too Long."
                     else:
@@ -384,7 +394,8 @@ class Channel(threading.Thread):
                     # temp ic not ready
                     temperature = 0
                 this_cycle.temp = temperature
-                this_cycle.time = self.counter
+                this_cycle.counter = self.counter
+                this_cycle.time = time.time()
                 this_cycle.state = "self_discharge"
                 self.ld.select_channel(dut.slotnum)
                 this_cycle.vcap = self.ld.read_volt()
@@ -417,7 +428,7 @@ class Channel(threading.Thread):
                     else:
                         cur_vcap = cycle.vcap
                         cur_time = cycle.time
-                        cap = ((cur_time - pre_time) * INTERVAL)\
+                        cap = (cur_time - pre_time)\
                             / (float(config["Resistance"]) * math.log(pre_vcap /
                                                                       cur_vcap))
                         cap_list.append(cap)
@@ -640,8 +651,8 @@ class Channel(threading.Thread):
                     else:
                         cur_vcap = cycle.vcap
                         cur_time = cycle.time
-                        cap = (self.current * (cur_time - pre_time) *
-                               INTERVAL) / (pre_vcap - cur_vcap)
+                        cap = (self.current * (cur_time - pre_time))\
+                              / (pre_vcap - cur_vcap)
                         cap_list.append(cap)
             if(len(cap_list) > 0):
                 capacitor = sum(cap_list) / float(len(cap_list))

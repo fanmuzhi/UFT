@@ -67,7 +67,7 @@ class MainWidget(QtGui.QWidget):
             ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
             ch.queue.put(ChannelStates.CHECK_TEMP)
             ch.queue.put(ChannelStates.DUT_DISCHARGE)
-            ch.queue.put(ChannelStates.LOAD_DISCdgHARGE)
+            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
             ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
             ch.queue.put(ChannelStates.EXIT)
             self.u = Update(ch)
