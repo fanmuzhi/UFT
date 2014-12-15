@@ -89,7 +89,7 @@ class DCLoad(object):
 
     def select_channel(self, chnum):
         chnum += 1
-        if(chnum in range(4)):
+        if(chnum in range(1, 5)):
             self._write("CHAN " + str(chnum))
         else:
             raise DCLoadException("Invalid channel number")
@@ -150,23 +150,24 @@ class DCLoad(object):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    load = DCLoad(port="COM3", timeout=3)
+    load = DCLoad(port="COM5", timeout=3)
 
-    load.select_channel(0)
-    load.input_off()
-    load.protect_on()
+    for i in range(4):
+        load.select_channel(i)
+        load.input_off()
+        load.protect_on()
 
-    load.change_func(DCLoad.ModeCURR)
-    load.set_curr(0.8)
+        load.change_func(DCLoad.ModeCURR)
+        load.set_curr(0.8)
 
-    #load.change_func(DCLoad.ModeRes)
-    #load.set_res(20)     # 20 ohm
+        #load.change_func(DCLoad.ModeRes)
+        #load.set_res(20)     # 20 ohm
 
-    #load.input_on()
+        load.input_on()
 
-    print load.read_curr()
-    print load.read_volt()
+        print load.read_curr()
+        print load.read_volt()
 
-    time.sleep(5)
-    load.input_off()
+        time.sleep(2)
+        load.input_off()
     print "finish."

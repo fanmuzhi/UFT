@@ -9,7 +9,7 @@ __author__ = "@boqiling"
 
 # total slot number for one channel,
 # should be 4, 1 for debug
-TOTAL_SLOTNUM = 1
+TOTAL_SLOTNUM = 4
 
 # basic model for UFT
 PGEM_MODEL = PGEMBase    # basic model of crystal, jade, opal, etc.
