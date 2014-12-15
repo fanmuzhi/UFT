@@ -238,7 +238,7 @@
                </widget>
               </item>
               <item row="0" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-               <widget class="QLabel" name="imageLabel3">
+               <widget class="QLabel" name="imageLabel2">
                 <property name="maximumSize">
                  <size>
                   <width>232</width>
@@ -251,7 +251,7 @@
                </widget>
               </item>
               <item row="1" column="0" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-               <widget class="QLabel" name="imageLabel4">
+               <widget class="QLabel" name="imageLabel3">
                 <property name="maximumSize">
                  <size>
                   <width>233</width>
@@ -264,7 +264,7 @@
                </widget>
               </item>
               <item row="1" column="1" alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-               <widget class="QLabel" name="imageLabel2">
+               <widget class="QLabel" name="imageLabel4">
                 <property name="maximumSize">
                  <size>
                   <width>232</width>

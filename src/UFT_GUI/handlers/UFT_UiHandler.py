@@ -6,6 +6,7 @@ Created on Nov 01, 2014
 @author: mzfa
 '''
 import sys
+import os
 import time
 from PyQt4 import QtCore, QtGui
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
@@ -14,6 +15,7 @@ import logging
 import log_handler
 import mpl_handler
 import sql_handler
+from UFT.models import base
 # try:
 # import UFT
 # from UFT.channel import Channel, ChannelStates
@@ -94,11 +96,30 @@ class UFT_UiHandler(UFT_UiForm):
                 i = ""
         return barcodes
 
-    def show_image(self, image):
-        my_pixmap = QtGui.QPixmap(image)
-        my_scaled_pixmap = my_pixmap.scaled(self.imageLabel.maximumSize(),
-                                            QtCore.Qt.KeepAspectRatio)
-        self.imageLabel.setPixmap(my_scaled_pixmap)
+    def show_image(self):
+        barcodes = self.barcodes()
+        image_labels = [self.imageLabel1,
+                        self.imageLabel2,
+                        self.imageLabel3,
+                        self.imageLabel4]
+        for i in range(len(barcodes)):
+            r = base.BARCODE_PATTERN.search(barcodes[i])
+            if barcodes[i] == "":
+                image_labels[i].setText("")
+            elif r:
+                barcode_dict = r.groupdict()
+                partnumber = barcode_dict["PN"]
+                image_file = "./res/dut_image/" + partnumber + ".jpg"
+                if os.path.isfile(image_file):
+                    my_pixmap = QtGui.QPixmap(image_file)
+                    my_scaled_pixmap = my_pixmap.scaled(image_labels[i].maximumSize(),
+                                                QtCore.Qt.KeepAspectRatio)
+                    image_labels[i].setPixmap(my_scaled_pixmap)
+                else:
+                    image_labels[i].setText("No dut image found")
+            else:
+                image_labels[i].setText("Invalid Serial Number")
+
 
     def __popComboBox(self, combobox, model, column):
         combobox.setModel(model)
