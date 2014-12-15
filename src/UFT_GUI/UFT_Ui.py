@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Mon Dec 08 15:46:19 2014
+# Created: Mon Dec 15 15:16:44 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -148,17 +148,31 @@ class Ui_Form(object):
         sizePolicy.setHeightForWidth(self.groupBox_5.sizePolicy().hasHeightForWidth())
         self.groupBox_5.setSizePolicy(sizePolicy)
         self.groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
-        self.gridLayout_7 = QtGui.QGridLayout(self.groupBox_5)
+        self.gridLayout_14 = QtGui.QGridLayout(self.groupBox_5)
+        self.gridLayout_14.setObjectName(_fromUtf8("gridLayout_14"))
+        self.gridLayout_7 = QtGui.QGridLayout()
         self.gridLayout_7.setObjectName(_fromUtf8("gridLayout_7"))
-        self.imageLabel = QtGui.QLabel(self.groupBox_5)
-        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Maximum)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.imageLabel.sizePolicy().hasHeightForWidth())
-        self.imageLabel.setSizePolicy(sizePolicy)
-        self.imageLabel.setMinimumSize(QtCore.QSize(400, 400))
-        self.imageLabel.setObjectName(_fromUtf8("imageLabel"))
-        self.gridLayout_7.addWidget(self.imageLabel, 0, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.imageLabel1 = QtGui.QLabel(self.groupBox_5)
+        self.imageLabel1.setMaximumSize(QtCore.QSize(233, 235))
+        self.imageLabel1.setText(_fromUtf8(""))
+        self.imageLabel1.setObjectName(_fromUtf8("imageLabel1"))
+        self.gridLayout_7.addWidget(self.imageLabel1, 0, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.imageLabel2 = QtGui.QLabel(self.groupBox_5)
+        self.imageLabel2.setMaximumSize(QtCore.QSize(232, 235))
+        self.imageLabel2.setText(_fromUtf8(""))
+        self.imageLabel2.setObjectName(_fromUtf8("imageLabel2"))
+        self.gridLayout_7.addWidget(self.imageLabel2, 0, 1, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.imageLabel3 = QtGui.QLabel(self.groupBox_5)
+        self.imageLabel3.setMaximumSize(QtCore.QSize(233, 234))
+        self.imageLabel3.setText(_fromUtf8(""))
+        self.imageLabel3.setObjectName(_fromUtf8("imageLabel3"))
+        self.gridLayout_7.addWidget(self.imageLabel3, 1, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.imageLabel4 = QtGui.QLabel(self.groupBox_5)
+        self.imageLabel4.setMaximumSize(QtCore.QSize(232, 234))
+        self.imageLabel4.setText(_fromUtf8(""))
+        self.imageLabel4.setObjectName(_fromUtf8("imageLabel4"))
+        self.gridLayout_7.addWidget(self.imageLabel4, 1, 1, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.gridLayout_14.addLayout(self.gridLayout_7, 0, 0, 1, 1)
         self.gridLayout_6.addWidget(self.groupBox_5, 0, 1, 1, 1)
         self.groupBox_6 = QtGui.QGroupBox(self.info)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.Expanding)
@@ -338,7 +352,7 @@ class Ui_Form(object):
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
-        Form.setWindowTitle(_translate("Form", "Form", None))
+        Form.setWindowTitle(_translate("Form", "AGIGA-UFT-TEST", None))
         self.title_label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.0", None))
         self.groupBox_1.setTitle(_translate("Form", "Slot #1", None))
         self.sn_lineEdit_1.setText(_translate("Form", "AGIGA9601-002BCA02143500000001-04", None))
@@ -351,7 +365,6 @@ class Ui_Form(object):
         self.sn_lineEdit_4.setPlaceholderText(_translate("Form", "Serial Number", None))
         self.start_pushButton.setText(_translate("Form", "START", None))
         self.groupBox_5.setTitle(_translate("Form", "item picture", None))
-        self.imageLabel.setText(_translate("Form", "TextLabel", None))
         self.groupBox_6.setTitle(_translate("Form", "info", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.info), _translate("Form", "test", None))
         self.radioButton.setText(_translate("Form", "vin", None))

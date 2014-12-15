@@ -43,7 +43,6 @@ class MainWidget(QtGui.QWidget):
         log_handler.XStream.stdout().messageWritten.connect(
             self.ui.append_format_data)
         self.ui.start_pushButton.clicked.connect(self.start_click)
-        self.ui.show_image("./res/icons/despicableMe.jpg")
         self.ui.partNum_comboBox.currentIndexChanged.connect(
             self.ui.testItem_update)
         self.ui.revision_comboBox.currentIndexChanged.connect(
@@ -52,6 +51,10 @@ class MainWidget(QtGui.QWidget):
         self.ui.search_lineEdit.returnPressed.connect(self.ui.search)
         self.ui.search_pushButton.clicked.connect(self.ui.search)
         self.ui.buttonGroup.buttonClicked.connect(self.ui.push_multi_mpls)
+        self.ui.sn_lineEdit_1.textChanged.connect(self.ui.show_image)
+        self.ui.sn_lineEdit_2.textChanged.connect(self.ui.show_image)
+        self.ui.sn_lineEdit_3.textChanged.connect(self.ui.show_image)
+        self.ui.sn_lineEdit_4.textChanged.connect(self.ui.show_image)
 
     def start_click(self):
         try:
@@ -64,7 +67,7 @@ class MainWidget(QtGui.QWidget):
             ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
             ch.queue.put(ChannelStates.CHECK_TEMP)
             ch.queue.put(ChannelStates.DUT_DISCHARGE)
-            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+            ch.queue.put(ChannelStates.LOAD_DISCdgHARGE)
             ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
             ch.queue.put(ChannelStates.EXIT)
             self.u = Update(ch)
