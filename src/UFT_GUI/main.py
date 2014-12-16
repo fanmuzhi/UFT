@@ -115,13 +115,13 @@ class Update(QtCore.QThread):
                               dut.status)
             time.sleep(1)
 
-        UFT.logger.info("test")
-
         self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
         for dut in self.ch.dut_list:
             if dut is not None:
                 self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
         self.emit(QtCore.SIGNAL("is_alive"), 0)
+
+        self.ch.save_db()
 
         time.sleep(5)
         self.terminate()
