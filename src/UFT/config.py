@@ -19,6 +19,9 @@ PGEM_MODEL = PGEMBase    # basic model of crystal, jade, opal, etc.
 # more data, more accurate test result.
 INTERVAL = 2
 
+# DUT will discharge to start voltage before testing
+START_VOLT = 1.0
+
 # power supply settings
 # node address and channel
 PS_ADDR = 5

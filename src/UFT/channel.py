@@ -135,7 +135,7 @@ class Channel(threading.Thread):
                        "ovp": PS_OVP, "ocp": PS_OCP}
             self.ps.set(setting)
             self.ps.activateOutput()
-            time.sleep(1.5)
+            time.sleep(1)
             volt = self.ps.measureVolt()
             curr = self.ps.measureCurr()
             assert (PS_VOLT-1) < volt < (PS_VOLT+1)
@@ -169,11 +169,11 @@ class Channel(threading.Thread):
                 # empty the dut, one by one
                 self.ld.select_channel(dut.slotnum)
                 val = self.ld.read_volt()
-                if(val > 0.2):
+                if(val > START_VOLT):
                     self.ld.set_curr(self.current)
                     self.ld.input_on()
                     dut.status = DUT_STATUS.Discharging
-                while(val > 0.2):
+                while(val > START_VOLT):
                     val = self.ld.read_volt()
                     time.sleep(INTERVAL)
                 self.ld.input_off()
@@ -445,7 +445,6 @@ class Channel(threading.Thread):
                 logger.info("dut: {0} self meas capacitor: {1} message: {2} ".
                             format(dut.slotnum, dut.capacitance_measured,
                                    dut.errormessage))
-
 
     def program_dut(self):
         """ program vpd of DUT.

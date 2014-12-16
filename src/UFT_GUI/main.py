@@ -17,17 +17,22 @@ from PyQt4 import QtGui, QtCore
 from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 from UFT_GUI.handlers import log_handler, sql_handler
 
-try:
-    import UFT
-    from UFT.channel import Channel, ChannelStates
-except Exception as e:
-    print e.message
+#try:
+#    import UFT
+#    from UFT.channel import Channel, ChannelStates
+#except Exception as e:
+#    print e.message
+import UFT
+from UFT.channel import ChannelStates, Channel
+
+#import UFT
+#from test_channel import Channel, ChannelStates
 
 
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
-        self.qtobj = QtCore.QObject()
+        #self.qtobj = QtCore.QObject()
         self.ui = UFT_UiHandler()
         self.ui.setupUi(self)
         self.ui.setupWidget(self)
@@ -39,7 +44,7 @@ class MainWidget(QtGui.QWidget):
         handler = log_handler.QtHandler()
         handler.setFormatter(UFT.formatter)
         UFT.logger.addHandler(handler)
-        UFT.logger.setLevel(logging.INFO)
+        UFT.logger.setLevel(logging.DEBUG)
         log_handler.XStream.stdout().messageWritten.connect(
             self.ui.append_format_data)
         self.ui.start_pushButton.clicked.connect(self.start_click)
@@ -71,15 +76,15 @@ class MainWidget(QtGui.QWidget):
             ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
             ch.queue.put(ChannelStates.EXIT)
             self.u = Update(ch)
-            self.u.start()
-            self.qtobj.connect(self.u, QtCore.SIGNAL('progress_bar'),
+            self.connect(self.u, QtCore.SIGNAL('progress_bar'),
                                self.ui.progressBar.setValue)
-            self.qtobj.connect(self.u, QtCore.SIGNAL('is_alive'),
+            self.connect(self.u, QtCore.SIGNAL('is_alive'),
                                self.ui.auto_enable_disable_widgets)
-            self.qtobj.connect(self.u, QtCore.SIGNAL("dut_status"),
+            self.connect(self.u, QtCore.SIGNAL("dut_status"),
                                self.ui.set_status_text)
-            self.qtobj.connect(self.u, QtCore.SIGNAL('time_used'),
+            self.connect(self.u, QtCore.SIGNAL('time_used'),
                                self.ui.print_time)
+            self.u.start()
 
         except Exception as e:
             msg = QtGui.QMessageBox()
@@ -99,22 +104,26 @@ class Update(QtCore.QThread):
     def run(self):
         sec_count = 0
         self.ch.start()
+        self.emit(QtCore.SIGNAL("is_alive"), 1)
         while self.ch.isAlive():
-            time.sleep(1)
-            sec_count = sec_count + 1
+            sec_count += 1
             self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
             self.emit(QtCore.SIGNAL("time_used"), sec_count)
-            self.emit(QtCore.SIGNAL("is_alive"), self.ch.isAlive())
             for dut in self.ch.dut_list:
-                if dut:
+                if dut is not None:
                     self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum,
                               dut.status)
+            time.sleep(1)
+
+        print "test progressbar {0}".format(self.ch.progressbar)
 
         self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
         for dut in self.ch.dut_list:
-            if dut:
+            if dut is not None:
                 self.emit(QtCore.SIGNAL("dut_status"), dut.slotnum, dut.status)
         self.emit(QtCore.SIGNAL("is_alive"), 0)
+
+        time.sleep(5)
         self.terminate()
 
 

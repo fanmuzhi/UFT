@@ -211,7 +211,7 @@ class UFT_UiHandler(UFT_UiForm):
             # mpl_data_model.select()
             for j in range(mpl_data_model.rowCount()):
                 record = mpl_data_model.record(j)
-                time.append(int(record.value("time").toString()))
+                time.append(int(record.value("counter").toString()))
                 data.append(float(record.value(item).toString()))
             self.plot(mpls[i], time, data)
 
