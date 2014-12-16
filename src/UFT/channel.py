@@ -59,8 +59,6 @@ class Channel(threading.Thread):
     # setup main power supply
     ps = pwr.PowerSupply()
 
-    sm = SessionManager()
-    sm.prepare_db("sqlite:///" + RESULT_DB, [DUT, Cycle])
 
     def __init__(self, name, barcode_list, channel_id=0):
         """initialize channel
@@ -92,9 +90,6 @@ class Channel(threading.Thread):
         self.exit = False
         self.queue = Queue()
 
-        # setup database
-        # db should be prepared in cli.py
-        self.session = self.sm.get_session("sqlite:///" + RESULT_DB)
 
         super(Channel, self).__init__(name=name)
 
@@ -670,6 +665,12 @@ class Channel(threading.Thread):
         """ cleanup and save to database before exit.
         :return: None
         """
+        # setup database
+        # db should be prepared in cli.py
+        sm = SessionManager()
+        sm.prepare_db("sqlite:///" + RESULT_DB, [DUT, Cycle])
+        session = sm.get_session("sqlite:///" + RESULT_DB)
+
         for dut in self.dut_list:
             if dut is None:
                 continue
@@ -681,16 +682,17 @@ class Channel(threading.Thread):
             logger.info("TEST RESULT: dut {0} ===> {1}".format(
                 dut.slotnum, msg))
 
-            for pre_dut in self.session.query(DUT).\
+            for pre_dut in session.query(DUT).\
                     filter(DUT.barcode == dut.barcode).all():
                 pre_dut.archived = 1
-                self.session.add(pre_dut)
-                self.session.commit()
+                session.add(pre_dut)
+                session.commit()
             dut.archived = 0
-            self.session.add(dut)
-            self.session.commit()
+            session.add(dut)
+            session.commit()
+            time.sleep(2)
 
-            # self.session.close()
+        session.close()
 
     def run(self):
         """ override thread.run()
@@ -794,10 +796,13 @@ class Channel(threading.Thread):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.DEBUG)    # quiet
+    logging.basicConfig(level=logging.INFO)
 
-    barcode = "AGIGA9601-002BCA02143500000002-04"
-    ch = Channel(barcode_list=[barcode, "", "", ""], channel_id=0,
+    barcode = ["AGIGA9603-004BCA02144800000002-06",
+               "AGIGA9603-004BCA02144800000002-06",
+               "AGIGA9603-004BCA02144800000002-06",
+               "AGIGA9603-004BCA02144800000002-06"]
+    ch = Channel(barcode_list=barcode, channel_id=0,
                  name="UFT_CHANNEL")
     #ch.start()
     #ch.queue.put(ChannelStates.INIT)

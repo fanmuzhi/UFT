@@ -63,19 +63,8 @@ class MainWidget(QtGui.QWidget):
 
     def start_click(self):
         try:
-            ch = Channel(barcode_list=self.ui.barcodes(), channel_id=0,
-                         name="UFT_CHANNEL")
-            ch.setDaemon(True)
-            ch.queue.put(ChannelStates.INIT)
-            ch.queue.put(ChannelStates.CHARGE)
-            ch.queue.put(ChannelStates.PROGRAM_VPD)
-            ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-            ch.queue.put(ChannelStates.CHECK_TEMP)
-            ch.queue.put(ChannelStates.DUT_DISCHARGE)
-            ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-            ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
-            ch.queue.put(ChannelStates.EXIT)
-            self.u = Update(ch)
+            barcodes = self.ui.barcodes()
+            self.u = Update(barcodes)
             self.connect(self.u, QtCore.SIGNAL('progress_bar'),
                                self.ui.progressBar.setValue)
             self.connect(self.u, QtCore.SIGNAL('is_alive'),
@@ -94,9 +83,20 @@ class MainWidget(QtGui.QWidget):
 
 
 class Update(QtCore.QThread):
-    def __init__(self, ch):
+    def __init__(self, barcodes):
+        self.ch = Channel(barcode_list=barcodes, channel_id=0,
+                          name="UFT_CHANNEL")
+        self.ch.setDaemon(True)
+        self.ch.queue.put(ChannelStates.INIT)
+        self.ch.queue.put(ChannelStates.CHARGE)
+        self.ch.queue.put(ChannelStates.PROGRAM_VPD)
+        self.ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+        self.ch.queue.put(ChannelStates.CHECK_TEMP)
+        self.ch.queue.put(ChannelStates.DUT_DISCHARGE)
+        self.ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+        self.ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
+        self.ch.queue.put(ChannelStates.EXIT)
         QtCore.QThread.__init__(self)
-        self.ch = ch
 
     def __del__(self):
         self.wait()
@@ -115,7 +115,7 @@ class Update(QtCore.QThread):
                               dut.status)
             time.sleep(1)
 
-        print "test progressbar {0}".format(self.ch.progressbar)
+        UFT.logger.info("test")
 
         self.emit(QtCore.SIGNAL("progress_bar"), self.ch.progressbar)
         for dut in self.ch.dut_list:
