@@ -169,7 +169,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.my_db.switch_to_pgem()
         test_log_model = sql_handler.RelationModel(self.data_table,
                                                    "cycle",
-                                                   6,
+                                                   7,
                                                    "dut",
                                                    "id",
                                                    u"barcode, archived")
