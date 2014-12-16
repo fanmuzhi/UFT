@@ -9,7 +9,7 @@ __author__ = "@boqiling"
 
 # total slot number for one channel,
 # should be 4, 1 for debug
-TOTAL_SLOTNUM = 1
+TOTAL_SLOTNUM = 4
 
 # basic model for UFT
 PGEM_MODEL = PGEMBase    # basic model of crystal, jade, opal, etc.
@@ -18,6 +18,9 @@ PGEM_MODEL = PGEMBase    # basic model of crystal, jade, opal, etc.
 # increase value to reduce the data in database.
 # more data, more accurate test result.
 INTERVAL = 2
+
+# DUT will discharge to start voltage before testing
+START_VOLT = 1.0
 
 # power supply settings
 # node address and channel

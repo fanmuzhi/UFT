@@ -27,6 +27,8 @@ class DUT(SQLBase):
     partnumber = Column(String(30), nullable=False)
     capacitance_measured = Column(Integer)
     self_capacitance_measured = Column(Integer)
+    charge_time = Column(Float)
+    discharge_time = Column(Float)
 
     temphist = Column(Integer)
     caphist = Column(Integer)
@@ -62,7 +64,8 @@ class Cycle(SQLBase):
     temp = Column(Float)
     vin = Column(Float)
     vcap = Column(Float)
-    time = Column(Integer)
+    time = Column(Float)
+    counter = Column(Integer)
     state = Column(String(20))
     dutid = Column(Integer, ForeignKey("dut.id"))
 
