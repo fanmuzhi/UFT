@@ -53,3 +53,6 @@ RESULT_DB = "C:\\UFT\\db\\pgem.db"
 #CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
 #CONFIG_DB = "sqlite:///C:\\UFT\\db\\pgem_config.db"
 CONFIG_DB = "C:\\UFT\\db\\pgem_config.db"
+
+# Location to save xml log
+RESULT_LOG = "C:\\UFT\\logs\\"

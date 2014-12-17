@@ -12,12 +12,14 @@ from UFT.devices import pwr, load, aardvark
 from UFT.models import DUT_STATUS, DUT, Cycle
 from UFT.backend import load_config, load_test_item
 from UFT.backend.session import SessionManager
+from UFT.backend import simplexml
 from UFT.config import *
 import threading
 from Queue import Queue
 import logging
 import time
 import math
+import os
 logger = logging.getLogger(__name__)
 
 
@@ -124,17 +126,15 @@ class Channel(threading.Thread):
         # setup power supply
         self.ps.selectChannel(node=PS_ADDR, ch=PS_CHAN)
 
-        if(self.ps.measureVolt() <= 0.1):
-            # not powered.
-            setting = {"volt": PS_VOLT, "curr": PS_CURR,
-                       "ovp": PS_OVP, "ocp": PS_OCP}
-            self.ps.set(setting)
-            self.ps.activateOutput()
-            time.sleep(1)
-            volt = self.ps.measureVolt()
-            curr = self.ps.measureCurr()
-            assert (PS_VOLT-1) < volt < (PS_VOLT+1)
-            assert curr >= 0
+        setting = {"volt": PS_VOLT, "curr": PS_CURR,
+                   "ovp": PS_OVP, "ocp": PS_OCP}
+        self.ps.set(setting)
+        self.ps.activateOutput()
+        time.sleep(1)
+        volt = self.ps.measureVolt()
+        curr = self.ps.measureCurr()
+        assert (PS_VOLT-1) < volt < (PS_VOLT+1)
+        assert curr >= 0
 
         # reset DUT
         self.reset_dut()
@@ -681,6 +681,28 @@ class Channel(threading.Thread):
             session.commit()
         session.close()
 
+    def save_file(self):
+        """ save dut info to xml file
+        :return:
+        """
+        for dut in self.dut_list:
+            if dut is None:
+                continue
+            if not os.path.exists(RESULT_LOG):
+                os.makedirs(RESULT_LOG)
+
+            filename = dut.barcode + ".xml"
+            filepath = os.path.join(RESULT_LOG, filename)
+            i = 1
+            while os.path.exists(filepath):
+                filename = "{0}({1}).xml".format(dut.barcode, i)
+                filepath = os.path.join(RESULT_LOG, filename)
+                i += 1
+            result = simplexml.dumps(dut.to_dict(), "entity")
+            with open(filepath, "wb") as f:
+                f.truncate()
+                f.write(result)
+
     def prepare_to_exit(self):
         """ cleanup and save to database before exit.
         :return: None
@@ -695,6 +717,12 @@ class Channel(threading.Thread):
                 msg = dut.errormessage
             logger.info("TEST RESULT: dut {0} ===> {1}".format(
                 dut.slotnum, msg))
+
+        # save to xml logs
+        self.save_file()
+
+        # power off
+        self.ps.deactivateOutput()
 
     def run(self):
         """ override thread.run()
