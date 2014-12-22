@@ -56,6 +56,17 @@ class DUT(SQLBase):
     #DUT is one to many class refer to Cycles
     cycles = relationship("Cycle")
 
+    def to_dict(self):
+        return {"barcode": self.barcode,
+                "test_result": "PASS" if self.status == 1 else "FAIL",
+                "capacitor": self.capacitance_measured,
+                "self_capacitor": self.self_capacitance_measured,
+                "charge_time": self.charge_time,
+                "discharge_time": self.discharge_time,
+                "slotnum": self.slotnum,
+                "error_message": self.errormessage,
+                "test_date": self.testdate}
+
 
 class Cycle(SQLBase):
     __tablename__ = "cycle"

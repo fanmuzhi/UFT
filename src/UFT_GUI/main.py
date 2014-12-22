@@ -17,16 +17,16 @@ from PyQt4 import QtGui, QtCore
 from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
 from UFT_GUI.handlers import log_handler, sql_handler
 
-#try:
-#    import UFT
-#    from UFT.channel import Channel, ChannelStates
-#except Exception as e:
-#    print e.message
-import UFT
-from UFT.channel import ChannelStates, Channel
+app = QApplication(sys.argv)
+app.setStyle("Plastique")
 
-#import UFT
-#from test_channel import Channel, ChannelStates
+try:
+    import UFT
+    from UFT.channel import Channel
+except Exception as e:
+    msg = QtGui.QMessageBox()
+    msg.critical(msg, "error", e.message)
+    #msg.exec_()
 
 
 class MainWidget(QtGui.QWidget):
@@ -38,13 +38,16 @@ class MainWidget(QtGui.QWidget):
         self.ui.setupWidget(self)
         self.__setupSignal()
 
+
     def __setupSignal(self):
-        '''start_pushButton for log display test,
-        to be changed as "start" function later'''
+        """start_pushButton for log display test,
+        to be changed as "start" function later
+        """
+
         handler = log_handler.QtHandler()
         handler.setFormatter(UFT.formatter)
         UFT.logger.addHandler(handler)
-        UFT.logger.setLevel(logging.DEBUG)
+        UFT.logger.setLevel(logging.INFO)
         log_handler.XStream.stdout().messageWritten.connect(
             self.ui.append_format_data)
         self.ui.start_pushButton.clicked.connect(self.start_click)
@@ -66,13 +69,13 @@ class MainWidget(QtGui.QWidget):
             barcodes = self.ui.barcodes()
             self.u = Update(barcodes)
             self.connect(self.u, QtCore.SIGNAL('progress_bar'),
-                               self.ui.progressBar.setValue)
+                         self.ui.progressBar.setValue)
             self.connect(self.u, QtCore.SIGNAL('is_alive'),
-                               self.ui.auto_enable_disable_widgets)
+                         self.ui.auto_enable_disable_widgets)
             self.connect(self.u, QtCore.SIGNAL("dut_status"),
-                               self.ui.set_status_text)
+                         self.ui.set_status_text)
             self.connect(self.u, QtCore.SIGNAL('time_used'),
-                               self.ui.print_time)
+                         self.ui.print_time)
             self.u.start()
 
         except Exception as e:
@@ -84,26 +87,17 @@ class MainWidget(QtGui.QWidget):
 
 class Update(QtCore.QThread):
     def __init__(self, barcodes):
+        QtCore.QThread.__init__(self)
         self.ch = Channel(barcode_list=barcodes, channel_id=0,
                           name="UFT_CHANNEL")
         self.ch.setDaemon(True)
-        self.ch.queue.put(ChannelStates.INIT)
-        self.ch.queue.put(ChannelStates.CHARGE)
-        self.ch.queue.put(ChannelStates.PROGRAM_VPD)
-        self.ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-        self.ch.queue.put(ChannelStates.CHECK_TEMP)
-        self.ch.queue.put(ChannelStates.DUT_DISCHARGE)
-        self.ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-        self.ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
-        self.ch.queue.put(ChannelStates.EXIT)
-        QtCore.QThread.__init__(self)
 
     def __del__(self):
         self.wait()
 
     def run(self):
         sec_count = 0
-        self.ch.start()
+        self.ch.auto_test()
         self.emit(QtCore.SIGNAL("is_alive"), 1)
         while self.ch.isAlive():
             sec_count += 1
@@ -123,13 +117,13 @@ class Update(QtCore.QThread):
 
         self.ch.save_db()
 
-        time.sleep(5)
+        time.sleep(1)
         self.terminate()
 
 
 def main():
-    app = QApplication(sys.argv)
-    app.setStyle("Plastique")
+    #app = QApplication(sys.argv)
+    #app.setStyle("Plastique")
     widget = MainWidget()
     widget.show()
     sys.exit(app.exec_())
