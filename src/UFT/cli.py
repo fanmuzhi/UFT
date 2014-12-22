@@ -4,7 +4,6 @@
 """
 __version__ = "0.1"
 __author__ = "@boqiling"
-from UFT import config
 import time
 import argparse
 import logging
@@ -37,10 +36,10 @@ def parse_args():
                         action='store_true',
                         help='start debug hardware and hardware connections',
                         default=False)
-    parser.add_argument('-s', '--silent',
-                        dest='silent',
+    parser.add_argument('-v', '--verbose',
+                        dest='verbose',
                         action='store_true',
-                        help='do not print information on the screen',
+                        help='print debug information on the screen',
                         default=False)
 
     args = parser.parse_args()
@@ -49,6 +48,7 @@ def parse_args():
 
 # cli command to synchronize the dut config
 def synchronize_db(directory):
+    from UFT import config
     from UFT.backend import sync_config
     import os
 
@@ -64,6 +64,7 @@ def synchronize_db(directory):
 # cli command to run single test
 def single_test():
     from UFT.channel import ChannelStates, Channel
+    from UFT import config
 
     #barcode = "AGIGA9601-002BCA02143500000002-04"
     barcode_list = []
@@ -85,11 +86,12 @@ def main():
     logging.basicConfig(level=logging.INFO)
 
     args = parse_args()
-    if args.silent:
+    if args.verbose:
+        from UFT import logger
+        logger.setLevel(level=logging.DEBUG)
+    if args.debug:
         pass
     if args.listconfig:
-        pass
-    if args.debug:
         pass
     if args.syncdb:
         synchronize_db(args.syncdb)

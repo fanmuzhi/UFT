@@ -197,11 +197,13 @@ class Adapter(object):
         # first fetch the number of attached devices, so we can create a buffer
         # with the exact amount of entries. api expects array of u16
         num_devices = self.api.py_aa_find_devices(0, array_u16(0))
-        assert num_devices > 0
+        if(num_devices <= 0):
+            raise USBI2CAdapterException("Aardvark Devices Not Found")
 
         devices = array_u16(num_devices)
         num_devices = self.api.py_aa_find_devices(num_devices, devices)
-        assert num_devices > 0
+        if(num_devices <= 0):
+            raise USBI2CAdapterException("Aardvark Devices Not Found")
 
         del devices[num_devices:]
 

@@ -26,14 +26,17 @@ class PowerSupplyException(Exception):
 class PowerSupply(object):
 
     def __init__(self):
-        self.instr = usbtmc.Instrument(vid, pid)
+        try:
+            self.instr = usbtmc.Instrument(vid, pid)
+        except:
+            raise PowerSupplyException("Power Supply Not Found.")
 
         try:
             # clean err msg
             errmsg = self.instr.ask("ERR?")
             while(errmsg != "0"):
                 errmsg = self.instr.ask("ERR?")
-        except Exception:
+        except:
             pass
 
         idn = self.instr.ask("*IDN?")
