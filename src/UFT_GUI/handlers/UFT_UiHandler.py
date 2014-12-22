@@ -144,6 +144,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.descriptionLabel.setText(description)
         self.test_item_model.setFilter("CONFIGID = " + config_id)
         self.test_item_model.select()
+        self.test_item_tableView.resizeColumnsToContents()
 
     def testItem_update(self):
         self.my_db.switch_to_configuration()
@@ -167,7 +168,7 @@ class UFT_UiHandler(UFT_UiForm):
 
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
-        test_log_model = sql_handler.RelationModel(self.data_table,
+        test_log_model = sql_handler.TableModel(self.data_table,
                                                    "cycle",
                                                    7,
                                                    "dut",
@@ -180,15 +181,28 @@ class UFT_UiHandler(UFT_UiForm):
         self.data_table.setModel(test_log_model)
         return test_log_model
 
+    def get_dut_data(self, barcodes):
+        self.my_db.switch_to_pgem()
+        test_log_model = sql_handler.TableModel(self.data_table, "dut")
+        test_log_model.record().indexOf("id")
+        # test_log_model.setFilter(
+        #     "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
+        test_log_model.setFilter(
+            "barcode IN ('" + "', ".join(barcodes) + "')")
+        test_log_model.select()
+        self.data_table.setModel(test_log_model)
+        return test_log_model
+
     def search(self):
         if self.search_lineEdit.text():
             self.search_result_label.setText("")
             barcodes = []
             barcodes.append(str(self.search_lineEdit.text()))
-            test_log_model = self.get_log_data(barcodes)
+            test_log_model = self.get_dut_data(barcodes)
             if test_log_model.rowCount() == 0:
                 self.search_result_label.setText("No Item Found")
             self.log_tableView.setModel(test_log_model)
+            self.log_tableView.resizeColumnsToContents()
 
     def push_multi_mpls(self):
         mpls = [self.mplwidget,
