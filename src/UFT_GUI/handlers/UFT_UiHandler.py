@@ -21,6 +21,15 @@ from UFT.models import base
 # from UFT.channel import Channel, ChannelStates
 # except Exception as e:
 # print e.message
+class MyLineEdit(QtGui.QLineEdit):
+    def __init__(self, parent=None):
+        super(MyLineEdit, self).__init__(parent)
+
+    def focusInEvent(self, event):
+        print 'This widget is in focus'
+        self.clear()
+        QtGui.QLineEdit.focusInEvent(self,
+                                     QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
 
 
 class UFT_UiHandler(UFT_UiForm):
@@ -33,9 +42,9 @@ class UFT_UiHandler(UFT_UiForm):
         self.test_item_model = None
         self.data_table = QtGui.QTableView()
 
-
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
+        self.sn_lineEdit_1 = MyLineEdit()
         ''' initial configuration tab combobox and table  '''
         self.my_db.switch_to_configuration()
         self.config_model = sql_handler.TableModel(self.config_table,
@@ -73,7 +82,6 @@ class UFT_UiHandler(UFT_UiForm):
             # self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
         else:
             pass
-
 
     def set_status_text(self, slotnum, status):
         status_list = ["Idle", "Pass", "Fail", "Charging", "Discharging"]
@@ -165,15 +173,14 @@ class UFT_UiHandler(UFT_UiForm):
             msg.critical(msg, "error",
                          "fail to update configuration, please check again")
 
-
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
         test_log_model = sql_handler.TableModel(self.data_table,
-                                                   "cycle",
-                                                   7,
-                                                   "dut",
-                                                   "id",
-                                                   u"barcode, archived")
+                                                "cycle",
+                                                7,
+                                                "dut",
+                                                "id",
+                                                u"barcode, archived")
         test_log_model.record().indexOf("id")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
@@ -186,7 +193,7 @@ class UFT_UiHandler(UFT_UiForm):
         test_log_model = sql_handler.TableModel(self.data_table, "dut")
         test_log_model.record().indexOf("id")
         # test_log_model.setFilter(
-        #     "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
+        # "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "')")
         test_log_model.select()

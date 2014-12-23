@@ -23,7 +23,7 @@
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>3</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="info">
       <attribute name="title">
@@ -46,8 +46,11 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QLineEdit" name="sn_lineEdit_1">
+              <property name="contextMenuPolicy">
+               <enum>Qt::DefaultContextMenu</enum>
+              </property>
               <property name="text">
-               <string>AGIGA9601-002BCA02143500000001-04</string>
+               <string/>
               </property>
               <property name="placeholderText">
                <string>Serial Number</string>
@@ -442,6 +445,11 @@
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="descriptionLabel">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+            </font>
+           </property>
            <property name="text">
             <string/>
            </property>
