@@ -9,7 +9,7 @@ __author__ = "@boqiling"
 __all__ = ["Channel", "ChannelStates"]
 
 from UFT.devices import pwr, load, aardvark
-from UFT.models import DUT_STATUS, DUT, Cycle
+from UFT.models import DUT_STATUS, DUT, Cycle, PGEMBase
 from UFT.backend import load_config, load_test_item
 from UFT.backend.session import SessionManager
 from UFT.backend import simplexml
@@ -103,9 +103,9 @@ class Channel(threading.Thread):
         for i, bc in enumerate(self.barcode_list):
             if bc != "":
                 # dut is present
-                dut = PGEM_MODEL(device=self.adk,
-                                 slot=i,
-                                 barcode=bc)
+                dut = PGEMBase(device=self.adk,
+                               slot=i,
+                               barcode=bc)
                 dut.status = DUT_STATUS.Idle
                 self.dut_list.append(dut)
                 dut_config = load_config("sqlite:///" + CONFIG_DB,
