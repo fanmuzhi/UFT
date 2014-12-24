@@ -20,7 +20,16 @@ from UFT.models import base
 # import UFT
 # from UFT.channel import Channel, ChannelStates
 # except Exception as e:
-#     print e.message
+# print e.message
+class MyLineEdit(QtGui.QLineEdit):
+    def __init__(self, parent=None):
+        super(MyLineEdit, self).__init__(parent)
+
+    def focusInEvent(self, event):
+        print 'This widget is in focus'
+        self.clear()
+        QtGui.QLineEdit.focusInEvent(self,
+                                     QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
 
 
 class UFT_UiHandler(UFT_UiForm):
@@ -33,9 +42,9 @@ class UFT_UiHandler(UFT_UiForm):
         self.test_item_model = None
         self.data_table = QtGui.QTableView()
 
-
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
+        self.sn_lineEdit_1 = MyLineEdit()
         ''' initial configuration tab combobox and table  '''
         self.my_db.switch_to_configuration()
         self.config_model = sql_handler.TableModel(self.config_table,
@@ -61,11 +70,11 @@ class UFT_UiHandler(UFT_UiForm):
             self.sn_lineEdit_3.setDisabled(True)
             self.sn_lineEdit_4.setDisabled(True)
         else:
-            self.start_pushButton.setDisabled(False)
-            self.sn_lineEdit_1.setDisabled(False)
-            self.sn_lineEdit_2.setDisabled(False)
-            self.sn_lineEdit_3.setDisabled(False)
-            self.sn_lineEdit_4.setDisabled(False)
+            self.start_pushButton.setEnabled(True)
+            self.sn_lineEdit_1.setEnabled(True)
+            self.sn_lineEdit_2.setEnabled(True)
+            self.sn_lineEdit_3.setEnabled(True)
+            self.sn_lineEdit_4.setEnabled(True)
 
     def append_format_data(self, data):
         if data:
@@ -73,7 +82,6 @@ class UFT_UiHandler(UFT_UiForm):
             # self.info_textBrowser.moveCursor(QtGui.QTextCursor.End)
         else:
             pass
-
 
     def set_status_text(self, slotnum, status):
         status_list = ["Idle", "Pass", "Fail", "Charging", "Discharging"]
@@ -112,8 +120,9 @@ class UFT_UiHandler(UFT_UiForm):
                 image_file = "./res/dut_image/" + partnumber + ".jpg"
                 if os.path.isfile(image_file):
                     my_pixmap = QtGui.QPixmap(image_file)
-                    my_scaled_pixmap = my_pixmap.scaled(image_labels[i].maximumSize(),
-                                                QtCore.Qt.KeepAspectRatio)
+                    my_scaled_pixmap = my_pixmap.scaled(
+                        image_labels[i].maximumSize(),
+                        QtCore.Qt.KeepAspectRatio)
                     image_labels[i].setPixmap(my_scaled_pixmap)
                 else:
                     image_labels[i].setText("No dut image found")
@@ -143,6 +152,7 @@ class UFT_UiHandler(UFT_UiForm):
         self.descriptionLabel.setText(description)
         self.test_item_model.setFilter("CONFIGID = " + config_id)
         self.test_item_model.select()
+        self.test_item_tableView.resizeColumnsToContents()
 
     def testItem_update(self):
         self.my_db.switch_to_configuration()
@@ -163,18 +173,29 @@ class UFT_UiHandler(UFT_UiForm):
             msg.critical(msg, "error",
                          "fail to update configuration, please check again")
 
-
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
-        test_log_model = sql_handler.RelationModel(self.data_table,
-                                                   "cycle",
-                                                   7,
-                                                   "dut",
-                                                   "id",
-                                                   u"barcode, archived")
+        test_log_model = sql_handler.TableModel(self.data_table,
+                                                "cycle",
+                                                7,
+                                                "dut",
+                                                "id",
+                                                u"barcode, archived")
         test_log_model.record().indexOf("id")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
+        test_log_model.select()
+        self.data_table.setModel(test_log_model)
+        return test_log_model
+
+    def get_dut_data(self, barcodes):
+        self.my_db.switch_to_pgem()
+        test_log_model = sql_handler.TableModel(self.data_table, "dut")
+        test_log_model.record().indexOf("id")
+        # test_log_model.setFilter(
+        # "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
+        test_log_model.setFilter(
+            "barcode IN ('" + "', ".join(barcodes) + "')")
         test_log_model.select()
         self.data_table.setModel(test_log_model)
         return test_log_model
@@ -184,10 +205,11 @@ class UFT_UiHandler(UFT_UiForm):
             self.search_result_label.setText("")
             barcodes = []
             barcodes.append(str(self.search_lineEdit.text()))
-            test_log_model = self.get_log_data(barcodes)
+            test_log_model = self.get_dut_data(barcodes)
             if test_log_model.rowCount() == 0:
                 self.search_result_label.setText("No Item Found")
             self.log_tableView.setModel(test_log_model)
+            self.log_tableView.resizeColumnsToContents()
 
     def push_multi_mpls(self):
         mpls = [self.mplwidget,
@@ -220,7 +242,7 @@ class UFT_UiHandler(UFT_UiForm):
         mpl_widget.draw()
 
     def forBC(self, t):
-        if t < 10 :
+        if t < 10:
             return "0" + str(t)
         else:
             return str(t)
@@ -229,7 +251,7 @@ class UFT_UiHandler(UFT_UiForm):
         a = t // 60
         t = t - a * 60
         b = t
-        self.lcdNumber.display(str(a)+":"+self.forBC(b))
+        self.lcdNumber.display(str(a) + ":" + self.forBC(b))
 
 
 if __name__ == "__main__":

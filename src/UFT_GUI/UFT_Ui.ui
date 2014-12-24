@@ -20,28 +20,6 @@
    <string>AGIGA-UFT-TEST</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QLabel" name="title_label">
-     <property name="font">
-      <font>
-       <family>Arial Narrow</family>
-       <pointsize>16</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-       <underline>false</underline>
-      </font>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="text">
-      <string>AGIGA CORONADO PGEM UFT V1.0</string>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::AutoText</enum>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -68,8 +46,11 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QLineEdit" name="sn_lineEdit_1">
+              <property name="contextMenuPolicy">
+               <enum>Qt::DefaultContextMenu</enum>
+              </property>
               <property name="text">
-               <string>AGIGA9601-002BCA02143500000001-04</string>
+               <string/>
               </property>
               <property name="placeholderText">
                <string>Serial Number</string>
@@ -464,6 +445,11 @@
          </item>
          <item row="1" column="2">
           <widget class="QLabel" name="descriptionLabel">
+           <property name="font">
+            <font>
+             <family>Arial</family>
+            </font>
+           </property>
            <property name="text">
             <string/>
            </property>
@@ -531,6 +517,12 @@
        </item>
        <item row="1" column="0">
         <widget class="QTableView" name="log_tableView">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>994</width>
@@ -539,7 +531,7 @@
          </property>
          <property name="maximumSize">
           <size>
-           <width>994</width>
+           <width>16777215</width>
            <height>16777215</height>
           </size>
          </property>
@@ -581,6 +573,28 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="0" column="0">
+    <widget class="QLabel" name="title_label">
+     <property name="font">
+      <font>
+       <family>Arial Narrow</family>
+       <pointsize>16</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+       <underline>false</underline>
+      </font>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>AGIGA CORONADO PGEM UFT V1.0</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::AutoText</enum>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>

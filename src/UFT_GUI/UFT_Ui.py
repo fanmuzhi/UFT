@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Mon Dec 15 15:16:44 2014
+# Created: Mon Dec 22 16:18:08 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -30,18 +30,6 @@ class Ui_Form(object):
         Form.setMinimumSize(QtCore.QSize(0, 722))
         self.gridLayout = QtGui.QGridLayout(Form)
         self.gridLayout.setObjectName(_fromUtf8("gridLayout"))
-        self.title_label = QtGui.QLabel(Form)
-        font = QtGui.QFont()
-        font.setFamily(_fromUtf8("Arial Narrow"))
-        font.setPointSize(16)
-        font.setBold(True)
-        font.setUnderline(False)
-        font.setWeight(75)
-        self.title_label.setFont(font)
-        self.title_label.setAutoFillBackground(False)
-        self.title_label.setTextFormat(QtCore.Qt.AutoText)
-        self.title_label.setObjectName(_fromUtf8("title_label"))
-        self.gridLayout.addWidget(self.title_label, 0, 0, 1, 1)
         self.tabWidget = QtGui.QTabWidget(Form)
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.info = QtGui.QWidget()
@@ -60,6 +48,8 @@ class Ui_Form(object):
         self.verticalLayout = QtGui.QVBoxLayout(self.groupBox_1)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.sn_lineEdit_1 = QtGui.QLineEdit(self.groupBox_1)
+        self.sn_lineEdit_1.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
+        self.sn_lineEdit_1.setText(_fromUtf8(""))
         self.sn_lineEdit_1.setObjectName(_fromUtf8("sn_lineEdit_1"))
         self.verticalLayout.addWidget(self.sn_lineEdit_1)
         self.label_1 = QtGui.QLabel(self.groupBox_1)
@@ -288,6 +278,9 @@ class Ui_Form(object):
         self.label_7.setObjectName(_fromUtf8("label_7"))
         self.gridLayout_4.addWidget(self.label_7, 0, 2, 1, 1)
         self.descriptionLabel = QtGui.QLabel(self.configuration)
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Arial"))
+        self.descriptionLabel.setFont(font)
         self.descriptionLabel.setText(_fromUtf8(""))
         self.descriptionLabel.setObjectName(_fromUtf8("descriptionLabel"))
         self.gridLayout_4.addWidget(self.descriptionLabel, 1, 2, 1, 1)
@@ -320,8 +313,13 @@ class Ui_Form(object):
         self.horizontalLayout_2.addItem(spacerItem)
         self.gridLayout_5.addLayout(self.horizontalLayout_2, 0, 0, 1, 1)
         self.log_tableView = QtGui.QTableView(self.tab)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.MinimumExpanding, QtGui.QSizePolicy.MinimumExpanding)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.log_tableView.sizePolicy().hasHeightForWidth())
+        self.log_tableView.setSizePolicy(sizePolicy)
         self.log_tableView.setMinimumSize(QtCore.QSize(994, 0))
-        self.log_tableView.setMaximumSize(QtCore.QSize(994, 16777215))
+        self.log_tableView.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.log_tableView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.log_tableView.setObjectName(_fromUtf8("log_tableView"))
         self.gridLayout_5.addWidget(self.log_tableView, 1, 0, 1, 1)
@@ -342,6 +340,18 @@ class Ui_Form(object):
         self.lcdNumber.setObjectName(_fromUtf8("lcdNumber"))
         self.horizontalLayout_4.addWidget(self.lcdNumber)
         self.gridLayout.addLayout(self.horizontalLayout_4, 2, 0, 1, 1)
+        self.title_label = QtGui.QLabel(Form)
+        font = QtGui.QFont()
+        font.setFamily(_fromUtf8("Arial Narrow"))
+        font.setPointSize(16)
+        font.setBold(True)
+        font.setUnderline(False)
+        font.setWeight(75)
+        self.title_label.setFont(font)
+        self.title_label.setAutoFillBackground(False)
+        self.title_label.setTextFormat(QtCore.Qt.AutoText)
+        self.title_label.setObjectName(_fromUtf8("title_label"))
+        self.gridLayout.addWidget(self.title_label, 0, 0, 1, 1)
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(0)
@@ -353,9 +363,7 @@ class Ui_Form(object):
 
     def retranslateUi(self, Form):
         Form.setWindowTitle(_translate("Form", "AGIGA-UFT-TEST", None))
-        self.title_label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.0", None))
         self.groupBox_1.setTitle(_translate("Form", "Slot #1", None))
-        self.sn_lineEdit_1.setText(_translate("Form", "AGIGA9601-002BCA02143500000001-04", None))
         self.sn_lineEdit_1.setPlaceholderText(_translate("Form", "Serial Number", None))
         self.groupBox_2.setTitle(_translate("Form", "Slot #2", None))
         self.sn_lineEdit_2.setPlaceholderText(_translate("Form", "Serial Number", None))
@@ -383,6 +391,7 @@ class Ui_Form(object):
         self.search_lineEdit.setPlaceholderText(_translate("Form", "search by serial number", None))
         self.search_pushButton.setText(_translate("Form", "Search", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "test log", None))
+        self.title_label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.0", None))
 
 from matplotlibwidget import MatplotlibWidget
 

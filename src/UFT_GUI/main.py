@@ -26,13 +26,13 @@ try:
 except Exception as e:
     msg = QtGui.QMessageBox()
     msg.critical(msg, "error", e.message)
-    #msg.exec_()
+    # msg.exec_()
 
 
 class MainWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self)
-        #self.qtobj = QtCore.QObject()
+        # self.qtobj = QtCore.QObject()
         self.ui = UFT_UiHandler()
         self.ui.setupUi(self)
         self.ui.setupWidget(self)
@@ -122,7 +122,7 @@ class Update(QtCore.QThread):
 
 
 def main():
-    #app = QApplication(sys.argv)
+    # app = QApplication(sys.argv)
     #app.setStyle("Plastique")
     widget = MainWidget()
     widget.show()
