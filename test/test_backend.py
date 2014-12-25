@@ -8,8 +8,8 @@ __author__ = "@boqiling"
 
 from UFT.backend import load_config, sync_config, load_test_item
 
-test_uri = "sqlite:///C:\\UFT_DB\\pgem_config.db"
-
+test_uri = "sqlite:///C:\\UFT\\db\\pgem_config.db"
+test_folder = "C:\\UFT\\xml\\"
 
 #config = load_config(test_uri, partnumber="AGIGA9601-002BCA", revision="04")
 #for item in config.testitems:
@@ -20,8 +20,8 @@ test_uri = "sqlite:///C:\\UFT_DB\\pgem_config.db"
 
 
 if __name__ == "__main__":
-    sync_config(test_uri, "./")
-    config = load_config(test_uri, partnumber="AGIGA9601-002BCA", revision="04")
+    sync_config(test_uri, test_folder, direction="out")
+    config = load_config(test_uri, partnumber="AGIGA9711-004BCA", revision="09")
     charge_settings = load_test_item(config, "Charge")
     print charge_settings
     print charge_settings["ChargeOption"]
@@ -30,8 +30,3 @@ if __name__ == "__main__":
     print programming["File"]
     print programming["stoponfail"]
     print programming["enable"]
-
-
-    import os
-    print os.path.isfile(programming["File"])
-
