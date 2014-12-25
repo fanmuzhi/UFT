@@ -173,12 +173,9 @@ class UFT_UiHandler(UFT_UiForm):
 
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
-        test_log_model = sql_handler.TableModel(self.data_table,
-                                                "cycle",
-                                                7,
-                                                "dut",
-                                                "id",
-                                                u"barcode, archived")
+        test_log_model = sql_handler.RelationModel(self.data_table,
+                                                   "cycle", 7, "dut", "id",
+                                                   u"barcode, archived")
         test_log_model.record().indexOf("id")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
