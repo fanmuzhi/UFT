@@ -34,39 +34,50 @@ class UFT_UiHandler(UFT_UiForm):
         self.dut_image = None
 
         # setup config db, view and model
-        self.config_db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        self.config_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "config")
         self.config_db.setDatabaseName(CONFIG_DB)
+        self.config_db.open()
         self.config_tableView = QtGui.QTableView()
         # self.test_item_tableView already created in UI.
-        self.config_model = QtSql.QSqlTableModel(QSqlDatabase_db=self.config_db)
-        self.test_item_model = None
+        self.config_model = QtSql.QSqlTableModel(db=self.config_db)
+        self.test_item_model = QtSql.QSqlRelationalTableModel(db=self.config_db)
 
-
-        self.data_tableView = QtGui.QTableView()
+        # setup log db, view and model
+        self.log_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "log")
+        self.log_db.setDatabaseName(RESULT_DB)
+        self.log_db.open()
+        # self.log_tableView
+        self.log_model = QtSql.QSqlTableModel(db=self.log_db)
+        self.cycle_model = QtSql.QSqlRelationalTableModel(db=self.log_db)
 
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
-        #self.sn_lineEdit_1 = MyLineEdit()
-        # initial configuration tab combobox and table
-        self.my_db.switch_to_configuration()
 
         # setup configuration model
-        self.config_model = sql_handler.TableModel(self.config_tableView,
-                                                   "configuration")
-        self.test_item_model = sql_handler.RelationModel(
-            self.test_item_tableView,
-            "test_item",
-            1,
-            "configuration",
-            "CONFIGID")
+        self.config_model.setTable("configuration")
+        self.test_item_model.setTable("test_item")
+        self.test_item_model.setRelation(1, QtSql.QSqlRelation(
+            "configuration", "id", "partnumber"))
 
         # setup log model
-        self.log_model = sql_handler.TableModel()
-
-
+        self.log_model.setTable("dut")
+        self.cycle_model.setTable("cycle")
+        self.cycle_model.setRelation(7, QtSql.QSqlRelation("cycle", "id",
+                                                           "barcode"))
         # update comboBox
-        self.__popComboBox(self.partNum_comboBox, self.config_model,
-                           "PARTNUMBER")
+        #self.partNum_comboBox.setModel(self.config_model)
+        #self.partNum_comboBox.setModelColumn(
+        #    self.config_model.fieldIndex("partnumber"))
+
+        self.config_model.select()      # get data
+        for row in range(self.config_model.rowCount()):
+            index = self.config_model.index(row, 1)     # 1 for partnumber
+            self.partNum_comboBox.addItem(self.config_model.data(
+                index).toString())
+
+        self.revision_comboBox.setModel(self.config_model)
+        self.revision_comboBox.setModelColumn(self.config_model.fieldIndex(
+            "revision"))
         self.test_item_tableView.setModel(self.test_item_model)
         self.testItem_update()
 
@@ -137,38 +148,35 @@ class UFT_UiHandler(UFT_UiForm):
             else:
                 image_labels[i].setText("Invalid Serial Number")
 
-
-    def __popComboBox(self, combobox, model, column):
-        combobox.setModel(model)
-        combobox.setModelColumn(model.fieldIndex(column))
-
     def comboBox_update(self):
         # config = sql_handler.TableModel(self.config_table, "configuration")
         current_pn = self.partNum_comboBox.currentText()
-        config.setFilter("PARTNUMBER='" + current_pn + "'")
-        self.__popComboBox(self.revision_comboBox, config, "REVISION")
+
+        self.config_model.setFilter("PARTNUMBER='" + current_pn + "'")
+        self.config_model.select()
+
+        #self.revision_comboBox.setModel(self.config_model)
+        #self.revision_comboBox.setModelColumn(self.config_model.fieldIndex(
+        #    "revision"))
 
     def update_table(self):
-        self.my_db.switch_to_configuration()
-        config1 = sql_handler.TableModel(self.config_table, "configuration")
-        filter_combo = "PARTNUMBER = '" + self.partNum_comboBox.currentText() + \
-                       "' AND REVISION = '" + self.revision_comboBox.currentText() + "'"
-        config1.setFilter(filter_combo)
-        config1.select()
-        config_id = config1.record(0).value('ID').toString()
-        description = config1.record(0).value('DESCRIPTION').toString()
-        self.descriptionLabel.setText(description)
+        filter_combo = "PARTNUMBER = '" + self.partNum_comboBox.currentText() \
+                       + "' AND REVISION = '" \
+                       + self.revision_comboBox.currentText() + "'"
+        self.config_model.setFilter(filter_combo)
+        self.config_model.select()
+        config_id = self.config_model.record(0).value('ID').toString()
+        descrip = self.config_model.record(0).value('DESCRIPTION').toString()
+        self.descriptionLabel.setText(descrip)
         self.test_item_model.setFilter("CONFIGID = " + config_id)
         self.test_item_model.select()
         self.test_item_tableView.resizeColumnsToContents()
 
     def testItem_update(self):
-        self.my_db.switch_to_configuration()
         self.comboBox_update()
         self.update_table()
 
     def submit_config(self):
-        self.my_db.switch_to_configuration()
         for i in range(self.test_item_model.rowCount()):
             record = self.test_item_model.record(i)
             self.test_item_model.setRecord(i, record)
@@ -182,27 +190,21 @@ class UFT_UiHandler(UFT_UiForm):
             msg.critical(msg, "error", error_msg)
 
     def get_log_data(self, barcodes):
-        self.my_db.switch_to_pgem()
-        test_log_model = sql_handler.RelationModel(self.data_table,
-                                                   "cycle", 7, "dut", "id",
-                                                   u"barcode, archived")
+        test_log_model = self.cycle_model
         test_log_model.record().indexOf("id")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
         test_log_model.select()
-        self.data_table.setModel(test_log_model)
         return test_log_model
 
     def get_dut_data(self, barcodes):
-        self.my_db.switch_to_pgem()
-        test_log_model = sql_handler.TableModel(self.data_table, "dut")
+        test_log_model = self.log_model
         test_log_model.record().indexOf("id")
         # test_log_model.setFilter(
         # "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "')")
         test_log_model.select()
-        self.data_table.setModel(test_log_model)
         return test_log_model
 
     def search(self):
@@ -226,8 +228,7 @@ class UFT_UiHandler(UFT_UiForm):
         for i in self.buttonGroup.buttons():
             if i.isChecked():
                 item = i.text()
-        # mpl_data_model = self.get_log_data(barcodes)
-        # mpl_data_model.record().indexOf("id")
+
         for i in range(len(mpls)):
             time = []
             data = []
@@ -246,17 +247,11 @@ class UFT_UiHandler(UFT_UiForm):
         mpl_widget.axes.plot(t, d)
         mpl_widget.draw()
 
-    def forBC(self, t):
-        if t < 10:
-            return "0" + str(t)
-        else:
-            return str(t)
-
     def print_time(self, t):
         a = t // 60
         t = t - a * 60
         b = t
-        self.lcdNumber.display(str(a) + ":" + self.forBC(b))
+        self.lcdNumber.display(str(a) + ":" + str(b) if b > 10 else "0")
 
 
 if __name__ == "__main__":
