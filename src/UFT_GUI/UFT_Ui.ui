@@ -46,9 +46,6 @@
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
              <widget class="QLineEdit" name="sn_lineEdit_1">
-              <property name="contextMenuPolicy">
-               <enum>Qt::DefaultContextMenu</enum>
-              </property>
               <property name="text">
                <string/>
               </property>

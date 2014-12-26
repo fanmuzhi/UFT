@@ -44,8 +44,8 @@ class UFT_UiHandler(UFT_UiForm):
 
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
-        self.sn_lineEdit_1 = MyLineEdit()
-        ''' initial configuration tab combobox and table  '''
+        #self.sn_lineEdit_1 = MyLineEdit()
+        # initial configuration tab combobox and table
         self.my_db.switch_to_configuration()
         self.config_model = sql_handler.TableModel(self.config_table,
                                                    "configuration")
@@ -59,8 +59,6 @@ class UFT_UiHandler(UFT_UiForm):
                            "PARTNUMBER")
         self.test_item_tableView.setModel(self.test_item_model)
         self.testItem_update()
-        ''''''
-        # self.push_multi_mpls()
 
     def auto_enable_disable_widgets(self, ch_is_alive):
         if ch_is_alive:
@@ -175,12 +173,9 @@ class UFT_UiHandler(UFT_UiForm):
 
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
-        test_log_model = sql_handler.TableModel(self.data_table,
-                                                "cycle",
-                                                7,
-                                                "dut",
-                                                "id",
-                                                u"barcode, archived")
+        test_log_model = sql_handler.RelationModel(self.data_table,
+                                                   "cycle", 7, "dut", "id",
+                                                   u"barcode, archived")
         test_log_model.record().indexOf("id")
         test_log_model.setFilter(
             "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
