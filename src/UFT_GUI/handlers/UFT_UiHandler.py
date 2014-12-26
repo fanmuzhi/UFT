@@ -7,26 +7,22 @@ Created on Nov 01, 2014
 '''
 import sys
 import os
-import time
-from PyQt4 import QtCore, QtGui
+import re
+from PyQt4 import QtCore, QtGui, QtSql
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
+from UFT.config import RESULT_DB, CONFIG_DB
 
-import logging
-import log_handler
-import mpl_handler
-import sql_handler
-from UFT.models import base
-# try:
-# import UFT
-# from UFT.channel import Channel, ChannelStates
-# except Exception as e:
-# print e.message
+BARCODE_PATTERN = re.compile(
+    r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
+    r'(?P<WW>[0-4][0-9]|5[0-3])(?P<ID>\d{8})-(?P<RR>\d{2}))')
+
+
 class MyLineEdit(QtGui.QLineEdit):
     def __init__(self, parent=None):
         super(MyLineEdit, self).__init__(parent)
 
     def focusInEvent(self, event):
-        print 'This widget is in focus'
+        #print 'This widget is in focus'
         self.clear()
         QtGui.QLineEdit.focusInEvent(self,
                                      QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
@@ -36,18 +32,26 @@ class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
         self.dut_image = None
-        self.config_table = QtGui.QTableView()
-        self.my_db = sql_handler.MyDB()
-        self.config_model = None
+
+        # setup config db, view and model
+        self.config_db = QtSql.QSqlDatabase.addDatabase("QSQLITE")
+        self.config_db.setDatabaseName(CONFIG_DB)
+        self.config_tableView = QtGui.QTableView()
+        # self.test_item_tableView already created in UI.
+        self.config_model = QtSql.QSqlTableModel(QSqlDatabase_db=self.config_db)
         self.test_item_model = None
-        self.data_table = QtGui.QTableView()
+
+
+        self.data_tableView = QtGui.QTableView()
 
     def setupWidget(self, wobj):
         wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
         #self.sn_lineEdit_1 = MyLineEdit()
         # initial configuration tab combobox and table
         self.my_db.switch_to_configuration()
-        self.config_model = sql_handler.TableModel(self.config_table,
+
+        # setup configuration model
+        self.config_model = sql_handler.TableModel(self.config_tableView,
                                                    "configuration")
         self.test_item_model = sql_handler.RelationModel(
             self.test_item_tableView,
@@ -55,6 +59,12 @@ class UFT_UiHandler(UFT_UiForm):
             1,
             "configuration",
             "CONFIGID")
+
+        # setup log model
+        self.log_model = sql_handler.TableModel()
+
+
+        # update comboBox
         self.__popComboBox(self.partNum_comboBox, self.config_model,
                            "PARTNUMBER")
         self.test_item_tableView.setModel(self.test_item_model)
@@ -109,7 +119,7 @@ class UFT_UiHandler(UFT_UiForm):
                         self.imageLabel3,
                         self.imageLabel4]
         for i in range(len(barcodes)):
-            r = base.BARCODE_PATTERN.search(barcodes[i])
+            r = BARCODE_PATTERN.search(barcodes[i])
             if barcodes[i] == "":
                 image_labels[i].setText("")
             elif r:
@@ -133,7 +143,7 @@ class UFT_UiHandler(UFT_UiForm):
         combobox.setModelColumn(model.fieldIndex(column))
 
     def comboBox_update(self):
-        config = sql_handler.TableModel(self.config_table, "configuration")
+        # config = sql_handler.TableModel(self.config_table, "configuration")
         current_pn = self.partNum_comboBox.currentText()
         config.setFilter("PARTNUMBER='" + current_pn + "'")
         self.__popComboBox(self.revision_comboBox, config, "REVISION")
@@ -168,8 +178,8 @@ class UFT_UiHandler(UFT_UiForm):
             msg.setText("Update Success!")
             msg.exec_()
         else:
-            msg.critical(msg, "error",
-                         "fail to update configuration, please check again")
+            error_msg = self.test_item_model.lastError().text()
+            msg.critical(msg, "error", error_msg)
 
     def get_log_data(self, barcodes):
         self.my_db.switch_to_pgem()
