@@ -14,8 +14,8 @@ import logging
 import time
 from PyQt4.QtGui import QApplication
 from PyQt4 import QtGui, QtCore
-from UFT_GUI.handlers.UFT_UiHandler import UFT_UiHandler
-from UFT_GUI.handlers import log_handler, sql_handler
+from UFT_GUI.UFT_UiHandler import UFT_UiHandler
+from UFT_GUI import log_handler
 
 app = QApplication(sys.argv)
 app.setStyle("Plastique")
