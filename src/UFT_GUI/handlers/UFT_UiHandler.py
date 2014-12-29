@@ -41,6 +41,7 @@ class UFT_UiHandler(UFT_UiForm):
         # self.test_item_tableView already created in UI.
         self.config_model = QtSql.QSqlTableModel(db=self.config_db)
         self.test_item_model = QtSql.QSqlRelationalTableModel(db=self.config_db)
+        self.test_item_model.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
 
         # setup log db, view and model
         self.log_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "log")
@@ -57,27 +58,29 @@ class UFT_UiHandler(UFT_UiForm):
         self.config_model.setTable("configuration")
         self.test_item_model.setTable("test_item")
         self.test_item_model.setRelation(1, QtSql.QSqlRelation(
-            "configuration", "id", "partnumber"))
+            "configuration", "id", u"partnumber"))
 
         # setup log model
         self.log_model.setTable("dut")
         self.cycle_model.setTable("cycle")
-        self.cycle_model.setRelation(7, QtSql.QSqlRelation("cycle", "id",
-                                                           "barcode"))
+        self.cycle_model.setRelation(7, QtSql.QSqlRelation(
+            "dut", "id", u"barcode, archived"))
 
+        # set log view
         self.log_tableView.setModel(self.log_model)
-        self.log_tableView.resizeColumnsToContents()
-        # update comboBox
-        #self.partNum_comboBox.setModel(self.config_model)
-        #self.partNum_comboBox.setModelColumn(
-        #    self.config_model.fieldIndex("partnumber"))
+        #self.log_tableView.resizeColumnsToContents()
 
+        # update comboBox
+        partnumber_list = []
         self.config_model.select()      # get data
         for row in range(self.config_model.rowCount()):
             index = self.config_model.index(row, 1)     # 1 for partnumber
-            self.partNum_comboBox.addItem(self.config_model.data(
-                index).toString())
+            pn = self.config_model.data(index).toString()
+            if(pn not in partnumber_list):
+                partnumber_list.append(pn)
+                self.partNum_comboBox.addItem(pn)
 
+        # set configuration view
         self.revision_comboBox.setModel(self.config_model)
         self.revision_comboBox.setModelColumn(self.config_model.fieldIndex(
             "revision"))
@@ -152,27 +155,19 @@ class UFT_UiHandler(UFT_UiForm):
                 image_labels[i].setText("Invalid Serial Number")
 
     def comboBox_update(self):
-        # config = sql_handler.TableModel(self.config_table, "configuration")
         current_pn = self.partNum_comboBox.currentText()
-
         self.config_model.setFilter("PARTNUMBER='" + current_pn + "'")
         self.config_model.select()
-
-        #self.revision_comboBox.setModel(self.config_model)
-        #self.revision_comboBox.setModelColumn(self.config_model.fieldIndex(
-        #    "revision"))
+        descrip = self.config_model.record(0).value('DESCRIPTION').toString()
+        self.descriptionLabel.setText(descrip)
 
     def update_table(self):
         filter_combo = "PARTNUMBER = '" + self.partNum_comboBox.currentText() \
                        + "' AND REVISION = '" \
                        + self.revision_comboBox.currentText() + "'"
-        self.config_model.setFilter(filter_combo)
-        self.config_model.select()
-        config_id = self.config_model.record(0).value('ID').toString()
-        descrip = self.config_model.record(0).value('DESCRIPTION').toString()
-        self.descriptionLabel.setText(descrip)
-        self.test_item_model.setFilter("CONFIGID = " + config_id)
+        self.test_item_model.setFilter(filter_combo)
         self.test_item_model.select()
+
         self.test_item_tableView.resizeColumnsToContents()
 
     def testItem_update(self):
@@ -180,25 +175,14 @@ class UFT_UiHandler(UFT_UiForm):
         self.update_table()
 
     def submit_config(self):
-        for i in range(self.test_item_model.rowCount()):
-            record = self.test_item_model.record(i)
-            self.test_item_model.setRecord(i, record)
-        re = self.test_item_model.submitAll()
+        result = self.test_item_model.submitAll()
         msg = QtGui.QMessageBox()
-        if re:
+        if result:
             msg.setText("Update Success!")
             msg.exec_()
         else:
             error_msg = self.test_item_model.lastError().text()
             msg.critical(msg, "error", error_msg)
-
-    def get_log_data(self, barcodes):
-        test_log_model = self.cycle_model
-        test_log_model.record().indexOf("id")
-        test_log_model.setFilter(
-            "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
-        test_log_model.select()
-        return test_log_model
 
     def search(self):
         if self.search_lineEdit.text():
@@ -206,37 +190,38 @@ class UFT_UiHandler(UFT_UiForm):
             barcode = str(self.search_lineEdit.text())
 
             self.log_model.record().indexOf("id")
-            # test_log_model.setFilter(
-            # "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
             self.log_model.setFilter("barcode = '" + barcode + "'")
             self.log_model.select()
 
             if self.log_model.rowCount() == 0:
                 self.search_result_label.setText("No Item Found")
-            #self.log_tableView.setModel(self.log_model)
-            #self.log_tableView.resizeColumnsToContents()
+
+            self.log_tableView.resizeColumnsToContents()
 
     def push_multi_mpls(self):
         mpls = [self.mplwidget,
                 self.mplwidget_2,
                 self.mplwidget_3,
                 self.mplwidget_4]
-        barcodes = self.barcodes()
         item = ""
         for i in self.buttonGroup.buttons():
             if i.isChecked():
                 item = i.text()
 
-        for i in range(len(mpls)):
+        for i, barcode in enumerate(self.barcodes()):
+            if barcode == "":
+                continue
             time = []
             data = []
             mpls[i].setFocus()
-            mpl_data_model = self.get_log_data([barcodes[i]])
-            # mpl_data_model.record().indexOf("id")
-            # mpl_data_model.setFilter("barcode = '" + barcodes[i] + "'")
-            # mpl_data_model.select()
-            for j in range(mpl_data_model.rowCount()):
-                record = mpl_data_model.record(j)
+
+            self.cycle_model.setFilter(
+                "barcode = '" + barcode + "' AND archived = 0")
+            self.cycle_model.select()
+            print(self.cycle_model.rowCount())
+            for j in range(self.cycle_model.rowCount()):
+                record = self.cycle_model.record(j)
+                print record.value("couter").toString()
                 time.append(int(record.value("counter").toString()))
                 data.append(float(record.value(item).toString()))
             self.plot(mpls[i], time, data)

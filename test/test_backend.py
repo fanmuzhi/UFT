@@ -20,8 +20,8 @@ test_folder = "C:\\UFT\\xml\\"
 
 
 if __name__ == "__main__":
-    sync_config(test_uri, test_folder, direction="out")
-    config = load_config(test_uri, partnumber="AGIGA9711-004BCA", revision="09")
+    sync_config(test_uri, test_folder, direction="in")
+    config = load_config(test_uri, partnumber="AGIGA9711-004BCA", revision="08")
     charge_settings = load_test_item(config, "Charge")
     print charge_settings
     print charge_settings["ChargeOption"]

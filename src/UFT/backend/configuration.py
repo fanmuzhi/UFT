@@ -20,7 +20,7 @@ class PGEMConfig(SQLBase):
     __tablename__ = "configuration"
 
     id = Column(Integer, primary_key=True)
-    partnumber = Column(String(20), unique=True, nullable=False)
+    partnumber = Column(String(20), nullable=False)
     description = Column(String(50))
     revision = Column(String(5), nullable=False)
 
