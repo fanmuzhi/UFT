@@ -91,14 +91,30 @@ def load_test_item(config, itemname):
         return dict(this_misc.items() + item.to_dict()[itemname].items())
 
 
-def sync_config(dburi, directory):
+def db_2_file(dburi, directory):
     """
-    synchronize the database with xml files in specified directory
-    :param dburi: database uri
-    :param directory: directory to store the xml fils
+    read out from config database, save to single file
+    :param dbrui: database uri
+    :param directory: folder to save the xml files
     :return: None
     """
+    sm = SessionManager()
+    sess = sm.get_session(dburi)
+    sm.prepare_db(dburi, [PGEMConfig, TestItem])
 
+    # db to file
+    for config in sess.query(PGEMConfig).all():
+        save_config(config.to_dict(), directory)
+    sess.close()
+
+
+def file_2_db(dburi, directory):
+    """
+    read from files and write the configuration into database.
+    :param dburi: database uri
+    :param directory: folder to read
+    :return: None
+    """
     sm = SessionManager()
     sess = sm.get_session(dburi)
     sm.prepare_db(dburi, [PGEMConfig, TestItem])
@@ -117,8 +133,8 @@ def sync_config(dburi, directory):
         logger.debug(config)
 
         result = sess.query(PGEMConfig).filter(
-                        PGEMConfig.partnumber == config["partnumber"],
-                        PGEMConfig.revision == config["revision"]).first()
+            PGEMConfig.partnumber == config["partnumber"],
+            PGEMConfig.revision == config["revision"]).first()
         if result:
             pgem_config = result
             pgem_config.testitems = []
@@ -145,9 +161,23 @@ def sync_config(dburi, directory):
         finally:
             sess.close()
 
-    # db to file
-    for config in sess.query(PGEMConfig).all():
-        save_config(config.to_dict(), directory)
+
+def sync_config(dburi, folder, direction="both"):
+    """
+    synchronize the database with xml files in specified directory
+    :param dburi: database uri
+    :param directory: directory to store the xml fils
+    :return: None
+    """
+    if(direction == "in"):
+        file_2_db(dburi, folder)
+    elif(direction == "out"):
+        db_2_file(dburi, folder)
+    elif(direction == "both"):
+        file_2_db(dburi, folder)
+        db_2_file(dburi, folder)
+    else:
+        raise BackendException("direction should be 'in', 'out' or 'both'")
 
 
 if __name__ == "__main__":

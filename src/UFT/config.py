@@ -52,3 +52,6 @@ CONFIG_DB = "C:\\UFT\\db\\pgem_config.db"
 
 # Location to save xml log
 RESULT_LOG = "C:\\UFT\\logs\\"
+
+# Configuration files to synchronize
+CONFIG_FILE = "C:\\UFT\\xml\\"

@@ -17,7 +17,7 @@ import time
 # barcode list for test purpose only
 barcode_list = ["AGIGA9601-002BCA02143500000001-04",
                 "AGIGA9603-004BCA02144800000002-06",
-                "AGIGA9601-002BCA02143500000003-04",
+                "AGIGA9711-004BCA02143500000003-09",
                 "AGIGA9601-002BCA02143500000004-04"]
 
 
