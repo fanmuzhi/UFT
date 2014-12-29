@@ -64,6 +64,9 @@ class UFT_UiHandler(UFT_UiForm):
         self.cycle_model.setTable("cycle")
         self.cycle_model.setRelation(7, QtSql.QSqlRelation("cycle", "id",
                                                            "barcode"))
+
+        self.log_tableView.setModel(self.log_model)
+        self.log_tableView.resizeColumnsToContents()
         # update comboBox
         #self.partNum_comboBox.setModel(self.config_model)
         #self.partNum_comboBox.setModelColumn(
@@ -197,26 +200,21 @@ class UFT_UiHandler(UFT_UiForm):
         test_log_model.select()
         return test_log_model
 
-    def get_dut_data(self, barcodes):
-        test_log_model = self.log_model
-        test_log_model.record().indexOf("id")
-        # test_log_model.setFilter(
-        # "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
-        test_log_model.setFilter(
-            "barcode IN ('" + "', ".join(barcodes) + "')")
-        test_log_model.select()
-        return test_log_model
-
     def search(self):
         if self.search_lineEdit.text():
             self.search_result_label.setText("")
-            barcodes = []
-            barcodes.append(str(self.search_lineEdit.text()))
-            test_log_model = self.get_dut_data(barcodes)
-            if test_log_model.rowCount() == 0:
+            barcode = str(self.search_lineEdit.text())
+
+            self.log_model.record().indexOf("id")
+            # test_log_model.setFilter(
+            # "barcode IN ('" + "', ".join(barcodes) + "') AND archived = 0")
+            self.log_model.setFilter("barcode = '" + barcode + "'")
+            self.log_model.select()
+
+            if self.log_model.rowCount() == 0:
                 self.search_result_label.setText("No Item Found")
-            self.log_tableView.setModel(test_log_model)
-            self.log_tableView.resizeColumnsToContents()
+            #self.log_tableView.setModel(self.log_model)
+            #self.log_tableView.resizeColumnsToContents()
 
     def push_multi_mpls(self):
         mpls = [self.mplwidget,
