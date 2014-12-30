@@ -6,6 +6,8 @@
 __version__ = "0.1"
 __author__ = "@boqiling"
 
+import sys
+
 # total slot number for one channel,
 # should be 4, 1 for debug
 TOTAL_SLOTNUM = 4
@@ -44,14 +46,34 @@ SD_COUNTER = 10
 # database for dut test result
 #RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
 #RESULT_DB = "sqlite:///C:\\UFT\\db\\pgem.db"
-RESULT_DB = "C:\\UFT\\db\\pgem.db"
+
+if hasattr(sys, "frozen"):
+    RESULT_DB = "./db/pgem.db"
+else:
+    RESULT_DB = "C:\\UFT\\db\\pgem.db"
 # database for dut configuration
 #CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
 #CONFIG_DB = "sqlite:///C:\\UFT\\db\\pgem_config.db"
-CONFIG_DB = "C:\\UFT\\db\\pgem_config.db"
+
+if hasattr(sys, "frozen"):
+    CONFIG_DB = "./db/pgem_config.db"
+else:
+    CONFIG_DB = "C:\\UFT\\db\\pgem_config.db"
 
 # Location to save xml log
-RESULT_LOG = "C:\\UFT\\logs\\"
+if hasattr(sys, "frozen"):
+    RESULT_LOG = "./logs/"
+else:
+    RESULT_LOG = "C:\\UFT\\logs\\"
 
 # Configuration files to synchronize
-CONFIG_FILE = "C:\\UFT\\xml\\"
+if hasattr(sys, "frozen"):
+    CONFIG_FILE = "./xml/"
+else:
+    CONFIG_FILE = "C:\\UFT\\xml\\"
+
+# Resource Folder, include images, icons
+if hasattr(sys, "frozen"):
+    RESOURCE = "./res/"
+else:
+    RESOURCE = "C:\\UFT\\res\\"
