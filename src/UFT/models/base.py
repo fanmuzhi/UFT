@@ -13,6 +13,7 @@ from dut import DUT
 
 logger = logging.getLogger(__name__)
 
+# EEPROM dict for coronado
 EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            {"name": "CAPHIST", "addr": 0x021, "length": 32, "type": "int"},
            {"name": "CHARGER", "addr": 0x041, "length": 1, "type": "int"},
@@ -32,7 +33,12 @@ EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            {"name": "ENDUSR", "addr": 0x06A, "length": 2, "type": "str"},
            # PCA, need program, default all 0
            {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},
-           {"name": "INITIALCAP", "addr": 0x077, "length": 1, "type": "int"}]
+           {"name": "INITIALCAP", "addr": 0x077, "length": 1, "type": "int"},
+           {"name": "PGEMID", "addr": 0x078, "length": 1, "type": "str"},
+           ]
+
+# PGEM ID write to saphire.
+PGEM_ID = {0: "A", 1: "B", 2: "C", 3: "D"}
 
 BARCODE_PATTERN = re.compile(
     r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
@@ -130,7 +136,7 @@ class PGEMBase(DUT):
             datas.append(rdata)
         return datas
 
-    def write_vpd(self, filepath):
+    def write_vpd(self, filepath, write_id):
         """method to write barcode information to PGEM EEPROM
         :param filepath: the ebf file location.
         """
@@ -153,6 +159,10 @@ class PGEMBase(DUT):
         eep = self._query_map(EEP_MAP, name="ENDUSR")[0]
         buffebf[eep["addr"]: eep["addr"] + eep["length"]] = vv
 
+        if(int(write_id)):
+            eep = self._query_map(EEP_MAP, name="PGEMID")[0]
+            buffebf[eep["addr"]: eep["addr"] + eep["length"]] = \
+                [ord(PGEM_ID[self.slotnum])]
         # write to VPD
         self.device.slave_addr = 0x53
         # can be start with 0x41, 0x00 for ensurance.
@@ -165,6 +175,9 @@ class PGEMBase(DUT):
         assert (self.barcode_dict["YY"] + self.barcode_dict["WW"]) == \
             self.read_vpd_byname("MFDATE")
         assert self.barcode_dict["VV"] == self.read_vpd_byname("ENDUSR")
+
+        if(int(write_id)):
+            assert PGEM_ID[self.slotnum] == self.read_vpd_byname("PGEMID")
 
     def control_led(self, status="off"):
         """method to control the LED on DUT chip PCA9536DP

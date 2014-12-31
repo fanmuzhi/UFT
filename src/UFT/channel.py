@@ -20,6 +20,7 @@ import logging
 import time
 import math
 import os
+import traceback
 logger = logging.getLogger(__name__)
 
 
@@ -457,7 +458,7 @@ class Channel(threading.Thread):
             self.switch_to_dut(dut.slotnum)
 
             try:
-                dut.write_vpd(config["File"])
+                dut.write_vpd(config["File"], config["PGEMID"])
                 dut.read_vpd()
             except AssertionError:
                 dut.status = DUT_STATUS.Fail
@@ -816,7 +817,8 @@ class Channel(threading.Thread):
             self.queue.get()
 
     def error(self, e):
-        logger.error(e.message)
+        exc = sys.exc_info()
+        logger.error(traceback.format_exc(exc))
         self.exit = True
         raise e
 
