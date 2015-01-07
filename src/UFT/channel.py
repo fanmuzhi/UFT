@@ -131,11 +131,17 @@ class Channel(threading.Thread):
                    "ovp": PS_OVP, "ocp": PS_OCP}
         self.ps.set(setting)
         self.ps.activateOutput()
-        time.sleep(1)
+        time.sleep(1.5)
         volt = self.ps.measureVolt()
         curr = self.ps.measureCurr()
-        assert (PS_VOLT-1) < volt < (PS_VOLT+1)
-        assert curr >= 0
+        if not ((PS_VOLT-1) < volt < (PS_VOLT+1)):
+            logging.error("Power Supply Voltage {0} "
+                          "is not in range".format(volt))
+            raise AssertionError("Power supply voltage is not in range")
+        if not (curr >= 0):
+            logging.error("Power Supply Current {0} "
+                          "is not in range".format(volt))
+            raise AssertionError("Power supply current is not in range")
 
         # reset DUT
         self.reset_dut()
