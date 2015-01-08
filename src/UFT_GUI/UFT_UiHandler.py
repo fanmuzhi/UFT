@@ -10,7 +10,7 @@ import os
 import re
 from PyQt4 import QtCore, QtGui, QtSql
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
-from UFT.config import RESULT_DB, CONFIG_DB
+from UFT.config import RESULT_DB, CONFIG_DB, RESOURCE
 
 BARCODE_PATTERN = re.compile(
     r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
@@ -36,7 +36,11 @@ class UFT_UiHandler(UFT_UiForm):
         # setup config db, view and model
         self.config_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "config")
         self.config_db.setDatabaseName(CONFIG_DB)
-        self.config_db.open()
+        result = self.config_db.open()
+        if(not result):
+            msgbox = QtGui.QMessageBox()
+            msg = self.config_db.lastError().text()
+            msgbox.critical(msgbox, "error", msg + " db=" + CONFIG_DB)
         self.config_tableView = QtGui.QTableView()
         # self.test_item_tableView already created in UI.
         self.config_model = QtSql.QSqlTableModel(db=self.config_db)
@@ -46,13 +50,17 @@ class UFT_UiHandler(UFT_UiForm):
         # setup log db, view and model
         self.log_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "log")
         self.log_db.setDatabaseName(RESULT_DB)
-        self.log_db.open()
+        result = self.log_db.open()
+        if(not result):
+            msgbox = QtGui.QMessageBox()
+            msg = self.config_db.lastError().text()
+            msgbox.critical(msgbox, "error", msg + " db=" + RESULT_DB)
         # self.log_tableView
         self.log_model = QtSql.QSqlTableModel(db=self.log_db)
         self.cycle_model = QtSql.QSqlRelationalTableModel(db=self.log_db)
 
     def setupWidget(self, wobj):
-        wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap("./res/icons/logo.png")))
+        wobj.setWindowIcon(QtGui.QIcon(QtGui.QPixmap(RESOURCE + "logo.png")))
 
         # setup configuration model
         self.config_model.setTable("configuration")
@@ -142,7 +150,7 @@ class UFT_UiHandler(UFT_UiForm):
             elif r:
                 barcode_dict = r.groupdict()
                 partnumber = barcode_dict["PN"]
-                image_file = "./res/dut_image/" + partnumber + ".jpg"
+                image_file = RESOURCE + partnumber + ".jpg"
                 if os.path.isfile(image_file):
                     my_pixmap = QtGui.QPixmap(image_file)
                     my_scaled_pixmap = my_pixmap.scaled(
