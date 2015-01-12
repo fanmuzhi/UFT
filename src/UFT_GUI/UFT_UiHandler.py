@@ -12,9 +12,10 @@ from PyQt4 import QtCore, QtGui, QtSql
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
 from UFT.config import RESULT_DB, CONFIG_DB, RESOURCE
 
-BARCODE_PATTERN = re.compile(
-    r'(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
-    r'(?P<WW>[0-4][0-9]|5[0-3])(?P<ID>\d{8})-(?P<RR>\d{2}))')
+BARCODE_PATTERN = re.compile(r'^(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})'
+                             r'(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
+                             r'(?P<WW>[0-4][0-9]|5[0-3])'
+                             r'(?P<ID>\d{8})-(?P<RR>\d{2}))$')
 
 
 class MyLineEdit(QtGui.QLineEdit):
