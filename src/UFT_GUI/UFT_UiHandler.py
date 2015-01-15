@@ -176,7 +176,7 @@ class UFT_UiHandler(UFT_UiForm):
                        + self.revision_comboBox.currentText() + "'"
         self.test_item_model.setFilter(filter_combo)
         self.test_item_model.select()
-
+        self.test_item_tableView.hideColumn(0)
         self.test_item_tableView.resizeColumnsToContents()
 
     def testItem_update(self):
