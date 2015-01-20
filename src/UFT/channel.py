@@ -803,7 +803,7 @@ class Channel(threading.Thread):
                 try:
                     logger.info("Channel: Discharge DUT.")
                     self.discharge_dut()
-                    self.progressbar += 20
+                    self.progressbar += 30
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.PROGRAM_VPD):
@@ -859,7 +859,7 @@ class Channel(threading.Thread):
         self.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
         self.queue.put(ChannelStates.CHECK_TEMP)
         self.queue.put(ChannelStates.CHECK_POWER_FAIL)
-        self.queue.put(ChannelStates.DUT_DISCHARGE)
+        #self.queue.put(ChannelStates.DUT_DISCHARGE)
         self.queue.put(ChannelStates.LOAD_DISCHARGE)
         self.queue.put(ChannelStates.CHECK_CAPACITANCE)
         self.queue.put(ChannelStates.EXIT)

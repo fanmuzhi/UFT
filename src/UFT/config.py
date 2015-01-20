@@ -27,8 +27,8 @@ PS_CHAN = 1
 # output
 PS_VOLT = 12.0
 PS_OVP = 13.0
-PS_CURR = 2.0
-PS_OCP = 3.0
+PS_CURR = 5.0
+PS_OCP = 10.0
 
 # aardvark settings
 # port number
