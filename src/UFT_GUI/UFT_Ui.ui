@@ -23,7 +23,7 @@
    <item row="2" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>0</number>
+      <number>2</number>
      </property>
      <widget class="QWidget" name="info">
       <attribute name="title">
@@ -298,14 +298,38 @@
         </layout>
        </item>
        <item row="1" column="0">
-        <widget class="QTableView" name="test_item_tableView"/>
-       </item>
-       <item row="2" column="0">
-        <widget class="QPushButton" name="submit_pushButton">
-         <property name="text">
-          <string>submit</string>
+        <widget class="QTableView" name="test_item_tableView">
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
          </property>
         </widget>
+       </item>
+       <item row="2" column="0">
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="QPushButton" name="submit_pushButton">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>submit</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="checkBox">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="text">
+            <string>EditMode</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
@@ -610,12 +634,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>233</x>
-     <y>114</y>
+     <x>228</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
-     <x>298</x>
-     <y>100</y>
+     <x>464</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>
@@ -626,12 +650,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>450</x>
-     <y>97</y>
+     <x>464</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
-     <x>544</x>
-     <y>96</y>
+     <x>699</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>
@@ -642,12 +666,12 @@
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>669</x>
-     <y>103</y>
+     <x>699</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
-     <x>801</x>
-     <y>97</y>
+     <x>934</x>
+     <y>83</y>
     </hint>
    </hints>
   </connection>
@@ -664,6 +688,22 @@
     <hint type="destinationlabel">
      <x>350</x>
      <y>319</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>submit_pushButton</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>959</x>
+     <y>654</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>889</x>
+     <y>662</y>
     </hint>
    </hints>
   </connection>

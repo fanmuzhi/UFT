@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Mon Jan 12 16:53:29 2015
+# Created: Tue Jan 20 16:31:42 2015
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -193,11 +193,24 @@ class Ui_Form(object):
         self.gridLayout_4.addWidget(self.descriptionLabel, 1, 2, 1, 1)
         self.gridLayout_9.addLayout(self.gridLayout_4, 0, 0, 1, 1)
         self.test_item_tableView = QtGui.QTableView(self.configuration)
+        self.test_item_tableView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
         self.test_item_tableView.setObjectName(_fromUtf8("test_item_tableView"))
         self.gridLayout_9.addWidget(self.test_item_tableView, 1, 0, 1, 1)
+        self.horizontalLayout_5 = QtGui.QHBoxLayout()
+        self.horizontalLayout_5.setObjectName(_fromUtf8("horizontalLayout_5"))
         self.submit_pushButton = QtGui.QPushButton(self.configuration)
+        self.submit_pushButton.setEnabled(False)
         self.submit_pushButton.setObjectName(_fromUtf8("submit_pushButton"))
-        self.gridLayout_9.addWidget(self.submit_pushButton, 2, 0, 1, 1)
+        self.horizontalLayout_5.addWidget(self.submit_pushButton)
+        self.checkBox = QtGui.QCheckBox(self.configuration)
+        sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Maximum, QtGui.QSizePolicy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.checkBox.sizePolicy().hasHeightForWidth())
+        self.checkBox.setSizePolicy(sizePolicy)
+        self.checkBox.setObjectName(_fromUtf8("checkBox"))
+        self.horizontalLayout_5.addWidget(self.checkBox)
+        self.gridLayout_9.addLayout(self.horizontalLayout_5, 2, 0, 1, 1)
         self.tabWidget.addTab(self.configuration, _fromUtf8(""))
         self.tab = QtGui.QWidget()
         self.tab.setObjectName(_fromUtf8("tab"))
@@ -353,11 +366,12 @@ class Ui_Form(object):
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.setFocus)
         QtCore.QObject.connect(self.start_pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.info_textBrowser.clear)
+        QtCore.QObject.connect(self.checkBox, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.submit_pushButton.setEnabled)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -377,6 +391,7 @@ class Ui_Form(object):
         self.label_8.setText(_translate("Form", "Revision: ", None))
         self.label_7.setText(_translate("Form", "Description: ", None))
         self.submit_pushButton.setText(_translate("Form", "submit", None))
+        self.checkBox.setText(_translate("Form", "EditMode", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.configuration), _translate("Form", "configuration", None))
         self.search_lineEdit.setPlaceholderText(_translate("Form", "search by serial number", None))
         self.search_pushButton.setText(_translate("Form", "Search", None))

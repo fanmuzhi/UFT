@@ -28,6 +28,48 @@ class MyLineEdit(QtGui.QLineEdit):
         QtGui.QLineEdit.focusInEvent(self,
                                      QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
 
+class LoginDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.setWindowTitle(u'login')
+        self.resize(300, 150)
+
+        self.leName = QtGui.QLineEdit(self)
+        self.leName.setPlaceholderText(u'user')
+
+        self.lePassword = QtGui.QLineEdit(self)
+        self.lePassword.setEchoMode(QtGui.QLineEdit.Password)
+        self.lePassword.setPlaceholderText(u'password')
+
+        self.pbLogin = QtGui.QPushButton(u'login', self)
+        self.pbCancel = QtGui.QPushButton(u'cancel', self)
+
+        self.pbLogin.clicked.connect(self.login)
+        self.pbCancel.clicked.connect(self.reject)
+
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.leName)
+        layout.addWidget(self.lePassword)
+
+        spacerItem = QtGui.QSpacerItem(20, 48, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
+        layout.addItem(spacerItem)
+
+        buttonLayout = QtGui.QHBoxLayout()
+        spancerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
+        buttonLayout.addItem(spancerItem2)
+        buttonLayout.addWidget(self.pbLogin)
+        buttonLayout.addWidget(self.pbCancel)
+
+        layout.addLayout(buttonLayout)
+
+        self.setLayout(layout)
+
+    def login(self):
+        print 'login'
+        if self.leName.text() == 'cypress' and self.lePassword.text() == '123':
+            self.accept()
+        else:
+            QtGui.QMessageBox.critical(self, u'error', u'password wrong')
 
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
@@ -243,6 +285,23 @@ class UFT_UiHandler(UFT_UiForm):
         sec = str(sec) if sec >= 10 else "0" + str(sec)
         self.lcdNumber.display(str(min) + ":" + sec)
 
+    def config_edit_toggle(self, toggle_bool):
+        if not toggle_bool:
+            self.test_item_tableView.setEditTriggers(QtGui.QAbstractItemView.NoEditTriggers)
+        else:
+            dialog = LoginDialog()
+            if dialog.exec_():
+                self.checkBox.setChecked(True)
+                self.test_item_tableView.setEditTriggers(QtGui.QAbstractItemView.DoubleClicked)
+            else:
+                self.checkBox.setChecked(False)
+
+    # def login(self):
+    #     dialog = LoginDialog()
+    #     if dialog.exec_():
+    #         self.checkBox.setChecked(True)
+    #     else:
+    #         self.checkBox.setChecked(False)
 
 if __name__ == "__main__":
     a = QtGui.QApplication(sys.argv)
