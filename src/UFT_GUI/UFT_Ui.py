@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Tue Jan 20 16:31:42 2015
+# Created: Tue Jan 20 16:58:23 2015
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -366,7 +366,7 @@ class Ui_Form(object):
         self.gridLayout.addLayout(self.horizontalLayout, 1, 0, 1, 1)
 
         self.retranslateUi(Form)
-        self.tabWidget.setCurrentIndex(2)
+        self.tabWidget.setCurrentIndex(0)
         QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.setFocus)
         QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.setFocus)
