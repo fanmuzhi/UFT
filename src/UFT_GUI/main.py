@@ -124,7 +124,7 @@ class Update(QtCore.QThread):
 
 def main():
     # app = QApplication(sys.argv)
-    #app.setStyle("Plastique")
+    # app.setStyle("Plastique")
     widget = MainWidget()
     widget.show()
     sys.exit(app.exec_())
