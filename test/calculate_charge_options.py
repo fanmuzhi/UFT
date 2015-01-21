@@ -96,7 +96,7 @@ if __name__ == "__main__":
     current = 960   # mA
     print current, cal_charge_current(current)
 
-    voltage = 4600  # mV
+    voltage = 4605  # mV
     print voltage, cal_charge_voltage(voltage)
 
     input_current = 1000   # mA

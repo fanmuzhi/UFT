@@ -65,7 +65,7 @@ class DUT(SQLBase):
                 "discharge_time": self.discharge_time,
                 "slotnum": self.slotnum,
                 "error_message": self.errormessage,
-                "test_date": self.testdate}
+                "test_date": str(self.testdate)}
 
 
 class Cycle(SQLBase):

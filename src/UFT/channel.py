@@ -21,6 +21,7 @@ import time
 import math
 import os
 import traceback
+import datetime
 logger = logging.getLogger(__name__)
 
 
@@ -109,6 +110,7 @@ class Channel(threading.Thread):
                                slot=i,
                                barcode=bc)
                 dut.status = DUT_STATUS.Idle
+                dut.testdate = datetime.datetime.utcnow()
                 self.dut_list.append(dut)
                 dut_config = load_config("sqlite:///" + CONFIG_DB,
                                          dut.partnumber, dut.revision)
@@ -245,17 +247,18 @@ class Channel(threading.Thread):
                 max_chargetime = config["max"]
                 min_chargetime = config["min"]
 
-                if(this_cycle.vcap > threshold):
+                charge_time = this_cycle.time - start_time
+                dut.charge_time = charge_time
+                if(charge_time > max_chargetime):
+                    all_charged &= True
+                    dut.status = DUT_STATUS.Fail
+                    dut.errormessage = "Charge Time Too Long."
+                elif(this_cycle.vcap > threshold):
                     all_charged &= True
                     #dut.charge(status=False)
-                    charge_time = this_cycle.time - start_time
-                    dut.charge_time = charge_time
                     if(charge_time < min_chargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Charge Time Too Short."
-                    elif(charge_time > max_chargetime):
-                        dut.status = DUT_STATUS.Fail
-                        dut.errormessage = "Charge Time Too Long."
                     else:
                         dut.status = DUT_STATUS.Idle    # pass
                 else:
@@ -331,21 +334,23 @@ class Channel(threading.Thread):
                 max_dischargetime = config["max"]
                 min_dischargetime = config["min"]
 
-                if(this_cycle.vcap < threshold):
+                discharge_time = this_cycle.time - start_time
+                dut.discharge_time = discharge_time
+                if(discharge_time > max_dischargetime):
                     all_discharged &= True
-                    discharge_time = this_cycle.time - start_time
-                    dut.discharge_time = discharge_time
-
+                    self.ld.select_channel(dut.slotnum)
+                    self.ld.input_off()
+                    dut.status = DUT_STATUS.Fail
+                    dut.errormessage = "Discharge Time Too Long."
+                elif(this_cycle.vcap < threshold):
+                    all_discharged &= True
                     self.ld.select_channel(dut.slotnum)
                     self.ld.input_off()
                     if(discharge_time < min_dischargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Discharge Time Too Short."
-                    elif(discharge_time > max_dischargetime):
-                        dut.status = DUT_STATUS.Fail
-                        dut.errormessage = "Discharge Time Too Long."
                     else:
-                        dut.status = DUT_STATUS.Idle
+                        dut.status = DUT_STATUS.Idle    # pass
                 else:
                     all_discharged &= False
                 dut.cycles.append(this_cycle)
@@ -798,7 +803,7 @@ class Channel(threading.Thread):
                 try:
                     logger.info("Channel: Discharge DUT.")
                     self.discharge_dut()
-                    self.progressbar += 20
+                    self.progressbar += 30
                 except Exception as e:
                     self.error(e)
             elif(state == ChannelStates.PROGRAM_VPD):
@@ -854,7 +859,7 @@ class Channel(threading.Thread):
         self.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
         self.queue.put(ChannelStates.CHECK_TEMP)
         self.queue.put(ChannelStates.CHECK_POWER_FAIL)
-        self.queue.put(ChannelStates.DUT_DISCHARGE)
+        #self.queue.put(ChannelStates.DUT_DISCHARGE)
         self.queue.put(ChannelStates.LOAD_DISCHARGE)
         self.queue.put(ChannelStates.CHECK_CAPACITANCE)
         self.queue.put(ChannelStates.EXIT)
