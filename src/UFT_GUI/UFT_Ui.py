@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Tue Jan 20 16:58:23 2015
+# Created: Thu Jan 22 15:04:54 2015
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -284,6 +284,7 @@ class Ui_Form(object):
         self.verticalLayout = QtGui.QVBoxLayout(self.groupBox_1)
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
         self.sn_lineEdit_1 = QtGui.QLineEdit(self.groupBox_1)
+        self.sn_lineEdit_1.setAcceptDrops(True)
         self.sn_lineEdit_1.setText(_fromUtf8(""))
         self.sn_lineEdit_1.setObjectName(_fromUtf8("sn_lineEdit_1"))
         self.verticalLayout.addWidget(self.sn_lineEdit_1)
@@ -372,6 +373,11 @@ class Ui_Form(object):
         QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.setFocus)
         QtCore.QObject.connect(self.start_pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.info_textBrowser.clear)
         QtCore.QObject.connect(self.checkBox, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.submit_pushButton.setEnabled)
+        QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.selectAll)
+        QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.selectAll)
+        QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.selectAll)
+        QtCore.QObject.connect(self.sn_lineEdit_4, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_1.selectAll)
+        QtCore.QObject.connect(self.sn_lineEdit_4, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_1.setFocus)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):

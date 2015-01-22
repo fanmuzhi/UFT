@@ -156,6 +156,8 @@ class UFT_UiHandler(UFT_UiForm):
             self.sn_lineEdit_2.setEnabled(True)
             self.sn_lineEdit_3.setEnabled(True)
             self.sn_lineEdit_4.setEnabled(True)
+            self.sn_lineEdit_1.selectAll()
+            self.sn_lineEdit_1.setFocus()
 
     def append_format_data(self, data):
         if data:
