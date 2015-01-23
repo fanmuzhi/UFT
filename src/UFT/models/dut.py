@@ -59,6 +59,7 @@ class DUT(SQLBase):
     def to_dict(self):
         return {"barcode": self.barcode,
                 "test_result": "PASS" if self.status == 1 else "FAIL",
+                "program_vpd": "PASS" if self.status == 1 else "FAIL",
                 "capacitor": self.capacitance_measured,
                 "self_capacitor": self.self_capacitance_measured,
                 "charge_time": self.charge_time,
