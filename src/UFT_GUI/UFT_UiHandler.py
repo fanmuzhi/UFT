@@ -10,7 +10,8 @@ import os
 import re
 from PyQt4 import QtCore, QtGui, QtSql
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
-from UFT.config import RESULT_DB, CONFIG_DB, RESOURCE
+from UFT.config import RESULT_DB, CONFIG_DB, RESOURCE, CONFIG_FILE
+from UFT.backend import sync_config
 
 BARCODE_PATTERN = re.compile(r'^(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})'
                              r'(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
@@ -79,7 +80,9 @@ class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
         self.dut_image = None
-
+        # sync config db from config xml
+        sync_config("sqlite:///" + CONFIG_DB, CONFIG_FILE, direction="in")
+        #
         # setup config db, view and model
         self.config_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "config")
         self.config_db.setDatabaseName(CONFIG_DB)
@@ -236,6 +239,7 @@ class UFT_UiHandler(UFT_UiForm):
         result = self.test_item_model.submitAll()
         msg = QtGui.QMessageBox()
         if result:
+            sync_config("sqlite:///" + CONFIG_DB, CONFIG_FILE, direction="out")
             msg.setText("Update Success!")
             msg.exec_()
         else:

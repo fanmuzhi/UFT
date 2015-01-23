@@ -762,22 +762,6 @@
    <sender>sn_lineEdit_4</sender>
    <signal>returnPressed()</signal>
    <receiver>sn_lineEdit_1</receiver>
-   <slot>selectAll()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>821</x>
-     <y>81</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>63</x>
-     <y>71</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>sn_lineEdit_4</sender>
-   <signal>returnPressed()</signal>
-   <receiver>sn_lineEdit_1</receiver>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -787,6 +771,22 @@
     <hint type="destinationlabel">
      <x>85</x>
      <y>74</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>sn_lineEdit_4</sender>
+   <signal>returnPressed()</signal>
+   <receiver>sn_lineEdit_1</receiver>
+   <slot>selectAll()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>821</x>
+     <y>81</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>63</x>
+     <y>71</y>
     </hint>
    </hints>
   </connection>
