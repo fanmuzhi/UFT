@@ -10,7 +10,8 @@ import os
 import re
 from PyQt4 import QtCore, QtGui, QtSql
 from UFT_GUI.UFT_Ui import Ui_Form as UFT_UiForm
-from UFT.config import RESULT_DB, CONFIG_DB, RESOURCE
+from UFT.config import RESULT_DB, CONFIG_DB, RESOURCE, CONFIG_FILE
+from UFT.backend import sync_config
 
 BARCODE_PATTERN = re.compile(r'^(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})'
                              r'(?P<VV>\d{2})(?P<YY>[1-2][0-9])'
@@ -23,22 +24,70 @@ class MyLineEdit(QtGui.QLineEdit):
         super(MyLineEdit, self).__init__(parent)
 
     def focusInEvent(self, event):
-        #print 'This widget is in focus'
+        # print 'This widget is in focus'
         self.clear()
         QtGui.QLineEdit.focusInEvent(self,
                                      QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
+
+
+class LoginDialog(QtGui.QDialog):
+    def __init__(self, parent=None):
+        QtGui.QDialog.__init__(self, parent)
+        self.setWindowTitle(u'login')
+        self.resize(300, 150)
+
+        self.leName = QtGui.QLineEdit(self)
+        self.leName.setPlaceholderText(u'user')
+
+        self.lePassword = QtGui.QLineEdit(self)
+        self.lePassword.setEchoMode(QtGui.QLineEdit.Password)
+        self.lePassword.setPlaceholderText(u'password')
+
+        self.pbLogin = QtGui.QPushButton(u'login', self)
+        self.pbCancel = QtGui.QPushButton(u'cancel', self)
+
+        self.pbLogin.clicked.connect(self.login)
+        self.pbCancel.clicked.connect(self.reject)
+
+        layout = QtGui.QVBoxLayout()
+        layout.addWidget(self.leName)
+        layout.addWidget(self.lePassword)
+
+        spacerItem = QtGui.QSpacerItem(20, 48, QtGui.QSizePolicy.Minimum,
+                                       QtGui.QSizePolicy.Expanding)
+        layout.addItem(spacerItem)
+
+        buttonLayout = QtGui.QHBoxLayout()
+        spancerItem2 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding,
+                                         QtGui.QSizePolicy.Minimum)
+        buttonLayout.addItem(spancerItem2)
+        buttonLayout.addWidget(self.pbLogin)
+        buttonLayout.addWidget(self.pbCancel)
+
+        layout.addLayout(buttonLayout)
+
+        self.setLayout(layout)
+
+    def login(self):
+        print 'login'
+        if self.leName.text() == 'cypress' and self.lePassword.text() == '123':
+            self.accept()
+        else:
+            QtGui.QMessageBox.critical(self, u'error', u'password wrong')
 
 
 class UFT_UiHandler(UFT_UiForm):
     def __init__(self, parent=None):
         UFT_UiForm.__init__(self)
         self.dut_image = None
-
+        # sync config db from config xml
+        sync_config("sqlite:///" + CONFIG_DB, CONFIG_FILE, direction="in")
+        #
         # setup config db, view and model
         self.config_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "config")
         self.config_db.setDatabaseName(CONFIG_DB)
         result = self.config_db.open()
-        if(not result):
+        if (not result):
             msgbox = QtGui.QMessageBox()
             msg = self.config_db.lastError().text()
             msgbox.critical(msgbox, "error", msg + " db=" + CONFIG_DB)
@@ -46,13 +95,14 @@ class UFT_UiHandler(UFT_UiForm):
         # self.test_item_tableView already created in UI.
         self.config_model = QtSql.QSqlTableModel(db=self.config_db)
         self.test_item_model = QtSql.QSqlRelationalTableModel(db=self.config_db)
-        self.test_item_model.setEditStrategy(QtSql.QSqlTableModel.OnManualSubmit)
+        self.test_item_model.setEditStrategy(
+            QtSql.QSqlTableModel.OnManualSubmit)
 
         # setup log db, view and model
         self.log_db = QtSql.QSqlDatabase.addDatabase("QSQLITE", "log")
         self.log_db.setDatabaseName(RESULT_DB)
         result = self.log_db.open()
-        if(not result):
+        if (not result):
             msgbox = QtGui.QMessageBox()
             msg = self.config_db.lastError().text()
             msgbox.critical(msgbox, "error", msg + " db=" + RESULT_DB)
@@ -77,15 +127,15 @@ class UFT_UiHandler(UFT_UiForm):
 
         # set log view
         self.log_tableView.setModel(self.log_model)
-        #self.log_tableView.resizeColumnsToContents()
+        # self.log_tableView.resizeColumnsToContents()
 
         # update comboBox
         partnumber_list = []
-        self.config_model.select()      # get data
+        self.config_model.select()  # get data
         for row in range(self.config_model.rowCount()):
-            index = self.config_model.index(row, 1)     # 1 for partnumber
+            index = self.config_model.index(row, 1)  # 1 for partnumber
             pn = self.config_model.data(index).toString()
-            if(pn not in partnumber_list):
+            if (pn not in partnumber_list):
                 partnumber_list.append(pn)
                 self.partNum_comboBox.addItem(pn)
 
@@ -109,6 +159,8 @@ class UFT_UiHandler(UFT_UiForm):
             self.sn_lineEdit_2.setEnabled(True)
             self.sn_lineEdit_3.setEnabled(True)
             self.sn_lineEdit_4.setEnabled(True)
+            self.sn_lineEdit_1.selectAll()
+            self.sn_lineEdit_1.setFocus()
 
     def append_format_data(self, data):
         if data:
@@ -176,7 +228,7 @@ class UFT_UiHandler(UFT_UiForm):
                        + self.revision_comboBox.currentText() + "'"
         self.test_item_model.setFilter(filter_combo)
         self.test_item_model.select()
-
+        self.test_item_tableView.hideColumn(0)
         self.test_item_tableView.resizeColumnsToContents()
 
     def testItem_update(self):
@@ -187,6 +239,7 @@ class UFT_UiHandler(UFT_UiForm):
         result = self.test_item_model.submitAll()
         msg = QtGui.QMessageBox()
         if result:
+            sync_config("sqlite:///" + CONFIG_DB, CONFIG_FILE, direction="out")
             msg.setText("Update Success!")
             msg.exec_()
         else:
@@ -242,6 +295,26 @@ class UFT_UiHandler(UFT_UiForm):
         sec -= min * 60
         sec = str(sec) if sec >= 10 else "0" + str(sec)
         self.lcdNumber.display(str(min) + ":" + sec)
+
+    def config_edit_toggle(self, toggle_bool):
+        if not toggle_bool:
+            self.test_item_tableView.setEditTriggers(
+                QtGui.QAbstractItemView.NoEditTriggers)
+        else:
+            dialog = LoginDialog()
+            if dialog.exec_():
+                self.checkBox.setChecked(True)
+                self.test_item_tableView.setEditTriggers(
+                    QtGui.QAbstractItemView.DoubleClicked)
+            else:
+                self.checkBox.setChecked(False)
+
+                # def login(self):
+                # dialog = LoginDialog()
+                #     if dialog.exec_():
+                #         self.checkBox.setChecked(True)
+                #     else:
+                #         self.checkBox.setChecked(False)
 
 
 if __name__ == "__main__":

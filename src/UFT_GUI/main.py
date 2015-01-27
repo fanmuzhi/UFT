@@ -63,6 +63,7 @@ class MainWidget(QtGui.QWidget):
         self.ui.sn_lineEdit_2.textChanged.connect(self.ui.show_image)
         self.ui.sn_lineEdit_3.textChanged.connect(self.ui.show_image)
         self.ui.sn_lineEdit_4.textChanged.connect(self.ui.show_image)
+        self.ui.checkBox.toggled.connect(self.ui.config_edit_toggle)
 
     def start_click(self):
         try:
@@ -123,7 +124,7 @@ class Update(QtCore.QThread):
 
 def main():
     # app = QApplication(sys.argv)
-    #app.setStyle("Plastique")
+    # app.setStyle("Plastique")
     widget = MainWidget()
     widget.show()
     sys.exit(app.exec_())
