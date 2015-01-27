@@ -25,7 +25,7 @@ EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            {"name": "HWVER", "addr": 0x04A, "length": 2, "type": "str"},
            {"name": "CAPPN", "addr": 0x04C, "length": 16, "type": "str"},
            # SN, need program, id
-           {"name": "SN", "addr": 0x05E, "length": 8, "type": "str"},
+           {"name": "SN", "addr": 0x05C, "length": 8, "type": "str"},
            {"name": "PCBVER", "addr": 0x064, "length": 2, "type": "str"},
            # MFDATE, need program, yyww
            {"name": "MFDATE", "addr": 0x066, "length": 4, "type": "str"},
