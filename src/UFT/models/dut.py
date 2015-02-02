@@ -25,10 +25,11 @@ class DUT(SQLBase):
     id = Column(Integer, primary_key=True)
     barcode = Column(String(30), nullable=False)
     partnumber = Column(String(30), nullable=False)
-    capacitance_measured = Column(Integer)
-    self_capacitance_measured = Column(Integer)
+    capacitance_measured = Column(Float)
+    self_capacitance_measured = Column(Float)
     charge_time = Column(Float)
     discharge_time = Column(Float)
+    program_vpd = Column(Integer, default=0)
 
     temphist = Column(Integer)
     caphist = Column(Integer)
@@ -48,7 +49,7 @@ class DUT(SQLBase):
     initialcap = Column(Integer)
 
     slotnum = Column(Integer)
-    archived = Column(Integer)   # 0 for running and 1 for archieved.
+    archived = Column(Integer, default=0)   # 0 for running and 1 for archieved.
     status = Column(Integer, nullable=False)
     errormessage = Column(String(20))
     testdate = Column(DateTime, default=datetime.datetime.utcnow)
@@ -59,7 +60,7 @@ class DUT(SQLBase):
     def to_dict(self):
         return {"barcode": self.barcode,
                 "test_result": "PASS" if self.status == 1 else "FAIL",
-                "program_vpd": "PASS" if self.status == 1 else "FAIL",
+                "program_vpd": "PASS" if self.program_vpd == 1 else "FAIL",
                 "capacitor": self.capacitance_measured,
                 "self_capacitor": self.self_capacitance_measured,
                 "charge_time": self.charge_time,

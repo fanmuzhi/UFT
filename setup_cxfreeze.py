@@ -19,7 +19,7 @@ exe = Executable(script="src/UFT_GUI/main.py", base=base)
 
 setup(
     name="UFT Test Executive",
-    version="1.0",
+    version="1.0.1",
     options={"build_exe": {"includes": includes,
                            "include_files": include_files,
                            #"bin_includes": bin_includes,

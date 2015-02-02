@@ -472,6 +472,7 @@ class Channel(threading.Thread):
             try:
                 dut.write_vpd(config["File"], config["PGEMID"])
                 dut.read_vpd()
+                dut.program_vpd = 1
             except AssertionError:
                 dut.status = DUT_STATUS.Fail
                 dut.errormessage = "Programming VPD Fail"
