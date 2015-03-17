@@ -24,6 +24,7 @@ class DUT(SQLBase):
 
     id = Column(Integer, primary_key=True)
     barcode = Column(String(30), nullable=False)
+    cable_barcode = Column(String(30), nullable=False)
     partnumber = Column(String(30), nullable=False)
     capacitance_measured = Column(Float)
     self_capacitance_measured = Column(Float)
@@ -59,6 +60,7 @@ class DUT(SQLBase):
 
     def to_dict(self):
         return {"barcode": self.barcode,
+                "cable_barcode": self.cable_barcode,
                 "test_result": "PASS" if self.status == 1 else "FAIL",
                 "program_vpd": "PASS" if self.program_vpd == 1 else "FAIL",
                 "capacitor": self.capacitance_measured,

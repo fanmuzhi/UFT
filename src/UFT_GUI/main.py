@@ -68,7 +68,8 @@ class MainWidget(QtGui.QWidget):
     def start_click(self):
         try:
             barcodes = self.ui.barcodes()
-            self.u = Update(barcodes)
+            cable_barcodes = self.ui.cabel_barcodes()
+            self.u = Update(barcodes, cable_barcodes)
             self.connect(self.u, QtCore.SIGNAL('progress_bar'),
                          self.ui.progressBar.setValue)
             self.connect(self.u, QtCore.SIGNAL('is_alive'),
@@ -87,9 +88,9 @@ class MainWidget(QtGui.QWidget):
 
 
 class Update(QtCore.QThread):
-    def __init__(self, barcodes):
+    def __init__(self, barcodes, cable_barcodes):
         QtCore.QThread.__init__(self)
-        self.ch = Channel(barcode_list=barcodes, channel_id=0,
+        self.ch = Channel(barcode_list=barcodes, cable_barcodes_list=cable_barcodes,channel_id=0,
                           name="UFT_CHANNEL")
         self.ch.setDaemon(True)
 

@@ -19,15 +19,15 @@ BARCODE_PATTERN = re.compile(r'^(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})'
                              r'(?P<ID>\d{8})-(?P<RR>\d{2}))$')
 
 
-class MyLineEdit(QtGui.QLineEdit):
-    def __init__(self, parent=None):
-        super(MyLineEdit, self).__init__(parent)
-
-    def focusInEvent(self, event):
-        # print 'This widget is in focus'
-        self.clear()
-        QtGui.QLineEdit.focusInEvent(self,
-                                     QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
+# class MyLineEdit(QtGui.QLineEdit):
+#     def __init__(self, parent=None):
+#         super(MyLineEdit, self).__init__(parent)
+#
+#     def focusInEvent(self, event):
+#         # print 'This widget is in focus'
+#         self.clear()
+#         QtGui.QLineEdit.focusInEvent(self,
+#                                      QtGui.QFocusEvent(QtCore.QEvent.FocusIn))
 
 
 class LoginDialog(QtGui.QDialog):
@@ -153,12 +153,20 @@ class UFT_UiHandler(UFT_UiForm):
             self.sn_lineEdit_2.setDisabled(True)
             self.sn_lineEdit_3.setDisabled(True)
             self.sn_lineEdit_4.setDisabled(True)
+            self.CablelineEdit_1.setDisabled(True)
+            self.CablelineEdit_2.setDisabled(True)
+            self.CablelineEdit_3.setDisabled(True)
+            self.CablelineEdit_4.setDisabled(True)
         else:
             self.start_pushButton.setEnabled(True)
             self.sn_lineEdit_1.setEnabled(True)
             self.sn_lineEdit_2.setEnabled(True)
             self.sn_lineEdit_3.setEnabled(True)
             self.sn_lineEdit_4.setEnabled(True)
+            self.CablelineEdit_1.setEnabled(True)
+            self.CablelineEdit_2.setEnabled(True)
+            self.CablelineEdit_3.setEnabled(True)
+            self.CablelineEdit_4.setEnabled(True)
             self.sn_lineEdit_1.selectAll()
             self.sn_lineEdit_1.setFocus()
 
@@ -189,6 +197,16 @@ class UFT_UiHandler(UFT_UiForm):
             if not i:
                 i = ""
         return barcodes
+
+    def cabel_barcodes(self):
+        cabel_barcodes = [str(self.CablelineEdit_1.text()),
+                          str(self.CablelineEdit_2.text()),
+                          str(self.CablelineEdit_3.text()),
+                          str(self.CablelineEdit_4.text())]
+        for i in cabel_barcodes:
+            if not i:
+                i = ""
+        return cabel_barcodes
 
     def show_image(self):
         barcodes = self.barcodes()

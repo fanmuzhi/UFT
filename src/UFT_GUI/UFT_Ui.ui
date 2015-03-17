@@ -482,8 +482,18 @@
           <property name="text">
            <string/>
           </property>
+          <property name="maxLength">
+           <number>33</number>
+          </property>
           <property name="placeholderText">
            <string>Serial Number</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="CablelineEdit_1">
+          <property name="placeholderText">
+           <string>Cable_SN_1</string>
           </property>
          </widget>
         </item>
@@ -516,8 +526,18 @@
        <layout class="QVBoxLayout" name="verticalLayout_9">
         <item>
          <widget class="QLineEdit" name="sn_lineEdit_2">
+          <property name="maxLength">
+           <number>33</number>
+          </property>
           <property name="placeholderText">
            <string>Serial Number</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="CablelineEdit_2">
+          <property name="placeholderText">
+           <string>Cable_SN_2</string>
           </property>
          </widget>
         </item>
@@ -550,8 +570,18 @@
        <layout class="QVBoxLayout" name="verticalLayout_8">
         <item>
          <widget class="QLineEdit" name="sn_lineEdit_3">
+          <property name="maxLength">
+           <number>33</number>
+          </property>
           <property name="placeholderText">
            <string>Serial Number</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="CablelineEdit_3">
+          <property name="placeholderText">
+           <string>Cable_SN_3</string>
           </property>
          </widget>
         </item>
@@ -584,8 +614,18 @@
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <widget class="QLineEdit" name="sn_lineEdit_4">
+          <property name="maxLength">
+           <number>33</number>
+          </property>
           <property name="placeholderText">
            <string>Serial Number</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLineEdit" name="CablelineEdit_4">
+          <property name="placeholderText">
+           <string>Cable_SN_4</string>
           </property>
          </widget>
         </item>
@@ -714,7 +754,7 @@
    <sender>sn_lineEdit_1</sender>
    <signal>returnPressed()</signal>
    <receiver>sn_lineEdit_2</receiver>
-   <slot>selectAll()</slot>
+   <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>212</x>
@@ -730,7 +770,7 @@
    <sender>sn_lineEdit_2</sender>
    <signal>returnPressed()</signal>
    <receiver>sn_lineEdit_3</receiver>
-   <slot>selectAll()</slot>
+   <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>418</x>
@@ -746,7 +786,7 @@
    <sender>sn_lineEdit_3</sender>
    <signal>returnPressed()</signal>
    <receiver>sn_lineEdit_4</receiver>
-   <slot>selectAll()</slot>
+   <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>690</x>
@@ -761,7 +801,7 @@
   <connection>
    <sender>sn_lineEdit_4</sender>
    <signal>returnPressed()</signal>
-   <receiver>sn_lineEdit_1</receiver>
+   <receiver>CablelineEdit_1</receiver>
    <slot>setFocus()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -769,24 +809,120 @@
      <y>73</y>
     </hint>
     <hint type="destinationlabel">
-     <x>85</x>
-     <y>74</y>
+     <x>124</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
   <connection>
    <sender>sn_lineEdit_4</sender>
    <signal>returnPressed()</signal>
-   <receiver>sn_lineEdit_1</receiver>
-   <slot>selectAll()</slot>
+   <receiver>CablelineEdit_1</receiver>
+   <slot>clear()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>821</x>
      <y>81</y>
     </hint>
     <hint type="destinationlabel">
-     <x>63</x>
-     <y>71</y>
+     <x>124</x>
+     <y>99</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CablelineEdit_1</sender>
+   <signal>returnPressed()</signal>
+   <receiver>CablelineEdit_2</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>209</x>
+     <y>101</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>284</x>
+     <y>102</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CablelineEdit_2</sender>
+   <signal>returnPressed()</signal>
+   <receiver>CablelineEdit_3</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>449</x>
+     <y>98</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>509</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CablelineEdit_3</sender>
+   <signal>returnPressed()</signal>
+   <receiver>CablelineEdit_4</receiver>
+   <slot>setFocus()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>681</x>
+     <y>99</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>769</x>
+     <y>103</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CablelineEdit_1</sender>
+   <signal>returnPressed()</signal>
+   <receiver>CablelineEdit_2</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>140</x>
+     <y>105</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>337</x>
+     <y>105</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CablelineEdit_2</sender>
+   <signal>returnPressed()</signal>
+   <receiver>CablelineEdit_3</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>375</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>98</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>CablelineEdit_3</sender>
+   <signal>returnPressed()</signal>
+   <receiver>CablelineEdit_4</receiver>
+   <slot>clear()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>601</x>
+     <y>103</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>841</x>
+     <y>105</y>
     </hint>
    </hints>
   </connection>

@@ -65,7 +65,7 @@ class Channel(threading.Thread):
     ps = pwr.PowerSupply()
 
 
-    def __init__(self, name, barcode_list, channel_id=0):
+    def __init__(self, name, barcode_list, cable_barcodes_list, channel_id=0):
         """initialize channel
         :param name: thread name
         :param barcode_list: list of 2D barcode of dut.
@@ -81,6 +81,7 @@ class Channel(threading.Thread):
         self.dut_list = []
         self.config_list = []
         self.barcode_list = barcode_list
+        self.cable_barcodes_list = cable_barcodes_list
 
         # progress bar, 0 to 100
         self.progressbar = 0
@@ -110,6 +111,7 @@ class Channel(threading.Thread):
                                slot=i,
                                barcode=bc)
                 dut.status = DUT_STATUS.Idle
+                dut.cable_barcode = self.cable_barcodes_list[i]
                 dut.testdate = datetime.datetime.utcnow()
                 self.dut_list.append(dut)
                 dut_config = load_config("sqlite:///" + CONFIG_DB,
