@@ -329,7 +329,7 @@ class UFT_UiHandler(UFT_UiForm):
 
                 # def login(self):
                 # dialog = LoginDialog()
-                #     if dialog.exec_():
+                # if dialog.exec_():
                 #         self.checkBox.setChecked(True)
                 #     else:
                 #         self.checkBox.setChecked(False)
