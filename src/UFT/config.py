@@ -7,6 +7,8 @@ __version__ = "0.1"
 __author__ = "@fanmuzhi, @boqiling"
 
 import sys
+#Projects PartNumber List
+DIAMOND4_LIST = ["AGIGA9811-001BCA"]
 
 # total slot number for one channel,
 # should be 4, 1 for debug
