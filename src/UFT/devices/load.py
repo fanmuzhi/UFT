@@ -4,7 +4,7 @@
 RS232 communication based.
 """
 __version__ = "0.0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 __all__ = ["DCLoad"]
 
 import serial
@@ -24,7 +24,7 @@ class DCLoad(object):
     ModeVolt = "VOLT"
     ModeRes = "RES"
 
-    DELAY = 0.3     # delay for RS232 comm
+    DELAY = 0.3  # delay for RS232 comm
 
     # 4 ranges for CR mode
     # better accuracy for smaller range
@@ -43,14 +43,14 @@ class DCLoad(object):
         self.ser = serial.Serial(port=port, baudrate=baudrate,
                                  timeout=timeout, bytesize=bytesize,
                                  parity=parity, stopbits=stopbits)
-        if(not self.ser.isOpen()):
+        if (not self.ser.isOpen()):
             self.ser.close()
             self.ser.open()
 
         # check IDN
         self._write("*IDN?")
         idn = self._read().rstrip()
-        if(re.match(r"Agilent\sTechnologies,N3300A", idn)):
+        if (re.match(r"Agilent\sTechnologies,N3300A", idn)):
             logger.info("DC Load found: " + idn)
         else:
             logger.debug("unknown device found: " + idn)
@@ -59,7 +59,7 @@ class DCLoad(object):
         # clean error
         self._write("SYST:ERR?")
         errmsg = self._read()
-        while(not re.match(r"\+0,\"No\serror\"", errmsg)):
+        while (not re.match(r"\+0,\"No\serror\"", errmsg)):
             logger.debug("DC Load Error: " + errmsg)
             self._write("SYST:ERR?")
             errmsg = self._read()
@@ -74,37 +74,37 @@ class DCLoad(object):
         self.ser.write(msg + "\n")
 
     def _read(self):
-        time.sleep(self.DELAY)       # wait for response
+        time.sleep(self.DELAY)  # wait for response
         buff = ''
-        while(self.ser.inWaiting() > 0):
+        while (self.ser.inWaiting() > 0):
             buff += self.ser.read(1)
         return buff
 
     def _check_error(self):
         self._write("SYST:ERR?")
         errmsg = self._read()
-        if(not re.match(r"\+0,\"No\serror\"", errmsg)):
+        if (not re.match(r"\+0,\"No\serror\"", errmsg)):
             logger.error("DC Load Error: " + errmsg)
             raise DCLoadException(errmsg)
 
     def select_channel(self, chnum):
         chnum += 1
-        if(chnum in range(1, 5)):
+        if (chnum in range(1, 5)):
             self._write("CHAN " + str(chnum))
         else:
             raise DCLoadException("Invalid channel number")
         self._check_error()
 
     def change_func(self, mode):
-        if(mode in [self.ModeCURR, self.ModeRes, self.ModeVolt]):
+        if (mode in [self.ModeCURR, self.ModeRes, self.ModeVolt]):
             self._write("FUNC " + mode)
         self._check_error()
 
     def set_curr(self, curr):
-        if(curr > self.CC_Range["MIN"]):
-            self._write("CURR:RANG MAX")    # select max range
+        if (curr > self.CC_Range["MIN"]):
+            self._write("CURR:RANG MAX")  # select max range
         else:
-            self._write("CURR:RANG MIN")    # select min range
+            self._write("CURR:RANG MIN")  # select min range
         self._write("CURR " + str(curr))
         self._check_error()
 
@@ -134,7 +134,7 @@ class DCLoad(object):
 
     def set_res(self, resistance):
         for (low, high) in self.CR_Range:
-            if(low < resistance <= high):
+            if (low < resistance <= high):
                 self._write("RES:RANG " + str(high))
         self._write("RES " + str(resistance))
         self._check_error()
@@ -146,6 +146,7 @@ class DCLoad(object):
     def input_off(self):
         self._write("INP OFF")
         self._check_error()
+
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
@@ -160,7 +161,7 @@ if __name__ == "__main__":
         load.change_func(DCLoad.ModeCURR)
         load.set_curr(0.8)
 
-        #load.change_func(DCLoad.ModeRes)
+        # load.change_func(DCLoad.ModeRes)
         #load.set_res(20)     # 20 ohm
 
         load.input_on()

@@ -4,7 +4,7 @@
 """
 
 __version__ = "0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 
 import sys
 
@@ -44,7 +44,7 @@ SD_COUNTER = 10
 
 # database settings
 # database for dut test result
-#RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
+# RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
 #RESULT_DB = "sqlite:///C:\\UFT\\db\\pgem.db"
 
 if hasattr(sys, "frozen"):

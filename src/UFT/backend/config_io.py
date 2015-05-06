@@ -6,7 +6,7 @@ or load configuration from db, save to xml file.
 """
 
 __version__ = "0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 
 from simplexml import loads, dumps
 from configuration import PGEMConfig, TestItem
@@ -78,7 +78,7 @@ def load_test_item(config, itemname):
     :return: dict of test items configuration
     """
     for item in config.testitems:
-        if(item.name != itemname):
+        if (item.name != itemname):
             continue
         miscs = item.misc.split(";")
         regex = re.compile("(?P<key>[^=]+)=(?P<value>.+)")
@@ -123,10 +123,10 @@ def file_2_db(dburi, directory):
     file_list = []
     for root, folder, files in os.walk(directory):
         for f in files:
-            #if(f.endswith(".xml") or f.endswith(".XML")):
+            # if(f.endswith(".xml") or f.endswith(".XML")):
             regex = re.compile(r"AGIGA\d{4}\-\d{3}\w{3}-\d{2}\.xml",
                                re.IGNORECASE)
-            if(regex.match(f)):
+            if (regex.match(f)):
                 file_list.append(os.path.join(root, f))
     for f in file_list:
         config = load_xml(f)
@@ -169,11 +169,11 @@ def sync_config(dburi, folder, direction="both"):
     :param directory: directory to store the xml fils
     :return: None
     """
-    if(direction == "in"):
+    if (direction == "in"):
         file_2_db(dburi, folder)
-    elif(direction == "out"):
+    elif (direction == "out"):
         db_2_file(dburi, folder)
-    elif(direction == "both"):
+    elif (direction == "both"):
         file_2_db(dburi, folder)
         db_2_file(dburi, folder)
     else:
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     sync_config(db, "./")
 
 
-    #crystal = load_config(db, partnumber="AGIGA9601-002BCA",
+    # crystal = load_config(db, partnumber="AGIGA9601-002BCA",
     #                      revision="04")
     #print crystal.PARTNUMBER
     #print crystal.REVISION

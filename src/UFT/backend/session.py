@@ -3,7 +3,7 @@
 """Model for PGEM config
 """
 __version__ = "0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -16,7 +16,7 @@ class SessionManager(object):
         self.session = {}
 
     def get_engine(self, connectString):
-        if(connectString in self.engine):
+        if (connectString in self.engine):
             engine = self.engine[connectString]
         else:
             engine = create_engine(connectString)
@@ -29,7 +29,7 @@ class SessionManager(object):
             model.metadata.create_all(engine)
 
     def get_session(self, connectString):
-        if(connectString in self.session):
+        if (connectString in self.session):
             session = self.session[connectString]
         else:
             engine = self.get_engine(connectString)

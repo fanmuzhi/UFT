@@ -18,7 +18,6 @@ class States(object):
 
 
 class FiniteStateMachine(threading.Thread):
-
     def __init__(self, name=None):
         self.queue = Queue()
         self.exit = False
@@ -26,9 +25,9 @@ class FiniteStateMachine(threading.Thread):
 
     def run(self):
         logger.debug(self.name)
-        while(not self.exit):
+        while (not self.exit):
             s = self.queue.get()
-            if(s == States.EXIT):
+            if (s == States.EXIT):
                 self.exit = True
             else:
                 self.work(s)
@@ -39,7 +38,7 @@ class FiniteStateMachine(threading.Thread):
 
     def work(self, state):
         logger.debug("In Work State: {0}".format(state))
-        #raise NotImplementedError
+        # raise NotImplementedError
 
     def quit(self):
         self.empty()
@@ -57,7 +56,7 @@ if __name__ == "__main__":
     fsm.queue.put("debug")
     fsm.queue.put("exit....")
 
-    #import time
+    # import time
     #time.sleep(0.1)
     logger.debug("end.")
     fsm.quit()

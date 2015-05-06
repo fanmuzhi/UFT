@@ -1,19 +1,28 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""Base Model for Cororado PGEM I2C functions
+"""
+__version__ = "0.1"
+__author__ = "@fanmuzhi, @boqiling"
+__all__ = ["PGEMBase"]
+
 """test sqlalchemy orm
 """
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
-#from sqlalchemy import create_engine
+# from sqlalchemy import create_engine
 #from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 import datetime
+
 SQLBase = declarative_base()
 
 
 class DUT_STATUS(object):
-    Idle = 0    # wait to test
-    Pass = 1    # pass the test
-    Fail = 2    # fail in test
+    Idle = 0  # wait to test
+    Pass = 1  # pass the test
+    Fail = 2  # fail in test
     Charging = 3
     Discharging = 4
     Self_Discharging = 5
@@ -50,7 +59,7 @@ class DUT(SQLBase):
     initialcap = Column(Integer)
 
     slotnum = Column(Integer)
-    archived = Column(Integer, default=0)   # 0 for running and 1 for archieved.
+    archived = Column(Integer, default=0)  # 0 for running and 1 for archieved.
     status = Column(Integer, nullable=False)
     errormessage = Column(String(20))
     testdate = Column(DateTime, default=datetime.datetime.utcnow)
@@ -87,6 +96,7 @@ class Cycle(SQLBase):
 
 if __name__ == "__main__":
     from UFT.backend.session import SessionManager
+
     sm = SessionManager()
     session = sm.get_session("sqlite:///pgem.db")
     sm.prepare_db("sqlite:///pgem.db", [DUT, Cycle])

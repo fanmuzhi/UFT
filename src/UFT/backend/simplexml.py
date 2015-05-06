@@ -11,9 +11,8 @@ changelist:
 '''
 
 __version__ = "0.2"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 __all__ = ["dumps", "loads", "Xml2Dict", "Dict2Xml"]
-
 
 from xml.dom.minidom import Document, parseString, Node
 
@@ -21,7 +20,7 @@ from xml.dom.minidom import Document, parseString, Node
 def dumps(diction, rootname="entity"):
     '''convert diction to xml
     '''
-    if(type(diction) == dict):
+    if (type(diction) == dict):
         xml = Dict2Xml(rootname).trans(diction)
         return xml
 
@@ -53,7 +52,7 @@ class Xml2Dict(object):
     def to_list(self, father):
         myList = []
         for node in father.childNodes:
-            if(len(node.childNodes) > 1):
+            if (len(node.childNodes) > 1):
                 myList.append(self.parse(node))
             else:
                 myList.append(node.childNodes[0].nodeValue)
@@ -61,12 +60,12 @@ class Xml2Dict(object):
 
     def parse(self, father):
         myDict = {}
-        if(father.hasAttributes()):
+        if (father.hasAttributes()):
             for attr in father.attributes.items():
                 myDict.update({attr[0]: attr[1]})
-        if(father.hasChildNodes()):
-            if(len(father.childNodes) > 1):
-                if(father.firstChild.nodeName == father.lastChild.nodeName):
+        if (father.hasChildNodes()):
+            if (len(father.childNodes) > 1):
+                if (father.firstChild.nodeName == father.lastChild.nodeName):
                     # parse a list
                     listname = father.nodeName
                     tag = father.firstChild.nodeName
@@ -80,7 +79,7 @@ class Xml2Dict(object):
             else:
                 # parse a value
                 node = father.childNodes[0]
-                if(node.nodeType == Node.TEXT_NODE):
+                if (node.nodeType == Node.TEXT_NODE):
                     myDict.update({father.nodeName: node.nodeValue})
                 else:
                     myDict.update({father.nodeName: self.parse(node)})
@@ -131,7 +130,7 @@ class Dict2Xml(object):
         self.doc.appendChild(self.root)
         self.build(self.root, diction)
         return self.doc.toprettyxml(indent="    ")
-        #return self.doc.toxml("utf-8")
+        # return self.doc.toxml("utf-8")
 
 
 if __name__ == '__main__':
@@ -145,16 +144,16 @@ if __name__ == '__main__':
         u"错误信息": u"噪声太大",
         "signals": {"signal": [1, 2, 3]},
         "noises": {"noise": [5, 6, 7]},
-        "rounds":{
-        "round_59": {
-            "fail": 1,
-            "test_time": "2013-11-11 17:54:21",
-            "test_result": "Pass"
+        "rounds": {
+            "round_59": {
+                "fail": 1,
+                "test_time": "2013-11-11 17:54:21",
+                "test_result": "Pass"
             },
-        "round_60": {
-            "fail": 2,
-            "test_time": "2013-11-11 17:55:23",
-            "test_result": "fail"
+            "round_60": {
+                "fail": 2,
+                "test_time": "2013-11-11 17:55:23",
+                "test_result": "fail"
             }
         }
     }

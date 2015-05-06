@@ -5,7 +5,7 @@ kikusui PWR1600L though PIA4850 usb control model
 """
 
 __version__ = "0.0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 __all__ = ["PowerSupply"]
 
 import usbtmc
@@ -13,8 +13,8 @@ import re
 import logging
 import time
 
-vid = 0x0b3e    # kikusui PIA4850 vendor id
-pid = 0x1014    # kikusui PIA4850 product id
+vid = 0x0b3e  # kikusui PIA4850 vendor id
+pid = 0x1014  # kikusui PIA4850 product id
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,6 @@ class PowerSupplyException(Exception):
 
 
 class PowerSupply(object):
-
     def __init__(self):
         try:
             self.instr = usbtmc.Instrument(vid, pid)
@@ -34,7 +33,7 @@ class PowerSupply(object):
         try:
             # clean err msg
             errmsg = self.instr.ask("ERR?")
-            while(errmsg != "0"):
+            while (errmsg != "0"):
                 errmsg = self.instr.ask("ERR?")
         except:
             pass
@@ -59,7 +58,7 @@ class PowerSupply(object):
 
     def _checkerr(self):
         errmsg = self.instr.ask("ERR?")
-        while(errmsg != "0"):
+        while (errmsg != "0"):
             self.reset()
             raise PowerSupplyException(errmsg)
 

@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file '.\UFT_Ui.ui'
 #
-# Created: Tue Mar 17 13:02:45 2015
-#      by: PyQt4 UI code generator 4.11.2
+# Created: Tue May 05 17:37:25 2015
+# by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -17,11 +17,13 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_Form(object):
     def setupUi(self, Form):
@@ -53,22 +55,22 @@ class Ui_Form(object):
         self.imageLabel1.setMaximumSize(QtCore.QSize(233, 235))
         self.imageLabel1.setText(_fromUtf8(""))
         self.imageLabel1.setObjectName(_fromUtf8("imageLabel1"))
-        self.gridLayout_7.addWidget(self.imageLabel1, 0, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.gridLayout_7.addWidget(self.imageLabel1, 0, 0, 1, 1, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.imageLabel2 = QtGui.QLabel(self.groupBox_5)
         self.imageLabel2.setMaximumSize(QtCore.QSize(232, 235))
         self.imageLabel2.setText(_fromUtf8(""))
         self.imageLabel2.setObjectName(_fromUtf8("imageLabel2"))
-        self.gridLayout_7.addWidget(self.imageLabel2, 0, 1, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.gridLayout_7.addWidget(self.imageLabel2, 0, 1, 1, 1, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.imageLabel3 = QtGui.QLabel(self.groupBox_5)
         self.imageLabel3.setMaximumSize(QtCore.QSize(233, 234))
         self.imageLabel3.setText(_fromUtf8(""))
         self.imageLabel3.setObjectName(_fromUtf8("imageLabel3"))
-        self.gridLayout_7.addWidget(self.imageLabel3, 1, 0, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.gridLayout_7.addWidget(self.imageLabel3, 1, 0, 1, 1, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.imageLabel4 = QtGui.QLabel(self.groupBox_5)
         self.imageLabel4.setMaximumSize(QtCore.QSize(232, 234))
         self.imageLabel4.setText(_fromUtf8(""))
         self.imageLabel4.setObjectName(_fromUtf8("imageLabel4"))
-        self.gridLayout_7.addWidget(self.imageLabel4, 1, 1, 1, 1, QtCore.Qt.AlignHCenter|QtCore.Qt.AlignVCenter)
+        self.gridLayout_7.addWidget(self.imageLabel4, 1, 1, 1, 1, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
         self.gridLayout_14.addLayout(self.gridLayout_7, 0, 0, 1, 1)
         self.gridLayout_6.addWidget(self.groupBox_5, 0, 1, 1, 1)
         self.groupBox_6 = QtGui.QGroupBox(self.info)
@@ -384,22 +386,38 @@ class Ui_Form(object):
 
         self.retranslateUi(Form)
         self.tabWidget.setCurrentIndex(0)
-        QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.setFocus)
-        QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.setFocus)
-        QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.setFocus)
-        QtCore.QObject.connect(self.start_pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")), self.info_textBrowser.clear)
-        QtCore.QObject.connect(self.checkBox, QtCore.SIGNAL(_fromUtf8("toggled(bool)")), self.submit_pushButton.setEnabled)
-        QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_2.clear)
-        QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_3.clear)
-        QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.sn_lineEdit_4.clear)
-        QtCore.QObject.connect(self.sn_lineEdit_4, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_1.setFocus)
-        QtCore.QObject.connect(self.sn_lineEdit_4, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_1.clear)
-        QtCore.QObject.connect(self.CablelineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_2.setFocus)
-        QtCore.QObject.connect(self.CablelineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_3.setFocus)
-        QtCore.QObject.connect(self.CablelineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_4.setFocus)
-        QtCore.QObject.connect(self.CablelineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_2.clear)
-        QtCore.QObject.connect(self.CablelineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_3.clear)
-        QtCore.QObject.connect(self.CablelineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")), self.CablelineEdit_4.clear)
+        QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.sn_lineEdit_2.setFocus)
+        QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.sn_lineEdit_3.setFocus)
+        QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.sn_lineEdit_4.setFocus)
+        QtCore.QObject.connect(self.start_pushButton, QtCore.SIGNAL(_fromUtf8("clicked()")),
+                               self.info_textBrowser.clear)
+        QtCore.QObject.connect(self.checkBox, QtCore.SIGNAL(_fromUtf8("toggled(bool)")),
+                               self.submit_pushButton.setEnabled)
+        QtCore.QObject.connect(self.sn_lineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.sn_lineEdit_2.clear)
+        QtCore.QObject.connect(self.sn_lineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.sn_lineEdit_3.clear)
+        QtCore.QObject.connect(self.sn_lineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.sn_lineEdit_4.clear)
+        QtCore.QObject.connect(self.sn_lineEdit_4, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_1.setFocus)
+        QtCore.QObject.connect(self.sn_lineEdit_4, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_1.clear)
+        QtCore.QObject.connect(self.CablelineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_2.setFocus)
+        QtCore.QObject.connect(self.CablelineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_3.setFocus)
+        QtCore.QObject.connect(self.CablelineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_4.setFocus)
+        QtCore.QObject.connect(self.CablelineEdit_1, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_2.clear)
+        QtCore.QObject.connect(self.CablelineEdit_2, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_3.clear)
+        QtCore.QObject.connect(self.CablelineEdit_3, QtCore.SIGNAL(_fromUtf8("returnPressed()")),
+                               self.CablelineEdit_4.clear)
         QtCore.QMetaObject.connectSlotsByName(Form)
 
     def retranslateUi(self, Form):
@@ -424,7 +442,7 @@ class Ui_Form(object):
         self.search_lineEdit.setPlaceholderText(_translate("Form", "search by serial number", None))
         self.search_pushButton.setText(_translate("Form", "Search", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("Form", "test log", None))
-        self.title_label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.0", None))
+        self.title_label.setText(_translate("Form", "AGIGA CORONADO PGEM UFT V1.2 Alpha", None))
         self.groupBox_1.setTitle(_translate("Form", "Slot #1", None))
         self.sn_lineEdit_1.setPlaceholderText(_translate("Form", "Serial Number", None))
         self.CablelineEdit_1.setPlaceholderText(_translate("Form", "Cable_SN_1", None))
@@ -439,10 +457,12 @@ class Ui_Form(object):
         self.CablelineEdit_4.setPlaceholderText(_translate("Form", "Cable_SN_4", None))
         self.start_pushButton.setText(_translate("Form", "START", None))
 
+
 from matplotlibwidget import MatplotlibWidget
 
 if __name__ == "__main__":
     import sys
+
     app = QtGui.QApplication(sys.argv)
     Form = QtGui.QWidget()
     ui = Ui_Form()

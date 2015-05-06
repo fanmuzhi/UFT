@@ -3,7 +3,7 @@
 """USB-1208FS is used in UFT as a 4 channels Multimeter to monitor the CAPV.
 """
 
-__author__ = 'qibo'
+__author__ = 'mzfa, qibo'
 
 from mccdaq import MCCDAQ
 

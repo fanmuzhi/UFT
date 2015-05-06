@@ -5,7 +5,7 @@ Default connect to configuration.db which save the test items settings.
 """
 
 __version__ = "0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 __all__ = ["PGEMConfig", "TestItem"]
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -34,7 +34,7 @@ class PGEMConfig(SQLBase):
         items_list = {}
         for item in self.testitems:
             items_list.update(item.to_dict())
-        #items_list = {"ITEM": items_list}
+        # items_list = {"ITEM": items_list}
         return {"partnumber": self.partnumber,
                 "description": self.description,
                 "revision": self.revision,
@@ -70,6 +70,7 @@ class TestItem(SQLBase):
 
 if __name__ == "__main__":
     from session import SessionManager
+
     dburi = "sqlite:///configuration.db"
     sm = SessionManager()
     session = sm.get_session(dburi)

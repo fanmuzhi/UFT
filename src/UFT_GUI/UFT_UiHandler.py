@@ -20,7 +20,7 @@ BARCODE_PATTERN = re.compile(r'^(?P<SN>(?P<PN>AGIGA\d{4}-\d{3}\w{3})'
 
 
 # class MyLineEdit(QtGui.QLineEdit):
-#     def __init__(self, parent=None):
+# def __init__(self, parent=None):
 #         super(MyLineEdit, self).__init__(parent)
 #
 #     def focusInEvent(self, event):

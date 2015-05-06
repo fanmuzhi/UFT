@@ -1,8 +1,10 @@
-# -*- coding: utf-8 -*-
-'''
-Created on Nov 01, 2014
-@author: mzfa
-'''
+#!/usr/bin/env python
+# encoding: utf-8
+"""Description: Initilize the logger
+"""
+
+__version__ = "0.1"
+__author__ = "@mzfa"
 
 import sys
 import logging

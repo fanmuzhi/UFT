@@ -3,7 +3,7 @@
 """command line interface for UFT
 """
 __version__ = "0.1"
-__author__ = "@boqiling"
+__author__ = "@fanmuzhi, @boqiling"
 import time
 import argparse
 import logging
@@ -66,7 +66,7 @@ def single_test():
     from UFT.channel import ChannelStates, Channel
     from UFT import config
 
-    #barcode = "AGIGA9601-002BCA02143500000002-04"
+    # barcode = "AGIGA9601-002BCA02143500000002-04"
     barcode_list = []
     for i in range(config.TOTAL_SLOTNUM):
         barcode_list.append(raw_input("please scan the barcode of dut{"
@@ -74,11 +74,12 @@ def single_test():
     ch = Channel(barcode_list=barcode_list, channel_id=0,
                  name="UFT_CHANNEL")
     ch.auto_test()
-    while(ch.is_alive):
+    while (ch.is_alive):
         print "test progress: {0}%".format(ch.progressbar)
         time.sleep(2)
 
-#TODO cli command to generate test reports
+
+# TODO cli command to generate test reports
 
 #TODO cli command to generate dut charts
 
@@ -88,6 +89,7 @@ def main():
     args = parse_args()
     if args.verbose:
         from UFT import logger
+
         logger.setLevel(level=logging.DEBUG)
     if args.debug:
         pass

@@ -4,7 +4,7 @@
 2014.11, changed from multiprocessing to threading.
 got Ctype pointer issue in pickle using multiprocessing
 """
-#from multiprocessing import Process, Queue, Value
+# from multiprocessing import Process, Queue, Value
 from exceptions import NotImplementedError
 import threading
 from Queue import Queue
@@ -21,6 +21,7 @@ class States(object):
 class FiniteStateMachine(object):
     """Interface Class for functions in different states.
     """
+
     def __init__(self):
         self.queue = Queue()
         #self.status = Value('d', 0)
@@ -60,16 +61,16 @@ class FiniteStateMachine(object):
         self.queue.put(States.EXIT)
 
     def loop(self, s):
-        while(self.is_alive):
+        while (self.is_alive):
             #s.value = self.q.get()
             s = self.queue.get()
-            if(s == States.INIT):
+            if (s == States.INIT):
                 self.init()
-            elif(s == States.IDLE):
+            elif (s == States.IDLE):
                 self.idle()
-            elif(s == States.ERROR):
+            elif (s == States.ERROR):
                 self.error()
-            elif(s == States.EXIT):
+            elif (s == States.EXIT):
                 self.close()
                 self.is_alive = False
             else:
