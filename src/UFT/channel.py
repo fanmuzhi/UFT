@@ -25,7 +25,6 @@ import datetime
 
 logger = logging.getLogger(__name__)
 
-# DIAMOND4_LIST = ["AGIGA9811-001BCA"]
 # def get_sensor_status():
 #    """
 #    get sensor status of each DUT present.
