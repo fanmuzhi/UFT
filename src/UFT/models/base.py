@@ -261,27 +261,7 @@ class PGEMBase(DUT):
         val = (ata_in[1] << 8) + ata_in[0]
         return val
 
-    def write_ltc3350(self, reg_addr, wata):
-        """ write regsiter value to charge IC LTC3350
-        :param reg_addr: register address of LTC3350
-        :param wdata: data to write
-        """
-        self.device.slave_addr = 0x09
 
-        # write first low 8bits, then high 8bits
-        self.device.write_reg(reg_addr, [wata & 0x00FF, wata >> 8])
-
-    def read_ltc3350(self, reg_addr):
-        """read register value from charge IC LTC3350
-        :param reg_addr: register address
-        :return: value of the register address
-        """
-        self.device.slave_addr = 0x09
-        ata_in = self.device.read_reg(reg_addr, length=2)
-
-        # first low 8bits then high 8bits
-        val = (ata_in[1] << 8) + ata_in[0]
-        return val
 
     def charge(self, status=True, **kvargs):
         """Send charge option to charge IC to start the charge.
@@ -364,10 +344,38 @@ class PGEMBase(DUT):
         return temp
 
 
+
+
 class Diamond4(PGEMBase):
     """
     PGEM with LTC3350 Charge IC used instead of BQ24707 class.
     """
+
+    def __init__(self, device, barcode, **kvargs):
+        super(Diamond4, self).__init__(device, barcode, **kvargs)
+        logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
+
+    def write_ltc3350(self, reg_addr, wata):
+        """ write regsiter value to charge IC LTC3350
+        :param reg_addr: register address of LTC3350
+        :param wdata: data to write
+        """
+        self.device.slave_addr = 0x09
+
+        # write first low 8bits, then high 8bits
+        self.device.write_reg(reg_addr, [wata & 0x00FF, wata >> 8])
+
+    def read_ltc3350(self, reg_addr):
+        """read register value from charge IC LTC3350
+        :param reg_addr: register address
+        :return: value of the register address
+        """
+        self.device.slave_addr = 0x09
+        ata_in = self.device.read_reg(reg_addr, length=2)
+
+        # first low 8bits then high 8bits
+        val = (ata_in[1] << 8) + ata_in[0]
+        return val
 
     def charge(self, status=True, **kvargs):
         """
@@ -375,20 +383,22 @@ class Diamond4(PGEMBase):
         :param kvargs: option dict of charge option, charge voltage, etc.
         :param status: status=True, start charge; status=False, stop charge.
         """
-        BCAPFB_DAC = 0x05
-        VSHUNT = 0x06
-        CTL_REG = 0x17
-        NUM_CAPS = 0x1A
-        CHRG_STATUS = 0x1B
+        VCAPFB_DAC_ADDR = 0x05
+        VSHUNT_ADDR = 0x06
+        CTL_REG_ADDR = 0x17
+        NUM_CAPS_ADDR = 0x1A
+        CHRG_STATUS_ADDR = 0x1B
 
         # check IC
-        logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
+        # logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
         if status:
-            self.write_ltc3350(BCAPFB_DAC, 0xF)
-            self.write_ltc3350(VSHUNT, 0x3998)
+            self.write_ltc3350(CTL_REG_ADDR, 0x01)
+            self.write_ltc3350(VSHUNT_ADDR, 0x3998)
+            self.write_ltc3350(VCAPFB_DAC_ADDR, 0xC)
         else:
             # stop charge
-            self.write_ltc3350(VSHUNT, 0x0000)
+            self.write_ltc3350(VSHUNT_ADDR, 0x0000)
+            self.write_ltc3350(VCAPFB_DAC_ADDR, 0x0)
 
 
 if __name__ == "__main__":
@@ -399,32 +409,52 @@ if __name__ == "__main__":
     from UFT.devices.aardvark import pyaardvark
 
     adk = pyaardvark.Adapter()
-    adk.open(portnum=0)
+    # adk.open(portnum=0)
 
-    barcode = "AGIGA9811-001BCA02143500000002-01"
-    # ch.init([barcode, "", "", ""])      # first one is valid.
+    barcode = "AGIGA9811-001BCA02143900000228-01"
+    # # ch.init([barcode, "", "", ""])      # first one is valid.
+    #
+    # bq24704_option = {"ChargeOption": 0x1990,
+    #                   "ChargeCurrent": 0x01C0, "ChargeVoltage": 0x1200,
+    #                   "InputCurrent": 0x0400}
 
-    bq24704_option = {"ChargeOption": 0x1990,
-                      "ChargeCurrent": 0x01C0, "ChargeVoltage": 0x1200,
-                      "InputCurrent": 0x0400}
-
-    dut = PGEMBase(device=adk, slot=0, barcode=barcode)
-
-    dut.charge(option=bq24704_option, status=True)
-
-    print dut.read_vpd()
-    dut.control_led(status="on")
-
-    path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
-    dut.write_vpd(path)
-
-    print dut.read_vpd()
-    print dut.check_temp()
-
-    dut.charge(option=bq24704_option, status=False)
-    dut.self_discharge(True)
+    # dut = PGEMBase(device=adk, slot=0, barcode=barcode)
+    dut = Diamond4(device=adk, slot=0, barcode=barcode)
+    # dut.charge(option=bq24704_option, status=True)
+    #
+    # print dut.read_vpd()
+    # dut.control_led(status="on")
+    #
+    # path = "./101-40028-01-Rev02 Crystal2 VPD.ebf"
+    # dut.write_vpd(path)
+    #
+    # print dut.read_vpd()
+    # print dut.check_temp()
+    #
+    # dut.charge(option=bq24704_option, status=False)
+    # dut.self_discharge(True)
 
     # print dut.check_power_fail()
     #dut.auto_discharge(True)
+    VCAPFB_DAC_ADDR = 0x05
+    VSHUNT_ADDR = 0x06
+    dut.charge(status=False)
+    print "ctl_reg:", bin(dut.read_ltc3350(0x17))
+    # print "per:", dut.read_ltc3350(0x04)*10, "s"
+    print "vshunt:", dut.read_ltc3350(0x06)
+    # print "num_caps:", dut.read_ltc3350(0x1A)
+    print "vcapfb_dac:", dut.read_ltc3350(VCAPFB_DAC_ADDR)
+
+    print "meas_cap", dut.read_ltc3350(0x1E)*591*330, "uF"
+    print "meas_Vin:", dut.read_ltc3350(0x25)*0.00221, " V"
+    print "meas_Vout:", dut.read_ltc3350(0x27)*0.00221, " V"
+    print "meas_Vcap1:", dut.read_ltc3350(0x20)*0.0001835, " V"
+    print "meas_Vcap2:", dut.read_ltc3350(0x21)*0.0001835, " V"
+    print "meas_Vcap3:", dut.read_ltc3350(0x22)*0.0001835, " V"
+    print "meas_Vcap:", dut.read_ltc3350(0x26)*0.001476, " V"
+
+    print "chrg_status", bin(dut.read_ltc3350(0x1B))
+    # for i in range(0x00, 0x2A):
+    #     print hex(i), hex(self.read_ltc3350(i))
 
     adk.close()
