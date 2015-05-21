@@ -54,7 +54,7 @@ class PGEMException(Exception):
 class PGEMBase(DUT):
     """PGEM Base Class, All models should be inheret from this base class.
     """
-
+    TEMP_SENSRO_ADDR = 0x1B
     def __init__(self, device, barcode, **kvargs):
         # slot number for dut on fixture location.
         # from 0 to 3, totally 4 slots in UFT
@@ -329,7 +329,7 @@ class PGEMBase(DUT):
         """check temperature on SE97B of DUT.
         :return: temperature value
         """
-        self.device.slave_addr = 0x1B
+        self.device.slave_addr = self.TEMP_SENSRO_ADDR
         # check device id
         val = self.device.read_reg(0x07, length=2)
         val = (val[0] << 8) + val[1]
@@ -354,6 +354,7 @@ class Diamond4(PGEMBase):
     def __init__(self, device, barcode, **kvargs):
         super(Diamond4, self).__init__(device, barcode, **kvargs)
         logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
+        self.TEMP_SENSRO_ADDR = 0x1A
 
     def write_ltc3350(self, reg_addr, wata):
         """ write regsiter value to charge IC LTC3350
@@ -409,7 +410,7 @@ if __name__ == "__main__":
     from UFT.devices.aardvark import pyaardvark
 
     adk = pyaardvark.Adapter()
-    # adk.open(portnum=0)
+    print adk.unique_id()
 
     barcode = "AGIGA9811-001BCA02143900000228-01"
     # # ch.init([barcode, "", "", ""])      # first one is valid.
@@ -436,12 +437,14 @@ if __name__ == "__main__":
 
     # print dut.check_power_fail()
     #dut.auto_discharge(True)
+
+
     VCAPFB_DAC_ADDR = 0x05
     VSHUNT_ADDR = 0x06
-    dut.charge(status=False)
+    dut.charge(status=True)
     print "ctl_reg:", bin(dut.read_ltc3350(0x17))
     # print "per:", dut.read_ltc3350(0x04)*10, "s"
-    print "vshunt:", dut.read_ltc3350(0x06)
+    print "vshunt:", dut.read_ltc3350(VSHUNT_ADDR)
     # print "num_caps:", dut.read_ltc3350(0x1A)
     print "vcapfb_dac:", dut.read_ltc3350(VCAPFB_DAC_ADDR)
 
@@ -454,7 +457,4 @@ if __name__ == "__main__":
     print "meas_Vcap:", dut.read_ltc3350(0x26)*0.001476, " V"
 
     print "chrg_status", bin(dut.read_ltc3350(0x1B))
-    # for i in range(0x00, 0x2A):
-    #     print hex(i), hex(self.read_ltc3350(i))
-
     adk.close()

@@ -95,7 +95,7 @@ class Channel(threading.Thread):
         # exit flag and queue for threading
         self.exit = False
         self.queue = Queue()
-
+        self.product_class = "Crystal"
         super(Channel, self).__init__(name=name)
 
     def init(self):
@@ -110,6 +110,7 @@ class Channel(threading.Thread):
                                slot=i,
                                barcode=bc)
                 if dut.partnumber in DIAMOND4_LIST:
+                    self.product_class = "Diamond4"
                     dut = Diamond4(device=self.adk,
                                    slot=i,
                                    barcode=bc)
@@ -168,7 +169,6 @@ class Channel(threading.Thread):
                 except:
                     #maybe dut has no power, doesn't response
                     pass
-
                 # disable charge
                 dut.charge(status=False)
 
@@ -197,6 +197,7 @@ class Channel(threading.Thread):
                 continue
             config = load_test_item(self.config_list[dut.slotnum],
                                     "Charge")
+            print dut.slotnum
             if (not config["enable"]):
                 continue
             if (config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):
@@ -889,19 +890,25 @@ class Channel(threading.Thread):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
 
-    barcode = ["AGIGA9603-004BCA02144800000002-06",
-               "AGIGA9603-004BCA02144800000002-06",
-               "AGIGA9603-004BCA02144800000002-06",
-               "AGIGA9603-004BCA02144800000002-06"]
+    # barcode = ["AGIGA9603-004BCA02144800000002-06",
+    #            "AGIGA9603-004BCA02144800000002-06",
+    #            "AGIGA9603-004BCA02144800000002-06",
+    #            "AGIGA9603-004BCA02144800000002-06"]
+    barcode = ["AGIGA9811-001BCA02143900000228-01"]
     ch = Channel(barcode_list=barcode, channel_id=0,
-                 name="UFT_CHANNEL")
-    #ch.start()
-    #ch.queue.put(ChannelStates.INIT)
-    #ch.queue.put(ChannelStates.CHARGE)
+                 name="UFT_CHANNEL", cable_barcodes_list=[""])
+    # ch.start()
+    ch.queue.put(ChannelStates.INIT)
+    # ch.queue.put(ChannelStates.CHARGE)
     #ch.queue.put(ChannelStates.PROGRAM_VPD)
     #ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
     #ch.queue.put(ChannelStates.CHECK_TEMP)
-    #ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    ch.queue.put(ChannelStates.LOAD_DISCHARGE)
     #ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
     #ch.queue.put(ChannelStates.EXIT)
     ch.auto_test()
+    # ch.switch_to_mb()
+    # ch.switch_to_dut(0)
+    # ch.init()
+    # ch.charge_dut()
+    # ch.discharge_dut()

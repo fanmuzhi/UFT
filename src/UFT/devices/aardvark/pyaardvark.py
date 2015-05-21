@@ -374,22 +374,27 @@ class Adapter(object):
 
 
 if __name__ == "__main__":
-    sn1 = 2237801787
-    a = Adapter(bitrate=400, serialnumber=sn1)
-    a.slave_addr = 0x09
-    # a.slave_addr = 0x53
-    a.open()
-    print a.unique_id_str()
-    # print "Port: " + str(a.port) + " |",
-    print "Handle: " + str(a.handle) + " |",
-    print "Slave: " + str(a.slave_addr) + " |",
-    print "Bitrate: " + str(a.bitrate)
-    # for i in range(256):
-    #    a.write_reg(i,i)
-    #    a.sleep(10)
-    # for i in range(256):
-    #    a.sleep(10)
-    #    print a.read_reg(i),
-    print a.read_reg(0x05)
-    a.close()
-    print "closed"
+    # sn1 = 2237892748
+    # a = Adapter(bitrate=400, port=0)
+    # a.slave_addr = 0x09
+    # # a.slave_addr = 0x53
+    # a.open()
+    # print a.unique_id_str()
+    # # print "Port: " + str(a.port) + " |",
+    # print "Handle: " + str(a.handle) + " |",
+    # print "Slave: " + str(a.slave_addr) + " |",
+    # print "Bitrate: " + str(a.bitrate)
+    #
+    # # a.slave_addr = 0x70 + 0x0 # 0111 0000
+    # # wdata = 0x00
+    #
+    # # Switch I2C connection to mother board
+    # # Need call this function every time before communicate with
+    # # mother board
+    # # a.write(wdata)
+    #
+    # # print a.read_reg(0x05)
+    # a.close()
+    # print "closed"
+    a = a = Adapter(bitrate=400)
+    print a.find_devices()

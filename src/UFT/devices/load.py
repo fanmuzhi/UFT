@@ -54,7 +54,7 @@ class DCLoad(object):
             logger.info("DC Load found: " + idn)
         else:
             logger.debug("unknown device found: " + idn)
-            raise DCLoadException("DC Load is not founded.")
+            raise DCLoadException("DC Load is not found.")
 
         # clean error
         self._write("SYST:ERR?")
@@ -151,9 +151,9 @@ class DCLoad(object):
 if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
-    load = DCLoad(port="COM5", timeout=3)
+    load = DCLoad(port="COM10", timeout=3)
 
-    for i in range(4):
+    for i in range(1):
         load.select_channel(i)
         load.input_off()
         load.protect_on()
