@@ -330,10 +330,11 @@ class PGEMBase(DUT):
         :return: temperature value
         """
         self.device.slave_addr = self.TEMP_SENSRO_ADDR
+        self.device.slave_addr = 0x1B
         # check device id
         val = self.device.read_reg(0x07, length=2)
         val = (val[0] << 8) + val[1]
-        assert val == 0xA203
+        # assert val == 0xA203
 
         # check temp value
         val = self.device.read_reg(0x05, length=2)
@@ -401,6 +402,11 @@ class Diamond4(PGEMBase):
             self.write_ltc3350(VSHUNT_ADDR, 0x0000)
             self.write_ltc3350(VCAPFB_DAC_ADDR, 0x0)
 
+    def meas_vcap(self):
+        val = self.read_ltc3350(0x26)*0.001476
+        # print val
+        return val
+
 
 if __name__ == "__main__":
     import time
@@ -441,7 +447,7 @@ if __name__ == "__main__":
 
     VCAPFB_DAC_ADDR = 0x05
     VSHUNT_ADDR = 0x06
-    dut.charge(status=True)
+    # dut.charge(status=False)
     print "ctl_reg:", bin(dut.read_ltc3350(0x17))
     # print "per:", dut.read_ltc3350(0x04)*10, "s"
     print "vshunt:", dut.read_ltc3350(VSHUNT_ADDR)
@@ -457,4 +463,7 @@ if __name__ == "__main__":
     print "meas_Vcap:", dut.read_ltc3350(0x26)*0.001476, " V"
 
     print "chrg_status", bin(dut.read_ltc3350(0x1B))
+
+    temp = dut.check_temp()
+    print "temp: ", temp
     adk.close()

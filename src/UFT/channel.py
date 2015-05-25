@@ -98,6 +98,13 @@ class Channel(threading.Thread):
         self.product_class = "Crystal"
         super(Channel, self).__init__(name=name)
 
+    def read_volt(self, dut):
+        if self.product_class == "Crystal":
+            val = self.ld.read_volt()
+        elif self.product_class == "Diamond4":
+            val = dut.meas_vcap()
+        return val
+
     def init(self):
         """ hardware initialize in when work loop starts.
         :return: None.
@@ -177,15 +184,20 @@ class Channel(threading.Thread):
                 self.auto_discharge(slot=dut.slotnum, status=True)
 
                 # empty the dut, one by one
+                self.switch_to_dut(dut.slotnum)
                 self.ld.select_channel(dut.slotnum)
-                val = self.ld.read_volt()
+                # self.switch_to_dut(dut.slotnum)
+                val = self.read_volt(dut)
                 if (val > START_VOLT):
                     self.ld.set_curr(self.current)
                     self.ld.input_on()
                     dut.status = DUT_STATUS.Discharging
                 while (val > START_VOLT):
+                    self.ps.setVolt(0.0)
+                    # val = self.read_volt(dut)
                     val = self.ld.read_volt()
                     time.sleep(INTERVAL)
+                self.ps.setVolt(PS_VOLT)
                 self.ld.input_off()
                 dut.status = DUT_STATUS.Idle
 
@@ -247,7 +259,7 @@ class Channel(threading.Thread):
                 self.counter += 1
 
                 self.ld.select_channel(dut.slotnum)
-                this_cycle.vcap = self.ld.read_volt()
+                this_cycle.vcap = self.read_volt(dut)
 
                 threshold = float(config["Threshold"].strip("aAvV"))
                 max_chargetime = config["max"]
@@ -333,7 +345,7 @@ class Channel(threading.Thread):
 
                 this_cycle.state = "discharge"
                 self.ld.select_channel(dut.slotnum)
-                this_cycle.vcap = self.ld.read_volt()
+                this_cycle.vcap = self.read_volt(dut)
                 self.counter += 1
 
                 threshold = float(config["Threshold"].strip("aAvV"))
@@ -412,7 +424,7 @@ class Channel(threading.Thread):
                 this_cycle.time = time.time()
                 this_cycle.state = "self_discharge"
                 self.ld.select_channel(dut.slotnum)
-                this_cycle.vcap = self.ld.read_volt()
+                this_cycle.vcap = self.read_volt(dut)
                 self.counter += 1
                 logger.info("dut: {0} status: {1} vcap: {2} "
                             "temp: {3} message: {4} ".
@@ -898,12 +910,12 @@ if __name__ == "__main__":
     ch = Channel(barcode_list=barcode, channel_id=0,
                  name="UFT_CHANNEL", cable_barcodes_list=[""])
     # ch.start()
-    ch.queue.put(ChannelStates.INIT)
+    # ch.queue.put(ChannelStates.INIT)
     # ch.queue.put(ChannelStates.CHARGE)
     #ch.queue.put(ChannelStates.PROGRAM_VPD)
     #ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
     #ch.queue.put(ChannelStates.CHECK_TEMP)
-    ch.queue.put(ChannelStates.LOAD_DISCHARGE)
+    # ch.queue.put(ChannelStates.LOAD_DISCHARGE)
     #ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
     #ch.queue.put(ChannelStates.EXIT)
     ch.auto_test()

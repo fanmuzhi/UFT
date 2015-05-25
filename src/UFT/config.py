@@ -20,7 +20,7 @@ TOTAL_SLOTNUM = 1
 INTERVAL = 2
 
 # DUT will discharge to start voltage before testing
-START_VOLT = 1.0
+START_VOLT = 4.0
 
 # power supply settings
 # node address and channel
@@ -38,7 +38,7 @@ ADK_PORT = 0
 
 # load Settings
 # load RS232 port
-LD_PORT = "COM14"
+LD_PORT = "COM21"
 LD_DELAY = 3
 
 # self discharge counter
