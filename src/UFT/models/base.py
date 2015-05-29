@@ -391,22 +391,30 @@ class Diamond4(PGEMBase):
         NUM_CAPS_ADDR = 0x1A
         CHRG_STATUS_ADDR = 0x1B
 
+        VCAPFB_DAC = 0xD
+
+        # self.write_ltc3350(CTL_REG_ADDR, 0x01)
         # check IC
         # logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
         if status:
-            self.write_ltc3350(CTL_REG_ADDR, 0x01)
             self.write_ltc3350(VSHUNT_ADDR, 0x3998)
-            self.write_ltc3350(VCAPFB_DAC_ADDR, 0xC)
+            self.write_ltc3350(VCAPFB_DAC_ADDR, VCAPFB_DAC)
         else:
             # stop charge
             self.write_ltc3350(VSHUNT_ADDR, 0x0000)
             self.write_ltc3350(VCAPFB_DAC_ADDR, 0x0)
+        self.write_ltc3350(0x17, 0x01)
 
     def meas_vcap(self):
-        val = self.read_ltc3350(0x26)*0.001476
+        val = self.read_ltc3350(0x26)*0.001465
         # print val
         return val
 
+    def meas_capacitor(self):
+        MEAS_CAP_ADDR = 0x1E
+        val = self.read_ltc3350(MEAS_CAP_ADDR)*591*330
+        logger.debug("meas_cap: ", val)
+        return val
 
 if __name__ == "__main__":
     import time

@@ -90,7 +90,7 @@ class Channel(threading.Thread):
         self.counter = 0
 
         # pre-discharge current, default to 0.8A
-        self.current = 0.8
+        self.current = 2.0
 
         # exit flag and queue for threading
         self.exit = False
@@ -103,6 +103,7 @@ class Channel(threading.Thread):
             val = self.ld.read_volt()
         elif self.product_class == "Diamond4":
             val = dut.meas_vcap()
+            dut.meas_capacitor()
         return val
 
     def init(self):
@@ -170,6 +171,7 @@ class Channel(threading.Thread):
         for dut in self.dut_list:
             if dut is not None:
                 self.switch_to_dut(dut.slotnum)
+                # dut.write_ltc3350(0x17, 0x01)
                 try:
                     # disable self discharge
                     dut.self_discharge(status=False)
@@ -186,18 +188,24 @@ class Channel(threading.Thread):
                 # empty the dut, one by one
                 self.switch_to_dut(dut.slotnum)
                 self.ld.select_channel(dut.slotnum)
-                # self.switch_to_dut(dut.slotnum)
-                val = self.read_volt(dut)
+                # val = self.read_volt(dut)
+                self.ps.setVolt(0.0)
+                time.sleep(1.5)
+                val = self.ld.read_volt()
                 if (val > START_VOLT):
+                    # self.ps.setVolt(0.0)
                     self.ld.set_curr(self.current)
                     self.ld.input_on()
+                    time.sleep(1.5)
                     dut.status = DUT_STATUS.Discharging
                 while (val > START_VOLT):
-                    self.ps.setVolt(0.0)
+                    # print "start_volt", val
+                    # self.ps.setVolt(0.0)
                     # val = self.read_volt(dut)
                     val = self.ld.read_volt()
                     time.sleep(INTERVAL)
                 self.ps.setVolt(PS_VOLT)
+                time.sleep(1.5)
                 self.ld.input_off()
                 dut.status = DUT_STATUS.Idle
 
@@ -318,6 +326,7 @@ class Channel(threading.Thread):
         # start discharge cycle
         all_discharged = False
         start_time = time.time()
+        self.ps.setVolt(0.0)
         while (not all_discharged):
             all_discharged = True
             for dut in self.dut_list:
@@ -346,6 +355,7 @@ class Channel(threading.Thread):
                 this_cycle.state = "discharge"
                 self.ld.select_channel(dut.slotnum)
                 this_cycle.vcap = self.read_volt(dut)
+                # this_cycle.vcap = self.ld.read_volt()
                 self.counter += 1
 
                 threshold = float(config["Threshold"].strip("aAvV"))
@@ -377,6 +387,7 @@ class Channel(threading.Thread):
                             format(dut.slotnum, dut.status, this_cycle.vcap,
                                    this_cycle.temp, dut.errormessage))
             time.sleep(INTERVAL)
+        self.ps.setVolt(PS_VOLT)
 
     def check_dut_discharge(self):
         """ check auto/self discharge function on each DUT.

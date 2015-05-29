@@ -8,7 +8,8 @@ __author__ = "@fanmuzhi, @boqiling"
 
 import sys
 #Projects PartNumber List
-DIAMOND4_LIST = ["AGIGA9811-001BCA"]
+DIAMOND4_LIST = ["AGIGA9811-001BCA",
+                 "AGIGA9811-001DCA"]
 
 # total slot number for one channel,
 # should be 4, 1 for debug
@@ -20,7 +21,7 @@ TOTAL_SLOTNUM = 1
 INTERVAL = 2
 
 # DUT will discharge to start voltage before testing
-START_VOLT = 4.0
+START_VOLT = 1.0
 
 # power supply settings
 # node address and channel
@@ -38,7 +39,7 @@ ADK_PORT = 0
 
 # load Settings
 # load RS232 port
-LD_PORT = "COM21"
+LD_PORT = "COM13"
 LD_DELAY = 3
 
 # self discharge counter
