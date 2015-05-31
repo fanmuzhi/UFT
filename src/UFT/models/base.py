@@ -101,12 +101,16 @@ class PGEMBase(DUT):
         datas = self.device.read_reg(start, length)
 
         if (typ == "word"):
-            val = datas[0] + (datas[1] << 8)
-            return val
+            val = 0
+            for i in range(0, len(datas)):
+                val += datas[i] << 8*i
         if (typ == "str"):
-            return ''.join(chr(i) for i in datas)
+            val = ''.join(chr(i) for i in datas)
         if (typ == "int"):
-            return datas[0]
+            val = 0
+            for i in range(0, len(datas)):
+                val += datas[i] << 8*i
+        return val
 
     def read_vpd(self):
         """method to read out EEPROM info from dut
@@ -116,7 +120,6 @@ class PGEMBase(DUT):
         for eep in EEP_MAP:
             reg_name = eep["name"]
             dut.update({reg_name.lower(): self.read_vpd_byname(reg_name)})
-
         # set self.values to write to database later.
         for k, v in dut.items():
             setattr(self, k, v)
