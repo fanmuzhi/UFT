@@ -343,4 +343,4 @@ if __name__ == "__main__":
     w.setupWidget(Form)
     w.show_image("../res/icons/despicableMe.jpg")
     Form.show()
-    sys.exit(a.exec_())  
+    sys.exit(a.exec_())

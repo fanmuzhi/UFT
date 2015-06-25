@@ -38,7 +38,6 @@ class MainWidget(QtGui.QWidget):
         self.ui.setupWidget(self)
         self.__setupSignal()
 
-
     def __setupSignal(self):
         """start_pushButton for log display test,
         to be changed as "start" function later

@@ -64,7 +64,6 @@ class Channel(threading.Thread):
     # setup main power supply
     ps = pwr.PowerSupply()
 
-
     def __init__(self, name, barcode_list, cable_barcodes_list, channel_id=0):
         """initialize channel
         :param name: thread name
@@ -196,7 +195,7 @@ class Channel(threading.Thread):
                     # disable self discharge
                     dut.self_discharge(status=False)
                 except:
-                    #maybe dut has no power, doesn't response
+                    # maybe dut has no power, doesn't response
                     pass
                 # disable charge
                 dut.charge(status=False)
@@ -301,7 +300,7 @@ class Channel(threading.Thread):
                     dut.errormessage = "Charge Time Too Long."
                 elif (this_cycle.vcap > threshold):
                     all_charged &= True
-                    #dut.charge(status=False)
+                    # dut.charge(status=False)
                     if (charge_time < min_chargetime):
                         dut.status = DUT_STATUS.Fail
                         dut.errormessage = "Charge Time Too Short."
@@ -651,7 +650,7 @@ class Channel(threading.Thread):
         chnum = self.channel
         self.adk.slave_addr = 0x20 + chnum
         REG_INPUT = 0x00
-        #REG_OUTPUT = 0x02
+        # REG_OUTPUT = 0x02
         REG_CONFIG = 0x06
         # config PIO-0 to output and PIO-1 to input
         # first PIO-0 then PIO-1
@@ -909,7 +908,7 @@ class Channel(threading.Thread):
         self.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
         self.queue.put(ChannelStates.CHECK_TEMP)
         self.queue.put(ChannelStates.CHECK_POWER_FAIL)
-        #self.queue.put(ChannelStates.DUT_DISCHARGE)
+        # self.queue.put(ChannelStates.DUT_DISCHARGE)
         self.queue.put(ChannelStates.LOAD_DISCHARGE)
         self.queue.put(ChannelStates.CHECK_CAPACITANCE)
         self.queue.put(ChannelStates.EXIT)
@@ -943,12 +942,12 @@ if __name__ == "__main__":
     # ch.start()
     # ch.queue.put(ChannelStates.INIT)
     # ch.queue.put(ChannelStates.CHARGE)
-    #ch.queue.put(ChannelStates.PROGRAM_VPD)
-    #ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
-    #ch.queue.put(ChannelStates.CHECK_TEMP)
+    # ch.queue.put(ChannelStates.PROGRAM_VPD)
+    # ch.queue.put(ChannelStates.CHECK_ENCRYPTED_IC)
+    # ch.queue.put(ChannelStates.CHECK_TEMP)
     # ch.queue.put(ChannelStates.LOAD_DISCHARGE)
-    #ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
-    #ch.queue.put(ChannelStates.EXIT)
+    # ch.queue.put(ChannelStates.CHECK_CAPACITANCE)
+    # ch.queue.put(ChannelStates.EXIT)
     ch.auto_test()
     # ch.switch_to_mb()
     # ch.switch_to_dut(0)

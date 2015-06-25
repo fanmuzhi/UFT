@@ -55,6 +55,7 @@ class PGEMBase(DUT):
     """PGEM Base Class, All models should be inheret from this base class.
     """
     TEMP_SENSRO_ADDR = 0x1B
+
     def __init__(self, device, barcode, **kvargs):
         # slot number for dut on fixture location.
         # from 0 to 3, totally 4 slots in UFT
@@ -103,13 +104,13 @@ class PGEMBase(DUT):
         if (typ == "word"):
             val = 0
             for i in range(0, len(datas)):
-                val += datas[i] << 8*i
+                val += datas[i] << 8 * i
         if (typ == "str"):
             val = ''.join(chr(i) for i in datas)
         if (typ == "int"):
             val = 0
             for i in range(0, len(datas)):
-                val += datas[i] << 8*i
+                val += datas[i] << 8 * i
         return val
 
     def read_vpd(self):
@@ -264,8 +265,6 @@ class PGEMBase(DUT):
         val = (ata_in[1] << 8) + ata_in[0]
         return val
 
-
-
     def charge(self, status=True, **kvargs):
         """Send charge option to charge IC to start the charge.
         Charge IC BQ24707 is used as default.
@@ -348,8 +347,6 @@ class PGEMBase(DUT):
         return temp
 
 
-
-
 class Diamond4(PGEMBase):
     """
     PGEM with LTC3350 Charge IC used instead of BQ24707 class.
@@ -404,31 +401,31 @@ class Diamond4(PGEMBase):
             # start charge
             # convert options from string to int
             for k, v in option.items():
-                if k in ["vcapfb_dac", "vshunt",]:
+                if k in ["vcapfb_dac", "vshunt", ]:
                     option[k] = int(v, 0)
             # write options
             vcapfb_dac = option["vcapfb_dac"]  # 0xC or 0xD or 0xE
-            vshunt = option["vshunt"] #0x3998
+            vshunt = option["vshunt"]  # 0x3998
             self.write_ltc3350(VSHUNT_ADDR, vshunt)
             self.write_ltc3350(VCAPFB_DAC_ADDR, vcapfb_dac)
         else:
             # stop charge
             self.write_ltc3350(VSHUNT_ADDR, 0x0000)
             self.write_ltc3350(VCAPFB_DAC_ADDR, 0x0)
-        # self.write_ltc3350(0x17, 0x01)
-        # self.write_ltc3350(0x02, 0x78)
-
+            # self.write_ltc3350(0x17, 0x01)
+            # self.write_ltc3350(0x02, 0x78)
 
     def meas_vcap(self):
-        val = self.read_ltc3350(0x26)*0.001465
+        val = self.read_ltc3350(0x26) * 0.001465
         # print val
         return val
 
     def meas_capacitor(self):
         MEAS_CAP_ADDR = 0x1E
-        val = self.read_ltc3350(MEAS_CAP_ADDR)*591*330
+        val = self.read_ltc3350(MEAS_CAP_ADDR) * 591 * 330
         # print val
         return val
+
 
 if __name__ == "__main__":
     import time
@@ -464,7 +461,7 @@ if __name__ == "__main__":
     # dut.self_discharge(True)
 
     # print dut.check_power_fail()
-    #dut.auto_discharge(True)
+    # dut.auto_discharge(True)
 
 
     VCAPFB_DAC_ADDR = 0x05
@@ -476,13 +473,13 @@ if __name__ == "__main__":
     # print "num_caps:", dut.read_ltc3350(0x1A)
     print "vcapfb_dac:", dut.read_ltc3350(VCAPFB_DAC_ADDR)
 
-    print "meas_cap", dut.read_ltc3350(0x1E)*591*330, "uF"
-    print "meas_Vin:", dut.read_ltc3350(0x25)*0.00221, " V"
-    print "meas_Vout:", dut.read_ltc3350(0x27)*0.00221, " V"
-    print "meas_Vcap1:", dut.read_ltc3350(0x20)*0.0001835, " V"
-    print "meas_Vcap2:", dut.read_ltc3350(0x21)*0.0001835, " V"
-    print "meas_Vcap3:", dut.read_ltc3350(0x22)*0.0001835, " V"
-    print "meas_Vcap:", dut.read_ltc3350(0x26)*0.001476, " V"
+    print "meas_cap", dut.read_ltc3350(0x1E) * 591 * 330, "uF"
+    print "meas_Vin:", dut.read_ltc3350(0x25) * 0.00221, " V"
+    print "meas_Vout:", dut.read_ltc3350(0x27) * 0.00221, " V"
+    print "meas_Vcap1:", dut.read_ltc3350(0x20) * 0.0001835, " V"
+    print "meas_Vcap2:", dut.read_ltc3350(0x21) * 0.0001835, " V"
+    print "meas_Vcap3:", dut.read_ltc3350(0x22) * 0.0001835, " V"
+    print "meas_Vcap:", dut.read_ltc3350(0x26) * 0.001476, " V"
 
     print "chrg_status", bin(dut.read_ltc3350(0x1B))
 

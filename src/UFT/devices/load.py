@@ -34,7 +34,6 @@ class DCLoad(object):
     # 3A for MIN, 30A for MAX
     CC_Range = {"MAX": 30, "MIN": 3}
 
-
     def __init__(self, port='COM0', baudrate=9600, **kvargs):
         timeout = kvargs.get('timeout', 5)
         parity = kvargs.get('parity', serial.PARITY_NONE)
@@ -162,7 +161,7 @@ if __name__ == "__main__":
         load.set_curr(0.8)
 
         # load.change_func(DCLoad.ModeRes)
-        #load.set_res(20)     # 20 ohm
+        # load.set_res(20)     # 20 ohm
 
         load.input_on()
 

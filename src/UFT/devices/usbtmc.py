@@ -527,4 +527,3 @@ class Instrument(object):
                 return None
         else:
             raise NotImplementedError()
-

@@ -313,7 +313,6 @@ class Adapter(object):
         if (num_written != length):
             raise_aa_ex(-103)
 
-
     def read(self, length, config=I2CConfig.AA_I2C_NO_FLAGS):
         '''read 1 byte from slave address
         '''

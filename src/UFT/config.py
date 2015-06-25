@@ -7,7 +7,7 @@ __version__ = "0.1"
 __author__ = "@fanmuzhi, @boqiling"
 
 import sys
-#Projects PartNumber List
+# Projects PartNumber List
 DIAMOND4_LIST = ["AGIGA9811-001BCA",
                  "AGIGA9811-001DCA",
                  "AGIGA9801-004BCA"]
@@ -49,15 +49,15 @@ SD_COUNTER = 10
 # database settings
 # database for dut test result
 # RESULT_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem.db"
-#RESULT_DB = "sqlite:///C:\\UFT\\db\\pgem.db"
+# RESULT_DB = "sqlite:///C:\\UFT\\db\\pgem.db"
 
 if hasattr(sys, "frozen"):
     RESULT_DB = "./db/pgem.db"
 else:
     RESULT_DB = "C:\\UFT\\db\\pgem.db"
 # database for dut configuration
-#CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
-#CONFIG_DB = "sqlite:///C:\\UFT\\db\\pgem_config.db"
+# CONFIG_DB = "sqlite:////home/qibo/pyprojects/UFT/test/pgem_config.db"
+# CONFIG_DB = "sqlite:///C:\\UFT\\db\\pgem_config.db"
 
 if hasattr(sys, "frozen"):
     CONFIG_DB = "./db/pgem_config.db"

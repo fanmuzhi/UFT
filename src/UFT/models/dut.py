@@ -12,7 +12,7 @@ __all__ = ["PGEMBase"]
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Float
 # from sqlalchemy import create_engine
-#from sqlalchemy.orm import sessionmaker
+# from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -64,7 +64,7 @@ class DUT(SQLBase):
     errormessage = Column(String(20))
     testdate = Column(DateTime, default=datetime.datetime.utcnow)
 
-    #DUT is one to many class refer to Cycles
+    # DUT is one to many class refer to Cycles
     cycles = relationship("Cycle")
 
     def to_dict(self):
@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
         print dut.sn
 
-        #dut.__dict__.update({"sn": "12345", "slotnum": 7})
+        # dut.__dict__.update({"sn": "12345", "slotnum": 7})
         d = {"status": DUT_STATUS.Idle, "slotnum": 2}
         for k, v in d.items():
             setattr(dut, k, v)
