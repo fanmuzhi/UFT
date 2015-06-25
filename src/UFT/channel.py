@@ -103,13 +103,33 @@ class Channel(threading.Thread):
             val = self.ld.read_volt()
         elif self.product_class == "Diamond4":
             val = dut.meas_vcap()
-            dut.meas_capacitor()
         return val
 
     def init(self):
         """ hardware initialize in when work loop starts.
         :return: None.
         """
+        # setup power supply
+        self.ps.selectChannel(node=PS_ADDR, ch=PS_CHAN)
+
+        setting = {"volt": PS_VOLT, "curr": PS_CURR,
+                   "ovp": PS_OVP, "ocp": PS_OCP}
+        self.ps.set(setting)
+        self.ps.activateOutput()
+        time.sleep(2.5)
+        volt = self.ps.measureVolt()
+        curr = self.ps.measureCurr()
+        if not ((PS_VOLT - 1) < volt < (PS_VOLT + 1)):
+            self.ps.setVolt(0.0)
+            logging.error("Power Supply Voltage {0} "
+                          "is not in range".format(volt))
+            raise AssertionError("Power supply voltage is not in range")
+        if not (curr >= 0):
+            self.ps.setVolt(0.0)
+            logging.error("Power Supply Current {0} "
+                          "is not in range".format(volt))
+            raise AssertionError("Power supply current is not in range")
+        self.ps.setVolt(0.0)
         # setup dut_list
         for i, bc in enumerate(self.barcode_list):
             if bc != "":
@@ -141,24 +161,24 @@ class Channel(threading.Thread):
             self.ld.protect_on()
             self.ld.change_func(load.DCLoad.ModeCURR)
 
-        # setup power supply
-        self.ps.selectChannel(node=PS_ADDR, ch=PS_CHAN)
-
-        setting = {"volt": PS_VOLT, "curr": PS_CURR,
-                   "ovp": PS_OVP, "ocp": PS_OCP}
-        self.ps.set(setting)
-        self.ps.activateOutput()
-        time.sleep(1.5)
-        volt = self.ps.measureVolt()
-        curr = self.ps.measureCurr()
-        if not ((PS_VOLT - 1) < volt < (PS_VOLT + 1)):
-            logging.error("Power Supply Voltage {0} "
-                          "is not in range".format(volt))
-            raise AssertionError("Power supply voltage is not in range")
-        if not (curr >= 0):
-            logging.error("Power Supply Current {0} "
-                          "is not in range".format(volt))
-            raise AssertionError("Power supply current is not in range")
+        # # setup power supply
+        # self.ps.selectChannel(node=PS_ADDR, ch=PS_CHAN)
+        #
+        # setting = {"volt": PS_VOLT, "curr": PS_CURR,
+        #            "ovp": PS_OVP, "ocp": PS_OCP}
+        # self.ps.set(setting)
+        # self.ps.activateOutput()
+        # time.sleep(1.5)
+        # volt = self.ps.measureVolt()
+        # curr = self.ps.measureCurr()
+        # if not ((PS_VOLT - 1) < volt < (PS_VOLT + 1)):
+        #     logging.error("Power Supply Voltage {0} "
+        #                   "is not in range".format(volt))
+        #     raise AssertionError("Power supply voltage is not in range")
+        # if not (curr >= 0):
+        #     logging.error("Power Supply Current {0} "
+        #                   "is not in range".format(volt))
+        #     raise AssertionError("Power supply current is not in range")
 
         # reset DUT
         self.reset_dut()
@@ -217,7 +237,7 @@ class Channel(threading.Thread):
                 continue
             config = load_test_item(self.config_list[dut.slotnum],
                                     "Charge")
-            print dut.slotnum
+            # print dut.slotnum
             if (not config["enable"]):
                 continue
             if (config["stoponfail"]) & (dut.status != DUT_STATUS.Idle):

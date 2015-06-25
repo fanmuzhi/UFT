@@ -34,7 +34,7 @@ EEP_MAP = [{"name": "TEMPHIST", "addr": 0x000, "length": 2, "type": "int"},
            # PCA, need program, default all 0
            {"name": "PCA", "addr": 0x06C, "length": 11, "type": "str"},
            {"name": "INITIALCAP", "addr": 0x077, "length": 1, "type": "int"},
-           {"name": "PGEMID", "addr": 0x078, "length": 1, "type": "str"},
+           {"name": "PGEMID", "addr": 0x080, "length": 1, "type": "str"},
            ]
 
 # PGEM ID write to saphire.
@@ -394,19 +394,30 @@ class Diamond4(PGEMBase):
         NUM_CAPS_ADDR = 0x1A
         CHRG_STATUS_ADDR = 0x1B
 
-        VCAPFB_DAC = 0xD
+        # VCAPFB_DAC = 0xD
 
         # self.write_ltc3350(CTL_REG_ADDR, 0x01)
         # check IC
         # logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
         if status:
-            self.write_ltc3350(VSHUNT_ADDR, 0x3998)
-            self.write_ltc3350(VCAPFB_DAC_ADDR, VCAPFB_DAC)
+            option = kvargs.get("option")
+            # start charge
+            # convert options from string to int
+            for k, v in option.items():
+                if k in ["vcapfb_dac", "vshunt",]:
+                    option[k] = int(v, 0)
+            # write options
+            vcapfb_dac = option["vcapfb_dac"]  # 0xC or 0xD or 0xE
+            vshunt = option["vshunt"] #0x3998
+            self.write_ltc3350(VSHUNT_ADDR, vshunt)
+            self.write_ltc3350(VCAPFB_DAC_ADDR, vcapfb_dac)
         else:
             # stop charge
             self.write_ltc3350(VSHUNT_ADDR, 0x0000)
             self.write_ltc3350(VCAPFB_DAC_ADDR, 0x0)
-        self.write_ltc3350(0x17, 0x01)
+        # self.write_ltc3350(0x17, 0x01)
+        # self.write_ltc3350(0x02, 0x78)
+
 
     def meas_vcap(self):
         val = self.read_ltc3350(0x26)*0.001465
@@ -416,7 +427,7 @@ class Diamond4(PGEMBase):
     def meas_capacitor(self):
         MEAS_CAP_ADDR = 0x1E
         val = self.read_ltc3350(MEAS_CAP_ADDR)*591*330
-        logger.debug("meas_cap: ", val)
+        # print val
         return val
 
 if __name__ == "__main__":

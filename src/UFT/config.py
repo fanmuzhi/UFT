@@ -9,7 +9,8 @@ __author__ = "@fanmuzhi, @boqiling"
 import sys
 #Projects PartNumber List
 DIAMOND4_LIST = ["AGIGA9811-001BCA",
-                 "AGIGA9811-001DCA"]
+                 "AGIGA9811-001DCA",
+                 "AGIGA9801-004BCA"]
 
 # total slot number for one channel,
 # should be 4, 1 for debug
@@ -39,7 +40,7 @@ ADK_PORT = 0
 
 # load Settings
 # load RS232 port
-LD_PORT = "COM13"
+LD_PORT = "COM5"
 LD_DELAY = 3
 
 # self discharge counter
