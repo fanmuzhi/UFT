@@ -332,7 +332,7 @@ class PGEMBase(DUT):
         :return: temperature value
         """
         self.device.slave_addr = self.TEMP_SENSRO_ADDR
-        self.device.slave_addr = 0x1B
+        # self.device.slave_addr = 0x1B
         # check device id
         val = self.device.read_reg(0x07, length=2)
         val = (val[0] << 8) + val[1]
@@ -355,7 +355,7 @@ class Diamond4(PGEMBase):
     def __init__(self, device, barcode, **kvargs):
         super(Diamond4, self).__init__(device, barcode, **kvargs)
         logger.debug("LTC3350 Charge IC used instead of BQ24707, unknown ID")
-        self.TEMP_SENSRO_ADDR = 0x1A
+        # self.TEMP_SENSRO_ADDR = 0x1A
 
     def write_ltc3350(self, reg_addr, wata):
         """ write regsiter value to charge IC LTC3350

@@ -40,7 +40,7 @@ ADK_PORT = 0
 
 # load Settings
 # load RS232 port
-LD_PORT = "COM5"
+LD_PORT = "COM20"
 LD_DELAY = 3
 
 # self discharge counter
