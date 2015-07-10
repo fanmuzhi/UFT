@@ -334,8 +334,8 @@ class PGEMBase(DUT):
         self.device.slave_addr = self.TEMP_SENSRO_ADDR
         # self.device.slave_addr = 0x1B
         # check device id
-        val = self.device.read_reg(0x07, length=2)
-        val = (val[0] << 8) + val[1]
+        # val = self.device.read_reg(0x07, length=2)
+        # val = (val[0] << 8) + val[1]
         # assert val == 0xA203
 
         # check temp value
