@@ -115,7 +115,7 @@ class Channel(threading.Thread):
                    "ovp": PS_OVP, "ocp": PS_OCP}
         self.ps.set(setting)
         self.ps.activateOutput()
-        time.sleep(2.5)
+        time.sleep(8)
         volt = self.ps.measureVolt()
         curr = self.ps.measureCurr()
         if not ((PS_VOLT - 1) < volt < (PS_VOLT + 1)):
@@ -128,7 +128,7 @@ class Channel(threading.Thread):
             logging.error("Power Supply Current {0} "
                           "is not in range".format(volt))
             raise AssertionError("Power supply current is not in range")
-        self.ps.setVolt(0.0)
+
         # setup dut_list
         for i, bc in enumerate(self.barcode_list):
             if bc != "":
@@ -180,7 +180,8 @@ class Channel(threading.Thread):
         #     raise AssertionError("Power supply current is not in range")
 
         # reset DUT
-        self.reset_dut()
+        # self.ps.setVolt(0.0)
+        # self.reset_dut()
 
     def reset_dut(self):
         """disable all charge and self-discharge, enable auto-discharge.
@@ -254,6 +255,8 @@ class Channel(threading.Thread):
             # start charge
             dut.charge(option=config, status=True)
             dut.status = DUT_STATUS.Charging
+            # dut.write_ltc3350(0x02, 0x78)
+            # dut.write_ltc3350(0x17, 0x01)
 
         all_charged = False
         self.counter = 0
@@ -359,7 +362,8 @@ class Channel(threading.Thread):
                         (dut.status != DUT_STATUS.Discharging):
                     continue
                 self.switch_to_dut(dut.slotnum)
-
+                # cap_in_ltc = dut.meas_capacitor()
+                # print cap_in_ltc
                 this_cycle = Cycle()
                 this_cycle.vin = self.ps.measureVolt()
                 try:
@@ -746,9 +750,11 @@ class Channel(threading.Thread):
                               / (pre_vcap - cur_vcap)
                         cap_list.append(cap)
             if (len(cap_list) > 0):
+                # for i in range(len(cap_list)):
+                #     print cap_list[i],
                 capacitor = sum(cap_list) / float(len(cap_list))
                 dut.capacitance_measured = capacitor
-                logger.debug(cap_list)
+                # logger.debug(cap_list)
             else:
                 dut.capacitance_measured = 0
             if not (config["min"] < dut.capacitance_measured < config["max"]):

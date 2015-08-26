@@ -331,8 +331,9 @@ class PGEMBase(DUT):
         """check temperature on SE97B of DUT.
         :return: temperature value
         """
-        self.device.slave_addr = self.TEMP_SENSRO_ADDR
-        # self.device.slave_addr = 0x1B
+        # self.device.slave_addr = self.TEMP_SENSRO_ADDR
+        self.device.slave_addr = 0x1B
+        # self.device.slave_addr = 0x1A
         # check device id
         # val = self.device.read_reg(0x07, length=2)
         # val = (val[0] << 8) + val[1]
@@ -366,6 +367,10 @@ class Diamond4(PGEMBase):
 
         # write first low 8bits, then high 8bits
         self.device.write_reg(reg_addr, [wata & 0x00FF, wata >> 8])
+
+    def start_cap_meas(self):
+        self.device.slave_addr = 0x09
+        self.device.write_reg(0x17, 0x01)
 
     def read_ltc3350(self, reg_addr):
         """read register value from charge IC LTC3350
@@ -408,12 +413,12 @@ class Diamond4(PGEMBase):
             vshunt = option["vshunt"]  # 0x3998
             self.write_ltc3350(VSHUNT_ADDR, vshunt)
             self.write_ltc3350(VCAPFB_DAC_ADDR, vcapfb_dac)
+            # self.write_ltc3350(0x02, 0x78)
+            # self.write_ltc3350(0x17, 0x01)
         else:
             # stop charge
             self.write_ltc3350(VSHUNT_ADDR, 0x0000)
             self.write_ltc3350(VCAPFB_DAC_ADDR, 0x0)
-            # self.write_ltc3350(0x17, 0x01)
-            # self.write_ltc3350(0x02, 0x78)
 
     def meas_vcap(self):
         val = self.read_ltc3350(0x26) * 0.001465
@@ -435,6 +440,10 @@ if __name__ == "__main__":
     from UFT.devices.aardvark import pyaardvark
 
     adk = pyaardvark.Adapter()
+    adk.slave_addr = 0x70 + 0x00  # 0111 0000
+    wdata = [0x01 << 0]
+    adk.write(wdata)
+
     print adk.unique_id()
 
     barcode = "AGIGA9811-001BCA02143900000228-01"
@@ -463,16 +472,17 @@ if __name__ == "__main__":
     # print dut.check_power_fail()
     # dut.auto_discharge(True)
 
-
     VCAPFB_DAC_ADDR = 0x05
     VSHUNT_ADDR = 0x06
     # dut.charge(status=False)
+    # dut.write_ltc3350(0x02, 0x78)
+    # dut.write_ltc3350(0x17, 0x01)
+    # dut.start_cap_meas()
     print "ctl_reg:", bin(dut.read_ltc3350(0x17))
     # print "per:", dut.read_ltc3350(0x04)*10, "s"
     print "vshunt:", dut.read_ltc3350(VSHUNT_ADDR)
     # print "num_caps:", dut.read_ltc3350(0x1A)
     print "vcapfb_dac:", dut.read_ltc3350(VCAPFB_DAC_ADDR)
-
     print "meas_cap", dut.read_ltc3350(0x1E) * 591 * 330, "uF"
     print "meas_Vin:", dut.read_ltc3350(0x25) * 0.00221, " V"
     print "meas_Vout:", dut.read_ltc3350(0x27) * 0.00221, " V"
